@@ -1,0 +1,23 @@
+server:
+  port: ${PORT:8080}
+
+spring:
+  application:
+    name: web-tu-thien
+  datasource:
+    url: jdbc:h2:mem:webtuthien;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE;DEFAULT_NULL_ORDERING=HIGH
+    driver-class-name: org.h2.Driver
+    username: sa
+    password: ""
+  sql:
+    init:
+      mode: always
+      continue-on-error: true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+
+

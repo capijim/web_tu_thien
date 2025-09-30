@@ -1,0 +1,24 @@
+server:
+  port: ${PORT:8080}
+
+spring:
+  application:
+    name: web-tu-thien
+  datasource:
+    url: jdbc:mysql://localhost:3306/web_tu_thien?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    username: root
+    password: 
+  sql:
+    init:
+      mode: always
+      continue-on-error: true
+      schema-locations: classpath:schema-mysql.sql
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+
+
