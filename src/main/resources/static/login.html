@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Web Từ Thiện</title>
+    <title>Đăng nhập - Web Từ Thiện</title>
     <link rel="stylesheet" href="/css/style.css" />
   </head>
   <body>
@@ -38,31 +38,34 @@
 
     <section class="hero">
       <div class="container inner">
-        <h1>Cùng lan tỏa yêu thương</h1>
-        <p>Nơi kết nối tấm lòng hảo tâm đến những hoàn cảnh cần giúp đỡ.</p>
+        <h1>Đăng nhập</h1>
+        <p class="muted">Đăng nhập để quản lý tài khoản của bạn.</p>
       </div>
     </section>
 
     <main class="container">
-      <div class="grid">
-        <div class="card">
-          <h3>Về dự án</h3>
-          <p class="muted">Kết nối tấm lòng hảo tâm đến những hoàn cảnh khó khăn.</p>
-        </div>
-        <div class="card">
-          <h3>Ủng hộ</h3>
-          <p class="muted">Chung tay lan tỏa yêu thương đến cộng đồng.</p>
-          <p><a class="cta" href="/donate.html">Ủng hộ ngay</a></p>
-        </div>
-        <div class="card">
-          <h3>Minh bạch</h3>
-          <p class="muted">Danh sách ủng hộ được cập nhật theo thời gian thực.</p>
-        </div>
+      <div class="auth-container">
+        <form id="login-form" class="auth-form">
+          <h2 class="section-title">Đăng nhập tài khoản</h2>
+          
+          <div id="error-message" class="error-message" style="display: none;"></div>
+          
+          <label for="email">Email</label>
+          <input id="email" name="email" type="email" required placeholder="Nhập email của bạn" />
+
+          <label for="password">Mật khẩu</label>
+          <input id="password" name="password" type="password" required placeholder="Nhập mật khẩu" />
+
+          <button type="submit">Đăng nhập</button>
+          
+          <div class="auth-links">
+            <p>Chưa có tài khoản? <a href="/register.html">Đăng ký ngay</a></p>
+            <p><a href="/">← Về trang chủ</a></p>
+          </div>
+        </form>
       </div>
     </main>
 
     <script src="/js/auth.js"></script>
   </body>
-  </html>
-
-
+</html>

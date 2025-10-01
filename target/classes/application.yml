@@ -5,14 +5,23 @@ spring:
   application:
     name: web-tu-thien
   datasource:
-    url: jdbc:h2:mem:webtuthien;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE;DEFAULT_NULL_ORDERING=HIGH
-    driver-class-name: org.h2.Driver
-    username: sa
-    password: ""
+    url: jdbc:mysql://localhost:3306/web_tu_thien?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    username: root
+    password: 
   sql:
     init:
       mode: always
       continue-on-error: true
+      schema-locations: classpath:schema-mysql.sql
+  session:
+    store-type: none
+    timeout: 30m
+    cookie:
+      name: JSESSIONID
+      http-only: true
+      secure: false
+      max-age: 1800
 
 management:
   endpoints:

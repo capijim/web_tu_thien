@@ -2,6 +2,7 @@ async function fetchDonations() {
   const res = await fetch('/api/donations');
   const data = await res.json();
   const tbody = document.getElementById('donations-body');
+  if (!tbody) return; // not on donations list page
   tbody.innerHTML = '';
   data.forEach(d => {
     const tr = document.createElement('tr');
@@ -22,24 +23,27 @@ function escapeHtml(str) {
     .replaceAll("'", '&#039;');
 }
 
-document.getElementById('donation-form').addEventListener('submit', async (e) => {
-  e.preventDefault();
-  const donorName = document.getElementById('donorName').value.trim();
-  const amount = document.getElementById('amount').value;
-  const message = document.getElementById('message').value;
-  const res = await fetch('/api/donations', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ donorName, amount, message })
+const donationForm = document.getElementById('donation-form');
+if (donationForm) {
+  donationForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const donorName = document.getElementById('donorName').value.trim();
+    const amount = document.getElementById('amount').value;
+    const message = document.getElementById('message').value;
+    const res = await fetch('/api/donations', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ donorName, amount, message })
+    });
+    if (res.ok) {
+      donationForm.reset();
+      fetchDonations();
+    } else {
+      const text = await res.text();
+      alert('Lỗi: ' + text);
+    }
   });
-  if (res.ok) {
-    document.getElementById('donation-form').reset();
-    fetchDonations();
-  } else {
-    const text = await res.text();
-    alert('Lỗi: ' + text);
-  }
-});
+}
 
 fetchDonations();
 

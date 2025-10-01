@@ -1,0 +1,6 @@
+org\example\webtuthien\donation\DonationRepository.class
+org\example\webtuthien\donation\DonationService.class
+org\example\webtuthien\WebTuThienApplication.class
+org\example\webtuthien\donation\Donation.class
+org\example\webtuthien\donation\DonationRepository$1.class
+org\example\webtuthien\donation\DonationController.class

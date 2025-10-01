@@ -14,6 +14,14 @@ spring:
       mode: always
       continue-on-error: true
       schema-locations: classpath:schema-mysql.sql
+  session:
+    store-type: none
+    timeout: 30m
+    cookie:
+      name: JSESSIONID
+      http-only: true
+      secure: false
+      max-age: 1800
 
 management:
   endpoints:
