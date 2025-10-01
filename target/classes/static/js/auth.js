@@ -7,8 +7,7 @@ class AuthManager {
     init() {
         this.setupEventListeners();
         this.checkAuthStatus();
-        this.setupMobileMenu();
-        this.setupScrollBehavior();
+        // Mobile menu and scroll behavior are now handled by headbar.js
     }
 
     setupEventListeners() {
@@ -150,37 +149,46 @@ class AuthManager {
         }
     }
 
+    // Wait for headbar to be loaded before updating navigation
     updateNavigation(isAuthenticated, user = null) {
-        const authSection = document.querySelector('.auth-section');
-        if (!authSection) return;
+        // Wait a bit for headbar to load
+        setTimeout(() => {
+            const authSection = document.querySelector('.auth-section');
+            if (!authSection) {
+                // Retry after a short delay
+                setTimeout(() => this.updateNavigation(isAuthenticated, user), 200);
+                return;
+            }
 
-        // Clear existing auth content
-        authSection.innerHTML = '';
+            // Clear existing auth content
+            authSection.innerHTML = '';
 
-        if (isAuthenticated && user) {
-            // Add user menu
-            const userMenu = document.createElement('div');
-            userMenu.className = 'user-menu';
-            userMenu.innerHTML = `
-                <span class="user-name">Xin chào, ${user.name}</span>
-                <a href="#" id="logout-btn" class="logout-link">Đăng xuất</a>
-            `;
-            authSection.appendChild(userMenu);
-        } else {
-            // Add login/register links
-            const loginLink = document.createElement('a');
-            loginLink.className = 'auth-link';
-            loginLink.href = '/login.html';
-            loginLink.textContent = 'Đăng nhập';
-            authSection.appendChild(loginLink);
+            if (isAuthenticated && user) {
+                // Add user menu
+                const userMenu = document.createElement('div');
+                userMenu.className = 'user-menu';
+                userMenu.innerHTML = `
+                    <span class="user-name">Xin chào, ${user.name}</span>
+                    <a href="#" id="logout-btn" class="logout-link">Đăng xuất</a>
+                `;
+                authSection.appendChild(userMenu);
+            } else {
+                // Add login/register links
+                const loginLink = document.createElement('a');
+                loginLink.className = 'auth-link';
+                loginLink.href = '/login.html';
+                loginLink.textContent = 'Đăng nhập';
+                authSection.appendChild(loginLink);
 
-            const registerLink = document.createElement('a');
-            registerLink.className = 'auth-link primary';
-            registerLink.href = '/register.html';
-            registerLink.textContent = 'Đăng ký';
-            authSection.appendChild(registerLink);
-        }
+                const registerLink = document.createElement('a');
+                registerLink.className = 'auth-link primary';
+                registerLink.href = '/register.html';
+                registerLink.textContent = 'Đăng ký';
+                authSection.appendChild(registerLink);
+            }
+        }, 100);
     }
+
 
     showMessage(type, message) {
         const errorDiv = document.getElementById('error-message');
@@ -212,85 +220,6 @@ class AuthManager {
         }
     }
 
-    setupMobileMenu() {
-        const mobileToggle = document.getElementById('mobile-menu-toggle');
-        const nav = document.querySelector('.headbar-nav');
-        
-        if (mobileToggle && nav) {
-            mobileToggle.addEventListener('click', () => {
-                mobileToggle.classList.toggle('active');
-                nav.classList.toggle('active');
-            });
-
-            // Close mobile menu when clicking on nav links
-            const navLinks = nav.querySelectorAll('.nav-link');
-            navLinks.forEach(link => {
-                link.addEventListener('click', () => {
-                    mobileToggle.classList.remove('active');
-                    nav.classList.remove('active');
-                });
-            });
-
-            // Close mobile menu when clicking outside
-            document.addEventListener('click', (e) => {
-                if (!mobileToggle.contains(e.target) && !nav.contains(e.target)) {
-                    mobileToggle.classList.remove('active');
-                    nav.classList.remove('active');
-                }
-            });
-        }
-    }
-
-    setupScrollBehavior() {
-        const headbar = document.querySelector('.headbar');
-        if (!headbar) return;
-
-        let lastScrollY = window.scrollY;
-        let ticking = false;
-
-        const updateScrollState = () => {
-            const currentScrollY = window.scrollY;
-            
-            // Add scrolled class when scrolled down
-            if (currentScrollY > 50) {
-                headbar.classList.add('scrolled');
-            } else {
-                headbar.classList.remove('scrolled');
-            }
-
-            // Hide/show header based on scroll direction
-            if (currentScrollY > lastScrollY && currentScrollY > 100) {
-                // Scrolling down - hide header
-                headbar.classList.add('hidden');
-            } else {
-                // Scrolling up - show header
-                headbar.classList.remove('hidden');
-            }
-
-            lastScrollY = currentScrollY;
-            ticking = false;
-        };
-
-        const onScroll = () => {
-            if (!ticking) {
-                requestAnimationFrame(updateScrollState);
-                ticking = true;
-            }
-        };
-
-        window.addEventListener('scroll', onScroll, { passive: true });
-
-        // Close mobile menu when scrolling
-        window.addEventListener('scroll', () => {
-            const mobileToggle = document.getElementById('mobile-menu-toggle');
-            const nav = document.querySelector('.headbar-nav');
-            
-            if (mobileToggle && nav) {
-                mobileToggle.classList.remove('active');
-                nav.classList.remove('active');
-            }
-        }, { passive: true });
-    }
 }
 
 // Initialize auth manager when DOM is loaded
