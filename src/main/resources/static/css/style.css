@@ -13,13 +13,16 @@ body {
     margin: 0;
     color: var(--ink);
     background: var(--bg);
-    padding-top: 80px; /* Space for fixed header */
+    padding-top: 70px; /* Space for fixed header */
+    overflow-x: hidden; /* Prevent horizontal scroll */
 }
 
 .container {
     max-width: 1080px;
     margin: 0 auto; 
-    padding: 0 1rem; 
+    padding: 0 1rem;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 /* Headbar Styles */
@@ -27,8 +30,8 @@ body {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 24px;
-    padding: 16px 0;
+    gap: 16px;
+    padding: 12px 1rem;
     background: white;
     border-bottom: 1px solid #e5e7eb;
     position: fixed;
@@ -39,10 +42,12 @@ body {
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
     transition: all 0.3s ease;
     transform: translateY(0);
+    max-width: 100vw;
+    overflow: hidden;
 }
 
 .headbar.scrolled {
-    padding: 12px 0;
+    padding: 8px 1rem;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
     background: rgba(255, 255, 255, 0.95);
     backdrop-filter: blur(10px);
@@ -85,17 +90,21 @@ body {
 .headbar-nav {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 4px;
+    flex-wrap: nowrap;
+    overflow: hidden;
 }
 
 .nav-link {
     color: var(--ink);
     text-decoration: none;
-    padding: 8px 16px;
-    border-radius: 8px;
+    padding: 6px 12px;
+    border-radius: 6px;
     font-weight: 500;
     transition: all 0.2s;
     position: relative;
+    white-space: nowrap;
+    font-size: 0.9rem;
 }
 
 .nav-link:hover {
@@ -123,11 +132,13 @@ body {
 .auth-link {
     color: var(--ink);
     text-decoration: none;
-    padding: 8px 16px;
-    border-radius: 8px;
+    padding: 6px 12px;
+    border-radius: 6px;
     font-weight: 500;
     transition: all 0.2s;
     border: 1px solid transparent;
+    white-space: nowrap;
+    font-size: 0.9rem;
 }
 
 .auth-link:hover {
@@ -212,17 +223,18 @@ body {
 /* Mobile Navigation */
 @media (max-width: 768px) {
     body {
-        padding-top: 70px; /* Smaller space for mobile */
+        padding-top: 60px; /* Smaller space for mobile */
     }
     
     .headbar {
         flex-wrap: wrap;
-        gap: 16px;
-        padding: 12px 0;
+        gap: 12px;
+        padding: 8px 1rem;
+        max-width: 100vw;
     }
     
     .headbar.scrolled {
-        padding: 8px 0;
+        padding: 6px 1rem;
     }
     
     .headbar-nav {
@@ -274,23 +286,34 @@ body {
 
 @media (max-width: 480px) {
     body {
-        padding-top: 65px; /* Even smaller space for small mobile */
+        padding-top: 55px; /* Even smaller space for small mobile */
     }
     
     .headbar {
-        padding: 10px 0;
+        padding: 6px 1rem;
+        gap: 8px;
     }
     
     .headbar.scrolled {
-        padding: 6px 0;
+        padding: 4px 1rem;
     }
     
     .logo-link .brand {
-        font-size: 1.1rem;
+        font-size: 1rem;
     }
     
     .logo-link img {
-        height: 36px;
+        height: 32px;
+    }
+    
+    .nav-link {
+        padding: 4px 8px;
+        font-size: 0.85rem;
+    }
+    
+    .auth-link {
+        padding: 4px 8px;
+        font-size: 0.85rem;
     }
 }
 
