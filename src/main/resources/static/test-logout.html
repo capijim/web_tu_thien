@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Test Logout - Web Từ Thiện</title>
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body>
+    <div class="container">
+      <!-- Headbar will be loaded by headbar.js -->
+    </div>
+
+    <main class="container">
+      <div class="auth-container">
+        <h2>Test Logout Functionality</h2>
+        <p>Click the logout button in the header to test logout functionality.</p>
+        
+        <div id="test-results" style="margin-top: 20px; padding: 16px; background: #f8f9fa; border-radius: 8px;">
+          <h3>Test Results:</h3>
+          <div id="test-log"></div>
+        </div>
+        
+        <button onclick="testLogout()" style="margin-top: 16px; padding: 8px 16px; background: #0ea5e9; color: white; border: none; border-radius: 6px; cursor: pointer;">
+          Test Logout API
+        </button>
+      </div>
+    </main>
+
+    <script src="/js/headbar.js"></script>
+    <script src="/js/auth.js"></script>
+    
+    <script>
+      function testLogout() {
+        const logDiv = document.getElementById('test-log');
+        logDiv.innerHTML = '<p>Testing logout API...</p>';
+        
+        fetch('/api/users/logout', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          }
+        })
+        .then(response => {
+          logDiv.innerHTML += `<p>Response status: ${response.status}</p>`;
+          return response.json();
+        })
+        .then(data => {
+          logDiv.innerHTML += `<p>Response data: ${JSON.stringify(data)}</p>`;
+        })
+        .catch(error => {
+          logDiv.innerHTML += `<p>Error: ${error.message}</p>`;
+        });
+      }
+      
+      // Override console.log to show in page
+      const originalLog = console.log;
+      console.log = function(...args) {
+        originalLog.apply(console, args);
+        const logDiv = document.getElementById('test-log');
+        if (logDiv) {
+          logDiv.innerHTML += `<p>Console: ${args.join(' ')}</p>`;
+        }
+      };
+    </script>
+  </body>
+</html>

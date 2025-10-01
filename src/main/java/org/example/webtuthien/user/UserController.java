@@ -118,13 +118,19 @@ public class UserController {
     @PostMapping("/logout")
     public ResponseEntity<?> logout(HttpSession session) {
         try {
+            System.out.println("Logout request received");
+            System.out.println("Session ID: " + session.getId());
+            
             // Clear session
             session.invalidate();
+            System.out.println("Session invalidated successfully");
             
             Map<String, String> response = new HashMap<>();
             response.put("message", "Đăng xuất thành công");
             return ResponseEntity.ok(response);
         } catch (Exception e) {
+            System.err.println("Logout error: " + e.getMessage());
+            e.printStackTrace();
             Map<String, String> error = new HashMap<>();
             error.put("error", "Lỗi đăng xuất: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);

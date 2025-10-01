@@ -23,11 +23,13 @@ class AuthManager {
             registerForm.addEventListener('submit', (e) => this.handleRegister(e));
         }
 
-        // Logout button
-        const logoutBtn = document.getElementById('logout-btn');
-        if (logoutBtn) {
-            logoutBtn.addEventListener('click', (e) => this.handleLogout(e));
-        }
+        // Setup logout button listener with delegation
+        document.addEventListener('click', (e) => {
+            if (e.target && e.target.id === 'logout-btn') {
+                e.preventDefault();
+                this.handleLogout(e);
+            }
+        });
     }
 
     async handleLogin(e) {
@@ -111,8 +113,10 @@ class AuthManager {
 
     async handleLogout(e) {
         e.preventDefault();
+        console.log('Logout button clicked');
         
         try {
+            console.log('Sending logout request...');
             const response = await fetch('/api/users/logout', {
                 method: 'POST',
                 headers: {
@@ -120,15 +124,24 @@ class AuthManager {
                 }
             });
 
+            console.log('Logout response status:', response.status);
+            const result = await response.json();
+            console.log('Logout response data:', result);
+
             if (response.ok) {
+                console.log('Logout successful');
                 this.showMessage('success', 'Đăng xuất thành công!');
+                // Update navigation immediately
+                this.updateNavigation(false);
                 setTimeout(() => {
                     window.location.href = '/';
                 }, 1500);
             } else {
-                this.showMessage('error', 'Lỗi đăng xuất');
+                console.log('Logout failed:', result);
+                this.showMessage('error', result.error || 'Lỗi đăng xuất');
             }
         } catch (error) {
+            console.error('Logout error:', error);
             this.showMessage('error', 'Lỗi kết nối. Vui lòng thử lại.');
         }
     }
@@ -172,6 +185,12 @@ class AuthManager {
                     <a href="#" id="logout-btn" class="logout-link">Đăng xuất</a>
                 `;
                 authSection.appendChild(userMenu);
+                
+                // Setup logout button listener for this specific button
+                const logoutBtn = document.getElementById('logout-btn');
+                if (logoutBtn) {
+                    logoutBtn.addEventListener('click', (e) => this.handleLogout(e));
+                }
             } else {
                 // Add login/register links
                 const loginLink = document.createElement('a');
