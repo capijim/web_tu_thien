@@ -1,6 +1,7 @@
 package org.example.webtuthien.campaign;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.OffsetDateTime;
 
 public class Campaign {
@@ -69,7 +70,7 @@ public class Campaign {
         if (targetAmount.compareTo(BigDecimal.ZERO) == 0) {
             return BigDecimal.ZERO;
         }
-        return currentAmount.divide(targetAmount, 4, BigDecimal.ROUND_HALF_UP)
+        return currentAmount.divide(targetAmount, 4, RoundingMode.HALF_UP)
                           .multiply(new BigDecimal("100"));
     }
 

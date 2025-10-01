@@ -2,6 +2,11 @@ package org.example.webtuthien.campaign;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.UUID;
 import jakarta.servlet.http.HttpSession;
 
 import java.math.BigDecimal;
@@ -26,6 +31,41 @@ public class CampaignController {
     @GetMapping("/active")
     public List<Campaign> listActive() {
         return service.listActive();
+    }
+
+    @PostMapping("/upload")
+    public ResponseEntity<?> uploadImage(@RequestParam("file") MultipartFile file) {
+        try {
+            if (file.isEmpty()) {
+                Map<String, String> error = new HashMap<>();
+                error.put("error", "File trống");
+                return ResponseEntity.badRequest().body(error);
+            }
+
+            // Create uploads directory if not exists
+            Path uploadDir = Paths.get("uploads").toAbsolutePath();
+            if (!Files.exists(uploadDir)) {
+                Files.createDirectories(uploadDir);
+            }
+
+            String originalFilename = file.getOriginalFilename();
+            String ext = "";
+            if (originalFilename != null && originalFilename.contains(".")) {
+                ext = originalFilename.substring(originalFilename.lastIndexOf('.'));
+            }
+            String storedName = UUID.randomUUID().toString().replace("-", "") + ext;
+            Path destination = uploadDir.resolve(storedName);
+
+            Files.copy(file.getInputStream(), destination);
+
+            Map<String, String> result = new HashMap<>();
+            result.put("url", "/uploads/" + storedName);
+            return ResponseEntity.ok(result);
+        } catch (Exception e) {
+            Map<String, String> error = new HashMap<>();
+            error.put("error", "Lỗi upload: " + e.getMessage());
+            return ResponseEntity.status(500).body(error);
+        }
     }
 
     @GetMapping("/categories")

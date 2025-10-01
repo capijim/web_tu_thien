@@ -169,12 +169,35 @@ class CampaignManager {
         e.preventDefault();
         
         const formData = new FormData(e.target);
+        let imageUrl = null;
+
+        try {
+            const file = formData.get('imageFile');
+            if (file && file.size > 0) {
+                const uploadForm = new FormData();
+                uploadForm.append('file', file);
+                const uploadRes = await fetch('/api/campaigns/upload', {
+                    method: 'POST',
+                    body: uploadForm
+                });
+                if (!uploadRes.ok) {
+                    const err = await uploadRes.json().catch(() => ({}));
+                    throw new Error(err.error || 'Upload ảnh thất bại');
+                }
+                const { url } = await uploadRes.json();
+                imageUrl = url;
+            }
+        } catch (err) {
+            this.showMessage(err.message || 'Lỗi upload ảnh', 'error');
+            return;
+        }
+
         const campaignData = {
             title: formData.get('title'),
             description: formData.get('description'),
             targetAmount: parseFloat(formData.get('targetAmount')),
             category: formData.get('category'),
-            imageUrl: formData.get('imageUrl') || null,
+            imageUrl,
             endDate: formData.get('endDate') ? new Date(formData.get('endDate')).toISOString() : null
         };
 
