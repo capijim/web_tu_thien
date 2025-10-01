@@ -13,6 +13,7 @@ body {
     margin: 0;
     color: var(--ink);
     background: var(--bg);
+    padding-top: 80px; /* Space for fixed header */
 }
 
 .container {
@@ -30,10 +31,25 @@ body {
     padding: 16px 0;
     background: white;
     border-bottom: 1px solid #e5e7eb;
-    position: sticky;
+    position: fixed;
     top: 0;
+    left: 0;
+    right: 0;
     z-index: 1000;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    transform: translateY(0);
+}
+
+.headbar.scrolled {
+    padding: 12px 0;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+}
+
+.headbar.hidden {
+    transform: translateY(-100%);
 }
 
 .headbar-left {
@@ -195,9 +211,18 @@ body {
 
 /* Mobile Navigation */
 @media (max-width: 768px) {
+    body {
+        padding-top: 70px; /* Smaller space for mobile */
+    }
+    
     .headbar {
         flex-wrap: wrap;
         gap: 16px;
+        padding: 12px 0;
+    }
+    
+    .headbar.scrolled {
+        padding: 8px 0;
     }
     
     .headbar-nav {
@@ -248,8 +273,16 @@ body {
 }
 
 @media (max-width: 480px) {
+    body {
+        padding-top: 65px; /* Even smaller space for small mobile */
+    }
+    
     .headbar {
-        padding: 12px 0;
+        padding: 10px 0;
+    }
+    
+    .headbar.scrolled {
+        padding: 6px 0;
     }
     
     .logo-link .brand {

@@ -8,6 +8,7 @@ class AuthManager {
         this.setupEventListeners();
         this.checkAuthStatus();
         this.setupMobileMenu();
+        this.setupScrollBehavior();
     }
 
     setupEventListeners() {
@@ -238,6 +239,57 @@ class AuthManager {
                 }
             });
         }
+    }
+
+    setupScrollBehavior() {
+        const headbar = document.querySelector('.headbar');
+        if (!headbar) return;
+
+        let lastScrollY = window.scrollY;
+        let ticking = false;
+
+        const updateScrollState = () => {
+            const currentScrollY = window.scrollY;
+            
+            // Add scrolled class when scrolled down
+            if (currentScrollY > 50) {
+                headbar.classList.add('scrolled');
+            } else {
+                headbar.classList.remove('scrolled');
+            }
+
+            // Hide/show header based on scroll direction
+            if (currentScrollY > lastScrollY && currentScrollY > 100) {
+                // Scrolling down - hide header
+                headbar.classList.add('hidden');
+            } else {
+                // Scrolling up - show header
+                headbar.classList.remove('hidden');
+            }
+
+            lastScrollY = currentScrollY;
+            ticking = false;
+        };
+
+        const onScroll = () => {
+            if (!ticking) {
+                requestAnimationFrame(updateScrollState);
+                ticking = true;
+            }
+        };
+
+        window.addEventListener('scroll', onScroll, { passive: true });
+
+        // Close mobile menu when scrolling
+        window.addEventListener('scroll', () => {
+            const mobileToggle = document.getElementById('mobile-menu-toggle');
+            const nav = document.querySelector('.headbar-nav');
+            
+            if (mobileToggle && nav) {
+                mobileToggle.classList.remove('active');
+                nav.classList.remove('active');
+            }
+        }, { passive: true });
     }
 }
 
