@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Khuyến góp - Web Từ Thiện</title>
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body>
+    <div class="container">
+      <!-- Headbar will be loaded by headbar.js -->
+    </div>
+
+    <section class="hero">
+      <div class="container inner">
+        <h1>Khuyến góp từ thiện</h1>
+        <p class="muted">Tạo và tham gia các chiến dịch ủng hộ ý nghĩa</p>
+      </div>
+    </section>
+
+    <main class="container">
+      <!-- Filter Section -->
+      <div class="filter-section">
+        <h2 class="section-title">Lọc theo danh mục</h2>
+        <div class="filter-buttons">
+          <button class="filter-btn active" data-category="all">Tất cả</button>
+          <button class="filter-btn" data-category="Y tế">Y tế</button>
+          <button class="filter-btn" data-category="Giáo dục">Giáo dục</button>
+          <button class="filter-btn" data-category="Thiên tai">Thiên tai</button>
+          <button class="filter-btn" data-category="Trẻ em">Trẻ em</button>
+          <button class="filter-btn" data-category="Người già">Người già</button>
+          <button class="filter-btn" data-category="Môi trường">Môi trường</button>
+          <button class="filter-btn" data-category="Động vật">Động vật</button>
+          <button class="filter-btn" data-category="Văn hóa">Văn hóa</button>
+          <button class="filter-btn" data-category="Thể thao">Thể thao</button>
+          <button class="filter-btn" data-category="Khác">Khác</button>
+        </div>
+      </div>
+
+      <!-- Create Campaign Button -->
+      <div class="create-campaign-section">
+        <button id="create-campaign-btn" class="cta">Tạo khuyến góp mới</button>
+      </div>
+
+      <!-- Campaigns List -->
+      <div class="campaigns-list" id="campaigns-list">
+        <!-- Campaigns will be loaded here -->
+      </div>
+
+      <!-- Create Campaign Modal -->
+      <div id="create-campaign-modal" class="modal" style="display: none;">
+        <div class="modal-content">
+          <span class="close">&times;</span>
+          <h2>Tạo khuyến góp mới</h2>
+          <form id="campaign-form">
+            <label for="title">Tiêu đề khuyến góp</label>
+            <input id="title" name="title" required placeholder="Nhập tiêu đề khuyến góp" />
+
+            <label for="description">Mô tả chi tiết</label>
+            <textarea id="description" name="description" required placeholder="Mô tả chi tiết về mục đích khuyến góp"></textarea>
+
+            <label for="targetAmount">Số tiền mục tiêu (VNĐ)</label>
+            <input id="targetAmount" name="targetAmount" type="number" step="0.01" required placeholder="Nhập số tiền mục tiêu" />
+
+            <label for="category">Danh mục</label>
+            <select id="category" name="category" required>
+              <option value="">Chọn danh mục</option>
+              <option value="Y tế">Y tế</option>
+              <option value="Giáo dục">Giáo dục</option>
+              <option value="Thiên tai">Thiên tai</option>
+              <option value="Trẻ em">Trẻ em</option>
+              <option value="Người già">Người già</option>
+              <option value="Môi trường">Môi trường</option>
+              <option value="Động vật">Động vật</option>
+              <option value="Văn hóa">Văn hóa</option>
+              <option value="Thể thao">Thể thao</option>
+              <option value="Khác">Khác</option>
+            </select>
+
+            <label for="imageUrl">Link hình ảnh</label>
+            <input id="imageUrl" name="imageUrl" type="url" placeholder="https://example.com/image.jpg" />
+
+            <label for="endDate">Ngày kết thúc (tùy chọn)</label>
+            <input id="endDate" name="endDate" type="datetime-local" />
+
+            <div class="form-actions">
+              <button type="submit" class="cta">Tạo khuyến góp</button>
+              <button type="button" class="btn-secondary" id="cancel-campaign">Hủy</button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Donate Modal -->
+      <div id="donate-modal" class="modal" style="display: none;">
+        <div class="modal-content">
+          <span class="close">&times;</span>
+          <h2>Ủng hộ khuyến góp</h2>
+          <div id="donate-campaign-info"></div>
+          <form id="donate-form">
+            <input type="hidden" id="donate-campaign-id" />
+            <label for="donateAmount">Số tiền ủng hộ (VNĐ)</label>
+            <input id="donateAmount" name="amount" type="number" step="0.01" required placeholder="Nhập số tiền ủng hộ" />
+            
+            <div class="form-actions">
+              <button type="submit" class="cta">Ủng hộ ngay</button>
+              <button type="button" class="btn-secondary" id="cancel-donate">Hủy</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </main>
+
+    <script src="/js/headbar.js"></script>
+    <script src="/js/auth.js"></script>
+    <script src="/js/campaigns.js"></script>
+  </body>
+</html>
