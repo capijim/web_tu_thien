@@ -29,7 +29,7 @@ public class DonationRepository {
         this.insertDonation = new SimpleJdbcInsert(this.coreJdbc)
                 .withTableName("donations")
                 .usingGeneratedKeyColumns("id")
-                .usingColumns("donor_name", "amount", "message");
+                .usingColumns("campaign_id", "donor_name", "amount", "message");
     }
 
     private static final RowMapper<Donation> ROW_MAPPER = new RowMapper<>() {
@@ -37,6 +37,7 @@ public class DonationRepository {
         public Donation mapRow(ResultSet rs, int rowNum) throws SQLException {
             Donation d = new Donation();
             d.setId(rs.getLong("id"));
+            d.setCampaignId(rs.getLong("campaign_id"));
             d.setDonorName(rs.getString("donor_name"));
             d.setAmount(rs.getBigDecimal("amount"));
             d.setMessage(rs.getString("message"));
@@ -49,18 +50,19 @@ public class DonationRepository {
     };
 
     public List<Donation> findAll() {
-        String sql = "select id, donor_name, amount, message, created_at from donations order by created_at desc";
+        String sql = "select id, campaign_id, donor_name, amount, message, created_at from donations order by created_at desc";
         return jdbc.query(sql, ROW_MAPPER);
     }
 
     public Optional<Donation> findById(Long id) {
-        String sql = "select id, donor_name, amount, message, created_at from donations where id = :id";
+        String sql = "select id, campaign_id, donor_name, amount, message, created_at from donations where id = :id";
         List<Donation> list = jdbc.query(sql, new MapSqlParameterSource("id", id), ROW_MAPPER);
         return list.stream().findFirst();
     }
 
     public Donation insert(Donation donation) {
         Map<String, Object> params = new HashMap<>();
+        params.put("campaign_id", donation.getCampaignId());
         params.put("donor_name", donation.getDonorName());
         params.put("amount", donation.getAmount());
         params.put("message", donation.getMessage());
@@ -73,6 +75,12 @@ public class DonationRepository {
     public void deleteById(Long id) {
         String sql = "DELETE FROM donations WHERE id = :id";
         jdbc.update(sql, new MapSqlParameterSource("id", id));
+    }
+
+    public int countByCampaignId(Long campaignId) {
+        String sql = "SELECT COUNT(*) FROM donations WHERE campaign_id = :campaignId";
+        Integer count = jdbc.queryForObject(sql, new MapSqlParameterSource("campaignId", campaignId), Integer.class);
+        return count != null ? count : 0;
     }
 }
 

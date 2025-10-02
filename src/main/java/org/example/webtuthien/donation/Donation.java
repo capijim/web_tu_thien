@@ -5,6 +5,7 @@ import java.time.OffsetDateTime;
 
 public class Donation {
     private Long id;
+    private Long campaignId;
     private String donorName;
     private BigDecimal amount;
     private String message;
@@ -12,6 +13,8 @@ public class Donation {
 
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
+    public Long getCampaignId() { return campaignId; }
+    public void setCampaignId(Long campaignId) { this.campaignId = campaignId; }
     public String getDonorName() { return donorName; }
     public void setDonorName(String donorName) { this.donorName = donorName; }
     public BigDecimal getAmount() { return amount; }

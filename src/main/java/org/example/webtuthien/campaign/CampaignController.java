@@ -8,6 +8,11 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.UUID;
 import jakarta.servlet.http.HttpSession;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import org.example.webtuthien.donation.Donation;
+import org.example.webtuthien.donation.DonationService;
+import org.example.webtuthien.user.UserService;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -18,6 +23,12 @@ import java.util.HashMap;
 @RequestMapping("/api/campaigns")
 public class CampaignController {
     private final CampaignService service;
+    
+    @Autowired
+    private DonationService donationService;
+    
+    @Autowired
+    private UserService userService;
 
     public CampaignController(CampaignService service) {
         this.service = service;
@@ -26,6 +37,16 @@ public class CampaignController {
     @GetMapping
     public List<Campaign> list() {
         return service.list();
+    }
+
+    @GetMapping("/with-stats")
+    public ResponseEntity<List<Map<String, Object>>> listWithStats() {
+        try {
+            List<Map<String, Object>> campaignsWithStats = service.listWithStats();
+            return ResponseEntity.ok(campaignsWithStats);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().build();
+        }
     }
 
     @GetMapping("/active")
@@ -154,6 +175,25 @@ public class CampaignController {
                 return ResponseEntity.status(400).body(error);
             }
 
+            // Get user info for donation record
+            Long userId = Long.valueOf(userIdObj.toString());
+            var userOpt = userService.getUserById(userId);
+            if (userOpt.isEmpty()) {
+                Map<String, String> error = new HashMap<>();
+                error.put("error", "Không tìm thấy thông tin người dùng");
+                return ResponseEntity.status(400).body(error);
+            }
+
+            // Create donation record
+            Donation donation = new Donation();
+            donation.setCampaignId(id);
+            donation.setDonorName(userOpt.get().getName());
+            donation.setAmount(amount);
+            donation.setMessage(request.get("message") != null ? request.get("message").toString() : null);
+            
+            donationService.create(donation);
+
+            // Update campaign amount
             Campaign updatedCampaign = service.updateCurrentAmount(id, amount);
             return ResponseEntity.ok(updatedCampaign);
         } catch (NumberFormatException e) {

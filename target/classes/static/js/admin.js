@@ -324,7 +324,7 @@ async function deleteCampaign(campaignId) {
 // Donations management
 async function loadDonations() {
     const tbody = document.getElementById('donations-table-body');
-    tbody.innerHTML = '<tr><td colspan="6" class="loading"><i class="fas fa-spinner"></i> Đang tải...</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="7" class="loading"><i class="fas fa-spinner"></i> Đang tải...</td></tr>';
 
     try {
         const response = await fetch(`${API_BASE_URL}/donations`);
@@ -332,11 +332,12 @@ async function loadDonations() {
             const donations = await response.json();
             displayDonations(donations);
         } else {
-            tbody.innerHTML = '<tr><td colspan="6" class="empty-state">Không thể tải dữ liệu donations</td></tr>';
+            console.error('Failed to load donations, status:', response.status);
+            tbody.innerHTML = '<tr><td colspan="7" class="empty-state">Không thể tải dữ liệu donations</td></tr>';
         }
     } catch (error) {
         console.error('Error loading donations:', error);
-        tbody.innerHTML = '<tr><td colspan="6" class="empty-state">Lỗi khi tải dữ liệu donations</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="7" class="empty-state">Lỗi khi tải dữ liệu donations</td></tr>';
     }
 }
 
@@ -344,13 +345,14 @@ function displayDonations(donations) {
     const tbody = document.getElementById('donations-table-body');
     
     if (donations.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="6" class="empty-state">Không có donations nào</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="7" class="empty-state">Không có donations nào</td></tr>';
         return;
     }
 
     tbody.innerHTML = donations.map(donation => `
         <tr>
             <td>${donation.id}</td>
+            <td>${donation.campaignId || 'N/A'}</td>
             <td>${donation.donorName}</td>
             <td>${formatCurrency(donation.amount)}</td>
             <td>${donation.message || 'Không có tin nhắn'}</td>
@@ -387,6 +389,7 @@ async function deleteDonation(donationId) {
         showNotification('Lỗi khi xóa donation', 'error');
     }
 }
+
 
 // Utility functions
 function formatCurrency(amount) {

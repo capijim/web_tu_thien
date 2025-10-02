@@ -1,15 +1,22 @@
 package org.example.webtuthien.campaign;
 
 import org.springframework.stereotype.Service;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.example.webtuthien.donation.DonationRepository;
 
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.Map;
+import java.util.HashMap;
 
 @Service
 public class CampaignService {
     private final CampaignRepository repository;
+    
+    @Autowired
+    private DonationRepository donationRepository;
 
     public CampaignService(CampaignRepository repository) {
         this.repository = repository;
@@ -111,5 +118,29 @@ public class CampaignService {
             throw new IllegalArgumentException("Campaign ID is required");
         }
         repository.deleteById(id);
+    }
+
+    public List<Map<String, Object>> listWithStats() {
+        List<Campaign> campaigns = repository.findAll();
+        return campaigns.stream().map(campaign -> {
+            Map<String, Object> campaignWithStats = new HashMap<>();
+            campaignWithStats.put("id", campaign.getId());
+            campaignWithStats.put("userId", campaign.getUserId());
+            campaignWithStats.put("title", campaign.getTitle());
+            campaignWithStats.put("description", campaign.getDescription());
+            campaignWithStats.put("targetAmount", campaign.getTargetAmount());
+            campaignWithStats.put("currentAmount", campaign.getCurrentAmount());
+            campaignWithStats.put("category", campaign.getCategory());
+            campaignWithStats.put("imageUrl", campaign.getImageUrl());
+            campaignWithStats.put("status", campaign.getStatus());
+            campaignWithStats.put("endDate", campaign.getEndDate());
+            campaignWithStats.put("createdAt", campaign.getCreatedAt());
+            
+            // Add donation count
+            int donationCount = donationRepository.countByCampaignId(campaign.getId());
+            campaignWithStats.put("donationCount", donationCount);
+            
+            return campaignWithStats;
+        }).collect(java.util.stream.Collectors.toList());
     }
 }

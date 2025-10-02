@@ -16,7 +16,6 @@ class HeadbarManager {
     getCurrentPage() {
         const path = window.location.pathname;
         if (path === '/' || path === '/index.html') return 'home';
-        if (path.includes('donate')) return 'donate';
         if (path.includes('campaigns')) return 'campaigns';
         if (path.includes('about')) return 'about';
         if (path.includes('contact')) return 'contact';

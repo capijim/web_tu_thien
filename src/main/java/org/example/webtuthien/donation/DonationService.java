@@ -17,6 +17,9 @@ public class DonationService {
     }
 
     public Donation create(Donation donation) {
+        if (donation.getCampaignId() == null) {
+            throw new IllegalArgumentException("campaignId is required");
+        }
         if (donation.getDonorName() == null || donation.getDonorName().isBlank()) {
             throw new IllegalArgumentException("donorName is required");
         }
