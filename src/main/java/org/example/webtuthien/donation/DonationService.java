@@ -25,6 +25,13 @@ public class DonationService {
         }
         return repository.insert(donation);
     }
+
+    public void deleteDonation(Long id) {
+        if (id == null) {
+            throw new IllegalArgumentException("Donation ID is required");
+        }
+        repository.deleteById(id);
+    }
 }
 
 

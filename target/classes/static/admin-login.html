@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login - Hệ thống Từ thiện</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .admin-login-container {
+            background: white;
+            padding: 3rem;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+
+        .admin-logo {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 2rem;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 2rem;
+        }
+
+        .admin-login-title {
+            color: #2d3748;
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .admin-login-subtitle {
+            color: #718096;
+            margin-bottom: 2rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+            text-align: left;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #4a5568;
+            font-weight: 500;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 1rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            box-sizing: border-box;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 1rem;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 1rem;
+        }
+
+        .login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .login-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .back-link {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        .back-link:hover {
+            color: #5a67d8;
+        }
+
+        .error-message {
+            background: #fed7d7;
+            color: #742a2a;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            display: none;
+        }
+
+        .loading {
+            display: none;
+            color: #667eea;
+        }
+
+        .loading i {
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-login-container">
+        <div class="admin-logo">
+            <i class="fas fa-user-shield"></i>
+        </div>
+        
+        <h1 class="admin-login-title">Admin Login</h1>
+        <p class="admin-login-subtitle">Đăng nhập để truy cập bảng điều khiển admin</p>
+        
+        <div id="error-message" class="error-message"></div>
+        
+        <form id="admin-login-form">
+            <div class="form-group">
+                <label for="admin-email">Email Admin:</label>
+                <input 
+                    type="email" 
+                    id="admin-email" 
+                    class="form-input" 
+                    placeholder="admin@example.com"
+                    required
+                >
+            </div>
+            
+            <div class="form-group">
+                <label for="admin-password">Mật khẩu:</label>
+                <input 
+                    type="password" 
+                    id="admin-password" 
+                    class="form-input" 
+                    placeholder="Nhập mật khẩu admin"
+                    required
+                >
+            </div>
+            
+            <button type="submit" class="login-btn" id="login-btn">
+                <span class="btn-text">Đăng nhập</span>
+                <span class="loading">
+                    <i class="fas fa-spinner"></i> Đang xử lý...
+                </span>
+            </button>
+        </form>
+        
+        <a href="/" class="back-link">
+            <i class="fas fa-arrow-left"></i> Quay lại trang chủ
+        </a>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('admin-login-form');
+            const emailInput = document.getElementById('admin-email');
+            const passwordInput = document.getElementById('admin-password');
+            const loginBtn = document.getElementById('login-btn');
+            const btnText = document.querySelector('.btn-text');
+            const loading = document.querySelector('.loading');
+            const errorMessage = document.getElementById('error-message');
+
+            // Check if already logged in as admin
+            const adminSession = localStorage.getItem('adminSession');
+            if (adminSession) {
+                try {
+                    const session = JSON.parse(adminSession);
+                    if (session.isAdmin && session.expires > Date.now()) {
+                        window.location.href = '/admin.html';
+                        return;
+                    }
+                } catch (e) {
+                    localStorage.removeItem('adminSession');
+                }
+            }
+
+            form.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                const email = emailInput.value.trim();
+                const password = passwordInput.value.trim();
+                
+                if (!email || !password) {
+                    showError('Vui lòng nhập đầy đủ email và mật khẩu');
+                    return;
+                }
+
+                // Show loading state
+                loginBtn.disabled = true;
+                btnText.style.display = 'none';
+                loading.style.display = 'inline';
+                hideError();
+
+                try {
+                    // For demo purposes, use hardcoded admin credentials
+                    // In production, this should be a proper API call
+                    if (email === 'admin@webtuthien.com' && password === 'admin123') {
+                        // Create admin session
+                        const adminSession = {
+                            isAdmin: true,
+                            email: email,
+                            expires: Date.now() + (24 * 60 * 60 * 1000) // 24 hours
+                        };
+                        
+                        localStorage.setItem('adminSession', JSON.stringify(adminSession));
+                        
+                        // Redirect to admin dashboard
+                        window.location.href = '/admin.html';
+                    } else {
+                        showError('Email hoặc mật khẩu không đúng');
+                    }
+                } catch (error) {
+                    console.error('Login error:', error);
+                    showError('Có lỗi xảy ra khi đăng nhập. Vui lòng thử lại.');
+                } finally {
+                    // Reset loading state
+                    loginBtn.disabled = false;
+                    btnText.style.display = 'inline';
+                    loading.style.display = 'none';
+                }
+            });
+
+            function showError(message) {
+                errorMessage.textContent = message;
+                errorMessage.style.display = 'block';
+            }
+
+            function hideError() {
+                errorMessage.style.display = 'none';
+            }
+
+            // Auto-focus email input
+            emailInput.focus();
+        });
+    </script>
+</body>
+</html>

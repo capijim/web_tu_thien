@@ -69,6 +69,11 @@ public class DonationRepository {
         Long id = key.longValue();
         return findById(id).orElseThrow(() -> new IllegalStateException("Inserted donation not found"));
     }
+
+    public void deleteById(Long id) {
+        String sql = "DELETE FROM donations WHERE id = :id";
+        jdbc.update(sql, new MapSqlParameterSource("id", id));
+    }
 }
 
 

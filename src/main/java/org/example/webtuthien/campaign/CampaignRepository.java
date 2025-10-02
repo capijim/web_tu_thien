@@ -130,4 +130,9 @@ public class CampaignRepository {
         params.addValue("id", id);
         jdbc.update(sql, params);
     }
+
+    public void deleteById(Long id) {
+        String sql = "DELETE FROM campaigns WHERE id = :id";
+        jdbc.update(sql, new MapSqlParameterSource("id", id));
+    }
 }

@@ -105,4 +105,11 @@ public class CampaignService {
             "Môi trường", "Động vật", "Văn hóa", "Thể thao", "Khác"
         );
     }
+
+    public void deleteCampaign(Long id) {
+        if (id == null) {
+            throw new IllegalArgumentException("Campaign ID is required");
+        }
+        repository.deleteById(id);
+    }
 }
