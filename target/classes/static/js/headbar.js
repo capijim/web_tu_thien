@@ -21,7 +21,6 @@ class HeadbarManager {
         if (path.includes('contact')) return 'contact';
         if (path.includes('login')) return 'login';
         if (path.includes('register')) return 'register';
-        if (path.includes('admin')) return 'admin';
         return 'home';
     }
 
