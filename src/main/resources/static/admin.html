@@ -230,36 +230,6 @@
         </div>
     </div>
 
-    <script>
-        // Check admin authentication before loading the page
-        document.addEventListener('DOMContentLoaded', function() {
-            const adminSession = localStorage.getItem('adminSession');
-            
-            if (!adminSession) {
-                window.location.href = '/admin-login.html';
-                return;
-            }
-            
-            try {
-                const session = JSON.parse(adminSession);
-                if (!session.isAdmin || session.expires <= Date.now()) {
-                    localStorage.removeItem('adminSession');
-                    window.location.href = '/admin-login.html';
-                    return;
-                }
-                
-                // Update admin user display
-                const adminUserSpan = document.querySelector('.admin-user span');
-                if (adminUserSpan && session.email) {
-                    adminUserSpan.textContent = session.email;
-                }
-            } catch (e) {
-                localStorage.removeItem('adminSession');
-                window.location.href = '/admin-login.html';
-                return;
-            }
-        });
-    </script>
     <script src="js/admin.js"></script>
 </body>
 </html>

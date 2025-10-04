@@ -9,6 +9,9 @@ document.addEventListener('DOMContentLoaded', function() {
         return; // Will redirect to login
     }
     
+    // Update admin user display
+    updateAdminUserDisplay();
+    
     initializeAdmin();
     loadDashboardStats();
 });
@@ -38,6 +41,21 @@ function checkAdminAuth() {
 
 function redirectToLogin() {
     window.location.href = '/admin-login.html';
+}
+
+function updateAdminUserDisplay() {
+    try {
+        const adminSession = localStorage.getItem('adminSession');
+        if (adminSession) {
+            const session = JSON.parse(adminSession);
+            const adminUserSpan = document.querySelector('.admin-user span');
+            if (adminUserSpan && session.email) {
+                adminUserSpan.textContent = session.email;
+            }
+        }
+    } catch (e) {
+        console.error('Error updating admin user display:', e);
+    }
 }
 
 function initializeAdmin() {
