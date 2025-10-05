@@ -14,6 +14,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     initializeAdmin();
     loadDashboardStats();
+    setupCreateCampaign();
 });
 
 function checkAdminAuth() {
@@ -83,6 +84,92 @@ function initializeAdmin() {
     document.getElementById('status-form').addEventListener('submit', updateCampaignStatus);
 }
 
+function setupCreateCampaign() {
+    const openBtn = document.getElementById('open-create-campaign');
+    const modal = document.getElementById('create-campaign-modal');
+    const closeBtn = document.getElementById('close-create-campaign');
+    const cancelBtn = document.getElementById('cancel-create-campaign');
+    const form = document.getElementById('create-campaign-form');
+
+    if (!openBtn || !modal || !form) return;
+
+    openBtn.addEventListener('click', () => {
+        modal.style.display = 'block';
+    });
+
+    const closeModalCreate = () => {
+        modal.style.display = 'none';
+    };
+
+    if (closeBtn) closeBtn.addEventListener('click', closeModalCreate);
+    if (cancelBtn) cancelBtn.addEventListener('click', closeModalCreate);
+    window.addEventListener('click', (e) => {
+        if (e.target === modal) closeModalCreate();
+    });
+
+    form.addEventListener('submit', handleAdminCreateCampaign);
+}
+
+async function handleAdminCreateCampaign(e) {
+    e.preventDefault();
+
+    const form = e.target;
+    const formData = new FormData(form);
+    let imageUrl = null;
+
+    try {
+        const file = formData.get('imageFile');
+        if (file && file.size > 0) {
+            const uploadForm = new FormData();
+            uploadForm.append('file', file);
+            const uploadRes = await fetch('/api/campaigns/upload', {
+                method: 'POST'
+                , body: uploadForm
+            });
+            if (!uploadRes.ok) {
+                const err = await uploadRes.json().catch(() => ({}));
+                throw new Error(err.error || 'Upload ảnh thất bại');
+            }
+            const { url } = await uploadRes.json();
+            imageUrl = url;
+        }
+    } catch (err) {
+        showNotification(err.message || 'Lỗi upload ảnh', 'error');
+        return;
+    }
+
+    const payload = {
+        title: formData.get('title'),
+        description: formData.get('description'),
+        targetAmount: parseFloat(formData.get('targetAmount')),
+        category: formData.get('category'),
+        imageUrl,
+        endDate: formData.get('endDate') ? new Date(formData.get('endDate')).toISOString() : null
+    };
+
+    try {
+        const response = await fetch('/api/campaigns', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
+            body: JSON.stringify(payload)
+        });
+
+        if (response.ok) {
+            showNotification('Tạo campaign thành công', 'success');
+            document.getElementById('create-campaign-modal').style.display = 'none';
+            form.reset();
+            loadCampaigns();
+        } else {
+            const result = await response.json().catch(() => ({}));
+            showNotification('Lỗi: ' + (result.error || 'Có lỗi xảy ra'), 'error');
+        }
+    } catch (error) {
+        console.error('Error creating campaign:', error);
+        showNotification('Lỗi tạo campaign', 'error');
+    }
+}
+
 function switchSection(sectionName) {
     // Update active menu item
     document.querySelectorAll('.menu-item').forEach(item => {
@@ -125,7 +212,9 @@ function switchSection(sectionName) {
 // Dashboard functions
 async function loadDashboardStats() {
     try {
-        const response = await fetch(`${API_BASE_URL}/dashboard/stats`);
+        const response = await fetch(`${API_BASE_URL}/dashboard/stats`, {
+            credentials: 'include'
+        });
         if (response.ok) {
             const stats = await response.json();
             updateDashboardStats(stats);
@@ -166,7 +255,9 @@ async function loadUsers() {
     tbody.innerHTML = '<tr><td colspan="5" class="loading"><i class="fas fa-spinner"></i> Đang tải...</td></tr>';
 
     try {
-        const response = await fetch(`${API_BASE_URL}/users`);
+        const response = await fetch(`${API_BASE_URL}/users`, {
+            credentials: 'include'
+        });
         if (response.ok) {
             const users = await response.json();
             displayUsers(users);
@@ -211,7 +302,8 @@ async function deleteUser(userId) {
 
     try {
         const response = await fetch(`${API_BASE_URL}/users/${userId}`, {
-            method: 'DELETE'
+            method: 'DELETE',
+            credentials: 'include'
         });
 
         if (response.ok) {
@@ -232,7 +324,9 @@ async function loadCampaigns() {
     tbody.innerHTML = '<tr><td colspan="7" class="loading"><i class="fas fa-spinner"></i> Đang tải...</td></tr>';
 
     try {
-        const response = await fetch(`${API_BASE_URL}/campaigns`);
+        const response = await fetch(`${API_BASE_URL}/campaigns`, {
+            credentials: 'include'
+        });
         if (response.ok) {
             const campaigns = await response.json();
             displayCampaigns(campaigns);
@@ -302,6 +396,7 @@ async function updateCampaignStatus(event) {
             headers: {
                 'Content-Type': 'application/json'
             },
+            credentials: 'include',
             body: JSON.stringify({ status })
         });
 
@@ -327,7 +422,8 @@ async function deleteCampaign(campaignId) {
 
     try {
         const response = await fetch(`${API_BASE_URL}/campaigns/${campaignId}`, {
-            method: 'DELETE'
+            method: 'DELETE',
+            credentials: 'include'
         });
 
         if (response.ok) {
@@ -350,7 +446,9 @@ async function loadDonations() {
     tbody.innerHTML = '<tr><td colspan="7" class="loading"><i class="fas fa-spinner"></i> Đang tải...</td></tr>';
 
     try {
-        const response = await fetch(`${API_BASE_URL}/donations`);
+        const response = await fetch(`${API_BASE_URL}/donations`, {
+            credentials: 'include'
+        });
         if (response.ok) {
             const donations = await response.json();
             displayDonations(donations);
@@ -398,7 +496,8 @@ async function deleteDonation(donationId) {
 
     try {
         const response = await fetch(`${API_BASE_URL}/donations/${donationId}`, {
-            method: 'DELETE'
+            method: 'DELETE',
+            credentials: 'include'
         });
 
         if (response.ok) {

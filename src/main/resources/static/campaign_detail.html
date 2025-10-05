@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Chi tiết khuyến góp</title>
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body>
+    <div class="container">
+      <!-- Headbar will be loaded by headbar.js -->
+    </div>
+
+    <main class="container" id="campaign-detail-root">
+      <div id="detail-loading" class="muted" style="margin-top:16px;">Đang tải...</div>
+      <div id="detail-error" class="message error" style="display:none; margin-top:16px;">Không tìm thấy chiến dịch</div>
+      <div id="detail-content" style="display:none;">
+        <div class="campaign-detail">
+          <div class="detail-image" id="detail-image"></div>
+          <div class="detail-body">
+            <h1 id="detail-title"></h1>
+            <div class="detail-meta">
+              <span class="campaign-category" id="detail-category"></span>
+              <span class="campaign-status" id="detail-status"></span>
+            </div>
+            <p id="detail-description"></p>
+            <div class="campaign-progress">
+              <div class="progress-bar">
+                <div class="progress-fill" id="detail-progress" style="width:0"></div>
+              </div>
+              <div class="progress-text">
+                <span id="detail-current"></span>
+                <span id="detail-target"></span>
+              </div>
+            </div>
+            <div class="campaign-actions">
+              <button id="detail-donate" class="cta">Ủng hộ ngay</button>
+              <a href="/campaigns.html" class="btn-secondary">Quay lại danh sách</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <script src="/js/headbar.js"></script>
+    <script src="/js/auth.js"></script>
+    <script src="/js/campaign_detail.js"></script>
+  </body>
+ </html>
+
+

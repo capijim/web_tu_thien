@@ -150,9 +150,14 @@
             <section id="campaigns-section" class="admin-section">
                 <div class="section-header">
                     <h2>Quản lý Campaigns</h2>
-                    <button class="refresh-btn" onclick="loadCampaigns()">
-                        <i class="fas fa-sync-alt"></i> Làm mới
-                    </button>
+                    <div>
+                        <button class="refresh-btn" onclick="loadCampaigns()">
+                            <i class="fas fa-sync-alt"></i> Làm mới
+                        </button>
+                        <button class="btn btn-primary" id="open-create-campaign">
+                            <i class="fas fa-plus"></i> Tạo campaign
+                        </button>
+                    </div>
                 </div>
                 
                 <div class="table-container">
@@ -225,6 +230,56 @@
                 <div class="form-actions">
                     <button type="submit" class="btn btn-primary">Cập nhật</button>
                     <button type="button" class="btn btn-secondary" onclick="closeModal()">Hủy</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal for creating campaign -->
+    <div id="create-campaign-modal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <span class="close" id="close-create-campaign">&times;</span>
+            <h2>Tạo campaign mới</h2>
+            <form id="create-campaign-form">
+                <div class="form-group">
+                    <label for="create-title">Tiêu đề</label>
+                    <input id="create-title" name="title" required placeholder="Nhập tiêu đề" />
+                </div>
+                <div class="form-group">
+                    <label for="create-description">Mô tả</label>
+                    <textarea id="create-description" name="description" required placeholder="Mô tả chi tiết"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="create-targetAmount">Số tiền mục tiêu (VNĐ)</label>
+                    <input id="create-targetAmount" name="targetAmount" type="number" step="0.01" required placeholder="Nhập số tiền mục tiêu" />
+                </div>
+                <div class="form-group">
+                    <label for="create-category">Danh mục</label>
+                    <select id="create-category" name="category" required>
+                        <option value="">Chọn danh mục</option>
+                        <option value="Y tế">Y tế</option>
+                        <option value="Giáo dục">Giáo dục</option>
+                        <option value="Thiên tai">Thiên tai</option>
+                        <option value="Trẻ em">Trẻ em</option>
+                        <option value="Người già">Người già</option>
+                        <option value="Môi trường">Môi trường</option>
+                        <option value="Động vật">Động vật</option>
+                        <option value="Văn hóa">Văn hóa</option>
+                        <option value="Thể thao">Thể thao</option>
+                        <option value="Khác">Khác</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="create-imageFile">Ảnh từ máy (tùy chọn)</label>
+                    <input id="create-imageFile" name="imageFile" type="file" accept="image/*" />
+                </div>
+                <div class="form-group">
+                    <label for="create-endDate">Ngày kết thúc (tùy chọn)</label>
+                    <input id="create-endDate" name="endDate" type="datetime-local" />
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">Tạo campaign</button>
+                    <button type="button" class="btn btn-secondary" id="cancel-create-campaign">Hủy</button>
                 </div>
             </form>
         </div>

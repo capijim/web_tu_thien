@@ -1,6 +1,7 @@
 class CampaignManager {
     constructor() {
         this.currentFilter = 'all';
+        this.currentSearch = '';
         this.campaigns = [];
         this.init();
     }
@@ -8,23 +9,29 @@ class CampaignManager {
     init() {
         this.setupEventListeners();
         this.loadCampaigns();
+        this.handleDeepLink();
     }
 
     setupEventListeners() {
-        // Filter buttons
-        document.querySelectorAll('.filter-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-                e.target.classList.add('active');
-                this.currentFilter = e.target.dataset.category;
+        // Filters: name input + category select (new UI)
+        const searchInput = document.getElementById('search-name');
+        const categorySelect = document.getElementById('filter-category');
+
+        if (searchInput) {
+            const onSearch = (e) => {
+                this.currentSearch = e.target.value || '';
+                this.filterCampaigns();
+            };
+            searchInput.addEventListener('input', onSearch);
+            searchInput.addEventListener('change', onSearch);
+        }
+
+        if (categorySelect) {
+            categorySelect.addEventListener('change', (e) => {
+                this.currentFilter = e.target.value;
                 this.filterCampaigns();
             });
-        });
-
-        // Create campaign button
-        document.getElementById('create-campaign-btn').addEventListener('click', () => {
-            this.showCreateModal();
-        });
+        }
 
         // Modal close buttons
         document.querySelectorAll('.close').forEach(btn => {
@@ -33,18 +40,8 @@ class CampaignManager {
             });
         });
 
-        // Cancel buttons
-        document.getElementById('cancel-campaign').addEventListener('click', () => {
-            this.hideModal(document.getElementById('create-campaign-modal'));
-        });
-
         document.getElementById('cancel-donate').addEventListener('click', () => {
             this.hideModal(document.getElementById('donate-modal'));
-        });
-
-        // Campaign form
-        document.getElementById('campaign-form').addEventListener('submit', (e) => {
-            this.handleCreateCampaign(e);
         });
 
         // Donate form
@@ -82,6 +79,12 @@ class CampaignManager {
 
         this.campaigns.forEach(campaign => {
             const campaignCard = this.createCampaignCard(campaign);
+            // Open detail on card click (except on donate button)
+            campaignCard.addEventListener('click', (e) => {
+                const isDonate = e.target.closest && e.target.closest('.btn-donate');
+                if (isDonate) return;
+                window.location.href = `/campaign_detail.html?id=${encodeURIComponent(campaign.id)}`;
+            });
             container.appendChild(campaignCard);
         });
     }
@@ -130,18 +133,18 @@ class CampaignManager {
 
     filterCampaigns() {
         const cards = document.querySelectorAll('.campaign-card');
-        cards.forEach(card => {
-            const category = card.querySelector('.campaign-category').textContent;
-            if (this.currentFilter === 'all' || category === this.currentFilter) {
-                card.style.display = 'block';
-            } else {
-                card.style.display = 'none';
-            }
-        });
-    }
+        const search = (this.currentSearch || '').trim().toLowerCase();
+        const categoryFilter = this.currentFilter || 'all';
 
-    showCreateModal() {
-        document.getElementById('create-campaign-modal').style.display = 'block';
+        cards.forEach(card => {
+            const title = card.querySelector('.campaign-title').textContent.toLowerCase();
+            const category = card.querySelector('.campaign-category').textContent;
+
+            const matchName = search === '' || title.includes(search);
+            const matchCategory = categoryFilter === 'all' || category === categoryFilter;
+
+            card.style.display = matchName && matchCategory ? 'block' : 'none';
+        });
     }
 
     showDonateModal(campaign) {
@@ -161,67 +164,60 @@ class CampaignManager {
         modal.style.display = 'block';
     }
 
+    openDetailModal(campaign) {
+        const modal = document.getElementById('campaign-detail-modal');
+        if (!modal) return;
+
+        const titleEl = document.getElementById('detail-title');
+        const catEl = document.getElementById('detail-category');
+        const descEl = document.getElementById('detail-description');
+        const imgEl = document.getElementById('detail-image');
+        const progressEl = document.getElementById('detail-progress');
+        const curEl = document.getElementById('detail-current');
+        const tgtEl = document.getElementById('detail-target');
+        const donateBtn = document.getElementById('detail-donate-btn');
+
+        titleEl.textContent = campaign.title || '';
+        catEl.textContent = campaign.category || '';
+        descEl.textContent = campaign.description || '';
+        imgEl.innerHTML = campaign.imageUrl ? `<img src="${campaign.imageUrl}" alt="${this.escapeHtml(campaign.title)}"/>` : '<div class="no-image">Không có hình ảnh</div>';
+
+        const progressPercentage = campaign.targetAmount ? (campaign.currentAmount / campaign.targetAmount) * 100 : 0;
+        progressEl.style.width = `${Math.min(progressPercentage, 100)}%`;
+        curEl.textContent = `${Number(campaign.currentAmount).toLocaleString('vi-VN')} VNĐ`;
+        tgtEl.textContent = `${Number(campaign.targetAmount).toLocaleString('vi-VN')} VNĐ`;
+
+        donateBtn.onclick = () => this.showDonateModal(campaign);
+
+        modal.style.display = 'block';
+    }
+
+    async handleDeepLink() {
+        // Support #campaign-<id> or ?campaignId=<id>
+        const hash = window.location.hash || '';
+        const params = new URLSearchParams(window.location.search);
+        let id = null;
+        if (hash.startsWith('#campaign-')) {
+            id = hash.replace('#campaign-', '');
+        } else if (params.has('campaignId')) {
+            id = params.get('campaignId');
+        }
+
+        if (!id) return;
+
+        try {
+            const res = await fetch(`/api/campaigns/${encodeURIComponent(id)}`);
+            if (!res.ok) return;
+            const campaign = await res.json();
+            this.openDetailModal(campaign);
+        } catch (_) {}
+    }
+
     hideModal(modal) {
         modal.style.display = 'none';
     }
 
-    async handleCreateCampaign(e) {
-        e.preventDefault();
-        
-        const formData = new FormData(e.target);
-        let imageUrl = null;
-
-        try {
-            const file = formData.get('imageFile');
-            if (file && file.size > 0) {
-                const uploadForm = new FormData();
-                uploadForm.append('file', file);
-                const uploadRes = await fetch('/api/campaigns/upload', {
-                    method: 'POST',
-                    body: uploadForm
-                });
-                if (!uploadRes.ok) {
-                    const err = await uploadRes.json().catch(() => ({}));
-                    throw new Error(err.error || 'Upload ảnh thất bại');
-                }
-                const { url } = await uploadRes.json();
-                imageUrl = url;
-            }
-        } catch (err) {
-            this.showMessage(err.message || 'Lỗi upload ảnh', 'error');
-            return;
-        }
-
-        const campaignData = {
-            title: formData.get('title'),
-            description: formData.get('description'),
-            targetAmount: parseFloat(formData.get('targetAmount')),
-            category: formData.get('category'),
-            imageUrl,
-            endDate: formData.get('endDate') ? new Date(formData.get('endDate')).toISOString() : null
-        };
-
-        try {
-            const response = await fetch('/api/campaigns', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(campaignData)
-            });
-
-            if (response.ok) {
-                this.showMessage('Tạo khuyến góp thành công!', 'success');
-                this.hideModal(document.getElementById('create-campaign-modal'));
-                e.target.reset();
-                this.loadCampaigns();
-            } else {
-                const result = await response.json();
-                this.showMessage('Lỗi: ' + (result.error || 'Có lỗi xảy ra'), 'error');
-            }
-        } catch (error) {
-            console.error('Error creating campaign:', error);
-            this.showMessage('Lỗi tạo khuyến góp', 'error');
-        }
-    }
+    
 
     async handleDonate(e) {
         e.preventDefault();

@@ -46,6 +46,12 @@ class IndexManager {
 
         campaigns.forEach(campaign => {
             const campaignCard = this.createCampaignCard(campaign);
+            // Navigate to campaign detail when clicking card (except donate button)
+            campaignCard.addEventListener('click', (e) => {
+                const isDonate = e.target.closest && e.target.closest('.btn-donate');
+                if (isDonate) return;
+                window.location.href = `/campaign_detail.html?id=${encodeURIComponent(campaign.id)}`;
+            });
             container.appendChild(campaignCard);
         });
     }
