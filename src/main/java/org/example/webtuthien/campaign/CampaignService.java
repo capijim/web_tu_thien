@@ -117,6 +117,10 @@ public class CampaignService {
         if (id == null) {
             throw new IllegalArgumentException("Campaign ID is required");
         }
+        // Xóa donations liên quan trước để tránh lỗi FK
+        try {
+            donationRepository.deleteByCampaignId(id);
+        } catch (Exception ignored) {}
         repository.deleteById(id);
     }
 

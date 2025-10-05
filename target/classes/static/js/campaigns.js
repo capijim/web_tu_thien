@@ -228,12 +228,20 @@ class CampaignManager {
         
         const campaignId = document.getElementById('donate-campaign-id').value;
         const amount = parseFloat(document.getElementById('donateAmount').value);
+        const messageInput = document.getElementById('donateMessage');
+        const message = messageInput ? messageInput.value : undefined;
+
+        if (Number.isNaN(amount) || amount <= 0) {
+            this.showMessage('Số tiền không hợp lệ', 'error');
+            return;
+        }
 
         try {
             const response = await fetch(`/api/campaigns/${campaignId}/donate`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ amount })
+                credentials: 'include',
+                body: JSON.stringify({ amount, message })
             });
 
             if (response.ok) {
@@ -242,8 +250,15 @@ class CampaignManager {
                 document.getElementById('donate-form').reset();
                 this.loadCampaigns();
             } else {
-                const result = await response.json();
-                this.showMessage('Lỗi: ' + (result.error || 'Có lỗi xảy ra'), 'error');
+                if (response.status === 401) {
+                    this.showMessage('Bạn cần đăng nhập để ủng hộ', 'error');
+                    setTimeout(() => {
+                        window.location.href = '/login.html';
+                    }, 1200);
+                } else {
+                    const result = await response.json().catch(() => ({}));
+                    this.showMessage('Lỗi: ' + (result.error || 'Có lỗi xảy ra'), 'error');
+                }
             }
         } catch (error) {
             console.error('Error donating:', error);

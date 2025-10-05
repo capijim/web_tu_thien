@@ -18,10 +18,8 @@ class HeadbarManager {
         if (path === '/' || path === '/index.html') return 'home';
         if (path.includes('campaigns')) return 'campaigns';
         if (path.includes('about')) return 'about';
-        if (path.includes('contact')) return 'contact';
         if (path.includes('login')) return 'login';
         if (path.includes('register')) return 'register';
-        if (path.includes('admin')) return 'admin';
         return 'home';
     }
 
@@ -62,29 +60,6 @@ class HeadbarManager {
             }
         });
         
-        // Show admin link if user is admin (for demo purposes, always show)
-        // In real app, you would check user role from session/token
-        this.showAdminLinkIfNeeded();
-    }
-
-    showAdminLinkIfNeeded() {
-        const adminLink = document.querySelector('.admin-link');
-        if (adminLink) {
-            // Check if user is logged in as admin
-            const adminSession = localStorage.getItem('adminSession');
-            if (adminSession) {
-                try {
-                    const session = JSON.parse(adminSession);
-                    if (session.isAdmin && session.expires > Date.now()) {
-                        adminLink.style.display = 'block';
-                        return;
-                    }
-                } catch (e) {
-                    localStorage.removeItem('adminSession');
-                }
-            }
-            adminLink.style.display = 'none';
-        }
     }
 
     setupMobileMenu() {

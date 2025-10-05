@@ -281,7 +281,8 @@ function displayCampaigns(campaigns) {
 
 function openStatusModal(campaignId, currentStatus) {
     document.getElementById('campaign-id').value = campaignId;
-    document.getElementById('campaign-status').value = currentStatus;
+    // chuyển về tiếng Anh nếu currentStatus hiển thị là tiếng Việt
+    document.getElementById('campaign-status').value = normalizeStatus(currentStatus);
     document.getElementById('status-modal').style.display = 'block';
 }
 
@@ -293,7 +294,7 @@ async function updateCampaignStatus(event) {
     event.preventDefault();
     
     const campaignId = document.getElementById('campaign-id').value;
-    const status = document.getElementById('campaign-status').value;
+    const status = normalizeStatus(document.getElementById('campaign-status').value);
 
     try {
         const response = await fetch(`${API_BASE_URL}/campaigns/${campaignId}/status`, {
@@ -309,7 +310,9 @@ async function updateCampaignStatus(event) {
             closeModal();
             loadCampaigns();
         } else {
-            showNotification('Không thể cập nhật trạng thái', 'error');
+            let msg = 'Không thể cập nhật trạng thái';
+            try { const err = await response.json(); if (err && err.error) msg = err.error; } catch {}
+            showNotification(msg, 'error');
         }
     } catch (error) {
         console.error('Error updating campaign status:', error);
@@ -331,7 +334,9 @@ async function deleteCampaign(campaignId) {
             showNotification('Xóa campaign thành công', 'success');
             loadCampaigns();
         } else {
-            showNotification('Không thể xóa campaign', 'error');
+            let msg = 'Không thể xóa campaign';
+            try { const err = await response.json(); if (err && err.error) msg = err.error; } catch {}
+            showNotification(msg, 'error');
         }
     } catch (error) {
         console.error('Error deleting campaign:', error);
@@ -445,6 +450,23 @@ function getStatusText(status) {
         'expired': 'Hết hạn'
     };
     return statusMap[status] || status;
+}
+
+// Chuẩn hóa trạng thái từ nhãn tiếng Việt sang giá trị backend
+function normalizeStatus(status) {
+    if (!status) return status;
+    const map = {
+        'Đang hoạt động': 'active',
+        'Hoàn thành': 'completed',
+        'Đã hủy': 'cancelled',
+        'Hết hạn': 'expired',
+        // cũng hỗ trợ giá trị tiếng Anh truyền qua
+        'active': 'active',
+        'completed': 'completed',
+        'cancelled': 'cancelled',
+        'expired': 'expired'
+    };
+    return map[status] || status;
 }
 
 function showNotification(message, type = 'info') {

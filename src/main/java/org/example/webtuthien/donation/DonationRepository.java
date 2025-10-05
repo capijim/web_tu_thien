@@ -77,6 +77,11 @@ public class DonationRepository {
         jdbc.update(sql, new MapSqlParameterSource("id", id));
     }
 
+    public void deleteByCampaignId(Long campaignId) {
+        String sql = "DELETE FROM donations WHERE campaign_id = :campaignId";
+        jdbc.update(sql, new MapSqlParameterSource("campaignId", campaignId));
+    }
+
     public int countByCampaignId(Long campaignId) {
         String sql = "SELECT COUNT(*) FROM donations WHERE campaign_id = :campaignId";
         Integer count = jdbc.queryForObject(sql, new MapSqlParameterSource("campaignId", campaignId), Integer.class);
