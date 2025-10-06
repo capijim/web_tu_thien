@@ -235,6 +235,29 @@
         </div>
     </div>
 
+    <!-- Admin Login Modal -->
+    <div id="admin-login-modal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <span class="close" id="close-admin-login">&times;</span>
+            <h2>Đăng nhập Admin</h2>
+            <form id="admin-login-form">
+                <div class="form-group">
+                    <label for="admin-email">Email</label>
+                    <input id="admin-email" name="email" type="email" required placeholder="Nhập email" />
+                </div>
+                <div class="form-group">
+                    <label for="admin-password">Mật khẩu</label>
+                    <input id="admin-password" name="password" type="password" required placeholder="Nhập mật khẩu" />
+                </div>
+                <div id="admin-login-error" class="error-message" style="display:none; color:#c53030; margin-bottom: 8px;"></div>
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">Đăng nhập</button>
+                    <button type="button" class="btn btn-secondary" id="cancel-admin-login">Hủy</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <!-- Modal for creating campaign -->
     <div id="create-campaign-modal" class="modal" style="display: none;">
         <div class="modal-content">
@@ -286,5 +309,56 @@
     </div>
 
     <script src="js/admin.js"></script>
+    <script>
+        // Override redirect to show inline admin login modal
+        function redirectToLogin() {
+            const modal = document.getElementById('admin-login-modal');
+            const closeBtn = document.getElementById('close-admin-login');
+            const cancelBtn = document.getElementById('cancel-admin-login');
+            const form = document.getElementById('admin-login-form');
+            const errorDiv = document.getElementById('admin-login-error');
+
+            if (!modal || !form) { window.location.href = '/admin-login.html'; return; }
+
+            const closeModal = () => { modal.style.display = 'none'; };
+            closeBtn && closeBtn.addEventListener('click', closeModal);
+            cancelBtn && cancelBtn.addEventListener('click', closeModal);
+            window.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
+
+            form.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                errorDiv.style.display = 'none';
+                const formData = new FormData(form);
+                const payload = {
+                    email: formData.get('email'),
+                    password: formData.get('password')
+                };
+                try {
+                    const res = await fetch('/api/users/login', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        credentials: 'include',
+                        body: JSON.stringify(payload)
+                    });
+                    const data = await res.json().catch(() => ({}));
+                    if (!res.ok) {
+                        errorDiv.textContent = data.error || 'Đăng nhập thất bại';
+                        errorDiv.style.display = 'block';
+                        return;
+                    }
+                    const expires = Date.now() + 24 * 60 * 60 * 1000; // 24h
+                    const session = { isAdmin: true, email: payload.email, expires };
+                    localStorage.setItem('adminSession', JSON.stringify(session));
+                    // Reload to let admin.js proceed with initialization
+                    window.location.reload();
+                } catch (err) {
+                    errorDiv.textContent = 'Lỗi kết nối. Vui lòng thử lại.';
+                    errorDiv.style.display = 'block';
+                }
+            }, { once: true });
+
+            modal.style.display = 'block';
+        }
+    </script>
 </body>
 </html>
