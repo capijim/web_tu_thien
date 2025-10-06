@@ -55,7 +55,7 @@ class CampaignDetailPage {
         content.style.display = 'none';
 
         try {
-            const res = await fetch(`/api/campaigns/${encodeURIComponent(id)}`);
+            const res = await fetch(`/api/campaigns/${encodeURIComponent(id)}/with-stats`);
             if (!res.ok) {
                 const msg = await res.text().catch(() => '');
                 console.error('Failed to load campaign', { id, status: res.status, body: msg });
@@ -94,6 +94,12 @@ class CampaignDetailPage {
         progressEl.style.width = `${Math.min(progressPercentage, 100)}%`;
         curEl.textContent = `${Number(campaign.currentAmount).toLocaleString('vi-VN')} VNĐ`;
         tgtEl.textContent = `${Number(campaign.targetAmount).toLocaleString('vi-VN')} VNĐ`;
+
+        // Add donation count display
+        const donationCountEl = document.getElementById('detail-donation-count');
+        if (donationCountEl) {
+            donationCountEl.textContent = `${campaign.donationCount || 0} lượt ủng hộ`;
+        }
 
         donateBtn.onclick = () => {
             window.location.href = `/campaigns.html#campaign-${campaign.id}`;

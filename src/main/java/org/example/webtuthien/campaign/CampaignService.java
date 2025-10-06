@@ -147,4 +147,31 @@ public class CampaignService {
             return campaignWithStats;
         }).collect(java.util.stream.Collectors.toList());
     }
+    
+    public Map<String, Object> findByIdWithStats(Long id) {
+        Optional<Campaign> campaignOpt = repository.findById(id);
+        if (campaignOpt.isEmpty()) {
+            throw new IllegalArgumentException("Campaign not found");
+        }
+
+        Campaign campaign = campaignOpt.get();
+        Map<String, Object> campaignWithStats = new HashMap<>();
+        campaignWithStats.put("id", campaign.getId());
+        campaignWithStats.put("userId", campaign.getUserId());
+        campaignWithStats.put("title", campaign.getTitle());
+        campaignWithStats.put("description", campaign.getDescription());
+        campaignWithStats.put("targetAmount", campaign.getTargetAmount());
+        campaignWithStats.put("currentAmount", campaign.getCurrentAmount());
+        campaignWithStats.put("category", campaign.getCategory());
+        campaignWithStats.put("imageUrl", campaign.getImageUrl());
+        campaignWithStats.put("status", campaign.getStatus());
+        campaignWithStats.put("endDate", campaign.getEndDate());
+        campaignWithStats.put("createdAt", campaign.getCreatedAt());
+        
+        // Add donation count
+        int donationCount = donationRepository.countByCampaignId(campaign.getId());
+        campaignWithStats.put("donationCount", donationCount);
+        
+        return campaignWithStats;
+    }
 }

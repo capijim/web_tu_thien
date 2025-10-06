@@ -132,6 +132,22 @@ public class CampaignController {
         }
     }
 
+    @GetMapping("/{id}/with-stats")
+    public ResponseEntity<?> getByIdWithStats(@PathVariable Long id) {
+        try {
+            Map<String, Object> campaign = service.findByIdWithStats(id);
+            return ResponseEntity.ok(campaign);
+        } catch (IllegalArgumentException e) {
+            Map<String, String> error = new HashMap<>();
+            error.put("error", e.getMessage());
+            return ResponseEntity.status(404).body(error);
+        } catch (Exception e) {
+            Map<String, String> error = new HashMap<>();
+            error.put("error", "Lỗi lấy thông tin khuyến góp: " + e.getMessage());
+            return ResponseEntity.status(500).body(error);
+        }
+    }
+
     @PostMapping
     public ResponseEntity<?> create(@RequestBody Campaign campaign, HttpSession session) {
         try {
