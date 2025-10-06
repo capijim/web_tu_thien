@@ -43,7 +43,9 @@ public class CampaignRepository {
             campaign.setTitle(rs.getString("title"));
             campaign.setDescription(rs.getString("description"));
             campaign.setTargetAmount(rs.getBigDecimal("target_amount"));
-            campaign.setCurrentAmount(rs.getBigDecimal("current_amount"));
+            java.math.BigDecimal current = rs.getBigDecimal("current_amount");
+            if (current == null) current = java.math.BigDecimal.ZERO;
+            campaign.setCurrentAmount(current);
             campaign.setCategory(rs.getString("category"));
             campaign.setImageUrl(rs.getString("image_url"));
             campaign.setStatus(rs.getString("status"));

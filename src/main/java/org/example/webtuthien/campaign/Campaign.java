@@ -67,14 +67,19 @@ public class Campaign {
 
     // Helper methods
     public BigDecimal getProgressPercentage() {
-        if (targetAmount.compareTo(BigDecimal.ZERO) == 0) {
+        BigDecimal safeTarget = targetAmount != null ? targetAmount : BigDecimal.ZERO;
+        BigDecimal safeCurrent = currentAmount != null ? currentAmount : BigDecimal.ZERO;
+        if (safeTarget.compareTo(BigDecimal.ZERO) == 0) {
             return BigDecimal.ZERO;
         }
-        return currentAmount.divide(targetAmount, 4, RoundingMode.HALF_UP)
+        return safeCurrent.divide(safeTarget, 4, RoundingMode.HALF_UP)
                           .multiply(new BigDecimal("100"));
     }
 
     public boolean isCompleted() {
+        if (currentAmount == null || targetAmount == null) {
+            return false;
+        }
         return currentAmount.compareTo(targetAmount) >= 0;
     }
 

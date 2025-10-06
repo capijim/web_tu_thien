@@ -391,7 +391,7 @@ async function updateCampaignStatus(event) {
     const status = normalizeStatus(document.getElementById('campaign-status').value);
 
     try {
-        const response = await fetch(`${API_BASE_URL}/campaigns/${campaignId}/status`, {
+        const response = await fetch(`/api/campaigns/${campaignId}/status`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json'
@@ -400,14 +400,14 @@ async function updateCampaignStatus(event) {
             body: JSON.stringify({ status })
         });
 
+        const data = await response.json().catch(() => ({}));
+
         if (response.ok) {
             showNotification('Cập nhật trạng thái thành công', 'success');
             closeModal();
             loadCampaigns();
         } else {
-            let msg = 'Không thể cập nhật trạng thái';
-            try { const err = await response.json(); if (err && err.error) msg = err.error; } catch {}
-            showNotification(msg, 'error');
+            showNotification(data.error || 'Không thể cập nhật trạng thái', 'error');
         }
     } catch (error) {
         console.error('Error updating campaign status:', error);

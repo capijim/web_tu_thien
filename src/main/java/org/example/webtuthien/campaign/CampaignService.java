@@ -81,7 +81,8 @@ public class CampaignService {
         }
 
         Campaign campaign = campaignOpt.get();
-        BigDecimal newAmount = campaign.getCurrentAmount().add(amount);
+        BigDecimal base = campaign.getCurrentAmount() != null ? campaign.getCurrentAmount() : BigDecimal.ZERO;
+        BigDecimal newAmount = base.add(amount);
         repository.updateCurrentAmount(campaignId, newAmount);
 
         // Update campaign status if target is reached
