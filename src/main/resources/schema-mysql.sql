@@ -1,13 +1,3 @@
-create table if not exists donations (
-  id bigint primary key auto_increment,
-  campaign_id bigint not null,
-  donor_name varchar(255) not null,
-  amount decimal(12,2) not null,
-  message text,
-  created_at timestamp not null default current_timestamp,
-  foreign key (campaign_id) references campaigns(id)
-);
-
 create table if not exists users (
   id bigint primary key auto_increment,
   name varchar(255) not null,
@@ -29,6 +19,16 @@ create table if not exists campaigns (
   end_date timestamp,
   created_at timestamp not null default current_timestamp,
   foreign key (user_id) references users(id)
+);
+
+create table if not exists donations (
+  id bigint primary key auto_increment,
+  campaign_id bigint not null,
+  donor_name varchar(255) not null,
+  amount decimal(12,2) not null,
+  message text,
+  created_at timestamp not null default current_timestamp,
+  foreign key (campaign_id) references campaigns(id)
 );
 
 
