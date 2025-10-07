@@ -138,13 +138,16 @@ public class CampaignService {
             campaignWithStats.put("category", campaign.getCategory());
             campaignWithStats.put("imageUrl", campaign.getImageUrl());
             campaignWithStats.put("status", campaign.getStatus());
-            campaignWithStats.put("endDate", campaign.getEndDate());
-            campaignWithStats.put("createdAt", campaign.getCreatedAt());
-            
-            // Add donation count
-            int donationCount = donationRepository.countByCampaignId(campaign.getId());
+            campaignWithStats.put("endDate", campaign.getEndDate() != null ? campaign.getEndDate().toString() : null);
+            campaignWithStats.put("createdAt", campaign.getCreatedAt() != null ? campaign.getCreatedAt().toString() : null);
+
+            // Add donation count (fail-safe)
+            int donationCount = 0;
+            try {
+                donationCount = donationRepository.countByCampaignId(campaign.getId());
+            } catch (Exception ignored) {}
             campaignWithStats.put("donationCount", donationCount);
-            
+
             return campaignWithStats;
         }).collect(java.util.stream.Collectors.toList());
     }
@@ -166,13 +169,16 @@ public class CampaignService {
         campaignWithStats.put("category", campaign.getCategory());
         campaignWithStats.put("imageUrl", campaign.getImageUrl());
         campaignWithStats.put("status", campaign.getStatus());
-        campaignWithStats.put("endDate", campaign.getEndDate());
-        campaignWithStats.put("createdAt", campaign.getCreatedAt());
-        
-        // Add donation count
-        int donationCount = donationRepository.countByCampaignId(campaign.getId());
+        campaignWithStats.put("endDate", campaign.getEndDate() != null ? campaign.getEndDate().toString() : null);
+        campaignWithStats.put("createdAt", campaign.getCreatedAt() != null ? campaign.getCreatedAt().toString() : null);
+
+        // Add donation count (fail-safe)
+        int donationCount = 0;
+        try {
+            donationCount = donationRepository.countByCampaignId(campaign.getId());
+        } catch (Exception ignored) {}
         campaignWithStats.put("donationCount", donationCount);
-        
+
         return campaignWithStats;
     }
 }
