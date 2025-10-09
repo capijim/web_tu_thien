@@ -31,7 +31,7 @@ public class CampaignRepository {
         this.insertCampaign = new SimpleJdbcInsert(this.coreJdbc)
                 .withTableName("campaigns")
                 .usingGeneratedKeyColumns("id")
-                .usingColumns("user_id", "title", "description", "target_amount", 
+                .usingColumns("partner_id", "title", "description", "target_amount", 
                             "current_amount", "category", "image_url", "status", "end_date");
     }
 
@@ -41,7 +41,7 @@ public class CampaignRepository {
         public Campaign mapRow(@NonNull ResultSet rs, int rowNum) throws SQLException {
             Campaign campaign = new Campaign();
             campaign.setId(rs.getLong("id"));
-            campaign.setUserId(rs.getLong("user_id"));
+            campaign.setPartnerId(rs.getLong("partner_id"));
             campaign.setTitle(rs.getString("title"));
             campaign.setDescription(rs.getString("description"));
             campaign.setTargetAmount(rs.getBigDecimal("target_amount"));
@@ -67,35 +67,35 @@ public class CampaignRepository {
     };
 
     public List<Campaign> findAll() {
-        String sql = "select id, user_id, title, description, target_amount, current_amount, " +
+        String sql = "select id, partner_id, title, description, target_amount, current_amount, " +
                     "category, image_url, status, end_date, created_at from campaigns " +
                     "order by created_at desc";
         return jdbc.query(sql, ROW_MAPPER);
     }
 
-    public List<Campaign> findByUserId(Long userId) {
-        String sql = "select id, user_id, title, description, target_amount, current_amount, " +
+    public List<Campaign> findByPartnerId(Long partnerId) {
+        String sql = "select id, partner_id, title, description, target_amount, current_amount, " +
                     "category, image_url, status, end_date, created_at from campaigns " +
-                    "where user_id = :userId order by created_at desc";
-        return jdbc.query(sql, new MapSqlParameterSource("userId", userId), ROW_MAPPER);
+                    "where partner_id = :partnerId order by created_at desc";
+        return jdbc.query(sql, new MapSqlParameterSource("partnerId", partnerId), ROW_MAPPER);
     }
 
     public List<Campaign> findByCategory(String category) {
-        String sql = "select id, user_id, title, description, target_amount, current_amount, " +
+        String sql = "select id, partner_id, title, description, target_amount, current_amount, " +
                     "category, image_url, status, end_date, created_at from campaigns " +
                     "where category = :category and status = 'active' order by created_at desc";
         return jdbc.query(sql, new MapSqlParameterSource("category", category), ROW_MAPPER);
     }
 
     public List<Campaign> findActive() {
-        String sql = "select id, user_id, title, description, target_amount, current_amount, " +
+        String sql = "select id, partner_id, title, description, target_amount, current_amount, " +
                     "category, image_url, status, end_date, created_at from campaigns " +
                     "where status = 'active' order by created_at desc";
         return jdbc.query(sql, ROW_MAPPER);
     }
 
     public Optional<Campaign> findById(Long id) {
-        String sql = "select id, user_id, title, description, target_amount, current_amount, " +
+        String sql = "select id, partner_id, title, description, target_amount, current_amount, " +
                     "category, image_url, status, end_date, created_at from campaigns " +
                     "where id = :id";
         List<Campaign> list = jdbc.query(sql, new MapSqlParameterSource("id", id), ROW_MAPPER);
@@ -104,7 +104,7 @@ public class CampaignRepository {
 
     public Campaign insert(Campaign campaign) {
         Map<String, Object> params = new HashMap<>();
-        params.put("user_id", campaign.getUserId());
+        params.put("partner_id", campaign.getPartnerId());
         params.put("title", campaign.getTitle());
         params.put("description", campaign.getDescription());
         params.put("target_amount", campaign.getTargetAmount());

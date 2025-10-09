@@ -6,7 +6,7 @@ import java.time.OffsetDateTime;
 
 public class Campaign {
     private Long id;
-    private Long userId;
+    private Long partnerId;
     private String title;
     private String description;
     private BigDecimal targetAmount;
@@ -19,9 +19,9 @@ public class Campaign {
 
     public Campaign() {}
 
-    public Campaign(Long userId, String title, String description, BigDecimal targetAmount, 
+    public Campaign(Long partnerId, String title, String description, BigDecimal targetAmount, 
                    String category, String imageUrl, OffsetDateTime endDate) {
-        this.userId = userId;
+        this.partnerId = partnerId;
         this.title = title;
         this.description = description;
         this.targetAmount = targetAmount;
@@ -35,8 +35,8 @@ public class Campaign {
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 
-    public Long getUserId() { return userId; }
-    public void setUserId(Long userId) { this.userId = userId; }
+    public Long getPartnerId() { return partnerId; }
+    public void setPartnerId(Long partnerId) { this.partnerId = partnerId; }
 
     public String getTitle() { return title; }
     public void setTitle(String title) { this.title = title; }
@@ -91,7 +91,7 @@ public class Campaign {
     public String toString() {
         return "Campaign{" +
                 "id=" + id +
-                ", userId=" + userId +
+                ", partnerId=" + partnerId +
                 ", title='" + title + '\'' +
                 ", description='" + description + '\'' +
                 ", targetAmount=" + targetAmount +

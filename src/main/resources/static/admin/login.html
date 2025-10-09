@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng nhập Admin</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/admin.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="auth-container">
+        <div class="auth-card">
+            <div class="auth-header">
+                <img src="../assets/logo.svg" alt="Logo" class="auth-logo">
+                <h1>Admin Login</h1>
+                <p>Đăng nhập để quản trị hệ thống</p>
+            </div>
+
+            <form id="admin-login-form" class="auth-form">
+                <div id="admin-login-error" class="error-message" style="display:none; color:#c53030; margin-bottom: 8px;"></div>
+
+                <div class="form-group">
+                    <label for="admin-email">Email</label>
+                    <input id="admin-email" name="email" type="text" required placeholder="admin" />
+                </div>
+                <div class="form-group">
+                    <label for="admin-password">Mật khẩu</label>
+                    <input id="admin-password" name="password" type="password" required placeholder="123" />
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary" style="width:100%">
+                        <i class="fas fa-sign-in-alt"></i> Đăng nhập
+                    </button>
+                </div>
+            </form>
+
+            <div class="auth-footer">
+                <a href="/" class="link">← Về trang chủ</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const form = document.getElementById('admin-login-form');
+        const errorDiv = document.getElementById('admin-login-error');
+
+        // Nếu đã có session còn hạn, vào thẳng dashboard
+        try {
+            const s = localStorage.getItem('adminSession');
+            if (s) {
+                const session = JSON.parse(s);
+                if (session.isAdmin && session.expires > Date.now()) {
+                    window.location.href = '/admin/admin.html';
+                    return;
+                }
+            }
+        } catch {}
+
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+            errorDiv.style.display = 'none';
+            const formData = new FormData(form);
+            const email = (formData.get('email') || '').trim();
+            const password = (formData.get('password') || '').trim();
+
+            if (email === 'admin' && password === '123') {
+                const expires = Date.now() + 24 * 60 * 60 * 1000; // 24h
+                const session = { isAdmin: true, email: 'admin', expires };
+                localStorage.setItem('adminSession', JSON.stringify(session));
+                window.location.href = '/admin/admin.html';
+                return;
+            }
+
+            errorDiv.textContent = 'Tài khoản hoặc mật khẩu không đúng';
+            errorDiv.style.display = 'block';
+        });
+    });
+    </script>
+</body>
+</html>
+
+

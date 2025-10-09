@@ -13,6 +13,9 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Map;
 
+import org.example.webtuthien.partner.Partner;
+import org.example.webtuthien.partner.PartnerService;
+
 @RestController
 @RequestMapping("/api/admin")
 @CrossOrigin(originPatterns = "*")
@@ -29,6 +32,9 @@ public class AdminController {
 
     @Autowired
     private AdminService adminService;
+
+    @Autowired
+    private PartnerService partnerService;
 
     // Dashboard statistics
     @GetMapping("/dashboard/stats")
@@ -112,6 +118,44 @@ public class AdminController {
             return ResponseEntity.ok().build();
         } catch (Exception e) {
             return ResponseEntity.badRequest().build();
+        }
+    }
+
+    // Partners management
+    @GetMapping("/partners")
+    public ResponseEntity<List<Partner>> getAllPartners() {
+        try {
+            List<Partner> partners = partnerService.list();
+            return ResponseEntity.ok(partners);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    @PostMapping("/partners")
+    public ResponseEntity<?> createPartner(@RequestBody Partner partner) {
+        try {
+            if (partner.getName() == null || partner.getName().isBlank()) {
+                return ResponseEntity.badRequest().body(Map.of("error", "Tên đối tác là bắt buộc"));
+            }
+            Partner created = partnerService.create(partner);
+            return ResponseEntity.ok(created);
+        } catch (org.springframework.dao.DataIntegrityViolationException e) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Email đã tồn tại hoặc dữ liệu không hợp lệ"));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(Map.of("error", "Lỗi tạo đối tác"));
+        }
+    }
+
+    @DeleteMapping("/partners/{id}")
+    public ResponseEntity<?> deletePartner(@PathVariable Long id) {
+        try {
+            partnerService.delete(id);
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Không thể xóa đối tác"));
         }
     }
 

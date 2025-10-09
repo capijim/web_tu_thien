@@ -15,6 +15,7 @@ document.addEventListener('DOMContentLoaded', function() {
     initializeAdmin();
     loadDashboardStats();
     setupCreateCampaign();
+    setupCreatePartner();
 });
 
 function checkAdminAuth() {
@@ -41,7 +42,7 @@ function checkAdminAuth() {
 }
 
 function redirectToLogin() {
-    window.location.href = '/admin-login.html';
+    window.location.href = '/admin/login.html';
 }
 
 function updateAdminUserDisplay() {
@@ -186,6 +187,7 @@ function switchSection(sectionName) {
     // Update page title
     const titles = {
         dashboard: 'Dashboard',
+        partners: 'Bên đồng hành',
         users: 'Quản lý Users',
         campaigns: 'Quản lý Campaigns',
         donations: 'Quản lý Donations'
@@ -196,6 +198,9 @@ function switchSection(sectionName) {
     switch(sectionName) {
         case 'dashboard':
             loadDashboardStats();
+            break;
+        case 'partners':
+            loadPartners();
             break;
         case 'users':
             loadUsers();
@@ -514,6 +519,125 @@ async function deleteDonation(donationId) {
 
 
 // Utility functions
+// Partners management
+async function loadPartners() {
+    const tbody = document.getElementById('partners-table-body');
+    if (!tbody) return;
+    tbody.innerHTML = '<tr><td colspan="7" class="loading"><i class="fas fa-spinner"></i> Đang tải...</td></tr>';
+
+    try {
+        const response = await fetch(`${API_BASE_URL}/partners`, {
+            credentials: 'include'
+        });
+        if (response.ok) {
+            const partners = await response.json();
+            displayPartners(partners);
+        } else {
+            tbody.innerHTML = '<tr><td colspan="7" class="empty-state">Không thể tải dữ liệu đối tác</td></tr>';
+        }
+    } catch (e) {
+        tbody.innerHTML = '<tr><td colspan="7" class="empty-state">Lỗi khi tải dữ liệu đối tác</td></tr>';
+    }
+}
+
+function displayPartners(partners) {
+    const tbody = document.getElementById('partners-table-body');
+    if (!tbody) return;
+    if (!Array.isArray(partners) || partners.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="7" class="empty-state">Chưa có đối tác nào</td></tr>';
+        return;
+    }
+    tbody.innerHTML = partners.map(p => `
+        <tr>
+            <td>${p.id}</td>
+            <td>${p.name || ''}</td>
+            <td>${p.email || ''}</td>
+            <td>${p.phone || ''}</td>
+            <td>${p.address || ''}</td>
+            <td>${formatDate(p.createdAt)}</td>
+            <td>
+                <div class="action-buttons">
+                    <button class="btn btn-danger" onclick="deletePartner(${p.id})">
+                        <i class="fas fa-trash"></i> Xóa
+                    </button>
+                </div>
+            </td>
+        </tr>
+    `).join('');
+}
+
+async function deletePartner(partnerId) {
+    if (!confirm('Bạn có chắc chắn muốn xóa đối tác này?')) return;
+    try {
+        const res = await fetch(`${API_BASE_URL}/partners/${partnerId}`, {
+            method: 'DELETE',
+            credentials: 'include'
+        });
+        if (res.ok) {
+            showNotification('Xóa đối tác thành công', 'success');
+            loadPartners();
+        } else {
+            const err = await res.json().catch(() => ({}));
+            showNotification(err.error || 'Không thể xóa đối tác', 'error');
+        }
+    } catch (e) {
+        showNotification('Lỗi khi xóa đối tác', 'error');
+    }
+}
+
+function setupCreatePartner() {
+    const openBtn = document.getElementById('open-create-partner');
+    const modal = document.getElementById('create-partner-modal');
+    const closeBtn = document.getElementById('close-create-partner');
+    const cancelBtn = document.getElementById('cancel-create-partner');
+    const form = document.getElementById('create-partner-form');
+
+    if (!openBtn || !modal || !form) return;
+
+    openBtn.addEventListener('click', () => { modal.style.display = 'block'; });
+    const closeModal = () => { modal.style.display = 'none'; };
+    if (closeBtn) closeBtn.addEventListener('click', closeModal);
+    if (cancelBtn) cancelBtn.addEventListener('click', closeModal);
+    window.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
+
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const formData = new FormData(form);
+        const payload = {
+            name: formData.get('name'),
+            email: formData.get('email') || null,
+            phone: formData.get('phone') || null,
+            address: formData.get('address') || null
+        };
+        try {
+            const res = await fetch(`${API_BASE_URL}/partners`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'include',
+                body: JSON.stringify(payload)
+            });
+            if (res.ok) {
+                showNotification('Tạo đối tác thành công', 'success');
+                closeModal();
+                form.reset();
+                loadPartners();
+            } else {
+                const err = await res.json().catch(() => ({}));
+                showNotification(err.error || 'Không thể tạo đối tác', 'error');
+            }
+        } catch (e) {
+            showNotification('Lỗi khi tạo đối tác', 'error');
+        }
+    });
+}
+
+// Fallback mở modal khi click trực tiếp trên HTML
+function openCreatePartnerModal() {
+    const modal = document.getElementById('create-partner-modal');
+    if (modal) modal.style.display = 'block';
+}
+// Đảm bảo hàm có trên scope global để onclick inline gọi được
+window.openCreatePartnerModal = openCreatePartnerModal;
 function formatCurrency(amount) {
     if (typeof amount === 'number') {
         return new Intl.NumberFormat('vi-VN', {
@@ -660,6 +784,6 @@ function logout() {
         sessionStorage.clear();
         
         // Redirect to admin login page
-        window.location.href = '/admin-login.html';
+        window.location.href = '/admin/login.html';
     }
 }

@@ -30,8 +30,8 @@ public class CampaignService {
         return repository.findActive();
     }
 
-    public List<Campaign> findByUserId(Long userId) {
-        return repository.findByUserId(userId);
+    public List<Campaign> findByPartnerId(Long partnerId) {
+        return repository.findByPartnerId(partnerId);
     }
 
     public List<Campaign> findByCategory(String category) {
@@ -44,8 +44,8 @@ public class CampaignService {
 
     public Campaign create(Campaign campaign) {
         // Validate required fields
-        if (campaign.getUserId() == null) {
-            throw new IllegalArgumentException("userId is required");
+        if (campaign.getPartnerId() == null) {
+            throw new IllegalArgumentException("partnerId is required");
         }
         if (campaign.getTitle() == null || campaign.getTitle().isBlank()) {
             throw new IllegalArgumentException("title is required");
@@ -130,7 +130,7 @@ public class CampaignService {
         return campaigns.stream().map(campaign -> {
             Map<String, Object> campaignWithStats = new HashMap<>();
             campaignWithStats.put("id", campaign.getId());
-            campaignWithStats.put("userId", campaign.getUserId());
+            campaignWithStats.put("partnerId", campaign.getPartnerId());
             campaignWithStats.put("title", campaign.getTitle());
             campaignWithStats.put("description", campaign.getDescription());
             campaignWithStats.put("targetAmount", campaign.getTargetAmount());
@@ -161,7 +161,7 @@ public class CampaignService {
         Campaign campaign = campaignOpt.get();
         Map<String, Object> campaignWithStats = new HashMap<>();
         campaignWithStats.put("id", campaign.getId());
-        campaignWithStats.put("userId", campaign.getUserId());
+        campaignWithStats.put("partnerId", campaign.getPartnerId());
         campaignWithStats.put("title", campaign.getTitle());
         campaignWithStats.put("description", campaign.getDescription());
         campaignWithStats.put("targetAmount", campaign.getTargetAmount());

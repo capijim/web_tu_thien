@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard - Hệ thống Từ thiện</title>
-    <link rel="stylesheet" href="css/style.css">
-    <link rel="stylesheet" href="css/admin.css">
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/admin.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
 <body>
@@ -13,7 +13,7 @@
         <!-- Sidebar -->
         <nav class="admin-sidebar">
             <div class="sidebar-header">
-                <img src="assets/logo.svg" alt="Logo" class="sidebar-logo">
+                <img src="../assets/logo.svg" alt="Logo" class="sidebar-logo">
                 <h2>Admin Panel</h2>
             </div>
             
@@ -21,6 +21,10 @@
                 <li class="menu-item active" data-section="dashboard">
                     <i class="fas fa-tachometer-alt"></i>
                     <span>Dashboard</span>
+                </li>
+                <li class="menu-item" data-section="partners">
+                    <i class="fas fa-handshake-angle"></i>
+                    <span>Bên đồng hành</span>
                 </li>
                 <li class="menu-item" data-section="users">
                     <i class="fas fa-users"></i>
@@ -120,6 +124,37 @@
             </section>
 
             <!-- Users Section -->
+            <!-- Partners Section -->
+            <section id="partners-section" class="admin-section">
+                <div class="section-header">
+                    <h2>Quản lý Bên đồng hành</h2>
+                    <div>
+                        <button class="refresh-btn" onclick="loadPartners()">
+                            <i class="fas fa-sync-alt"></i> Làm mới
+                        </button>
+                        <button class="btn btn-primary" id="open-create-partner" onclick="openCreatePartnerModal()">
+                            <i class="fas fa-plus"></i> Thêm đối tác
+                        </button>
+                    </div>
+                </div>
+                <div class="table-container">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Tên</th>
+                                <th>Email</th>
+                                <th>Điện thoại</th>
+                                <th>Địa chỉ</th>
+                                <th>Ngày tạo</th>
+                                <th>Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody id="partners-table-body"></tbody>
+                    </table>
+                </div>
+            </section>
+
             <section id="users-section" class="admin-section">
                 <div class="section-header">
                     <h2>Quản lý Users</h2>
@@ -235,29 +270,6 @@
         </div>
     </div>
 
-    <!-- Admin Login Modal -->
-    <div id="admin-login-modal" class="modal" style="display: none;">
-        <div class="modal-content">
-            <span class="close" id="close-admin-login">&times;</span>
-            <h2>Đăng nhập Admin</h2>
-            <form id="admin-login-form">
-                <div class="form-group">
-                    <label for="admin-email">Email</label>
-                    <input id="admin-email" name="email" type="email" required placeholder="Nhập email" />
-                </div>
-                <div class="form-group">
-                    <label for="admin-password">Mật khẩu</label>
-                    <input id="admin-password" name="password" type="password" required placeholder="Nhập mật khẩu" />
-                </div>
-                <div id="admin-login-error" class="error-message" style="display:none; color:#c53030; margin-bottom: 8px;"></div>
-                <div class="form-actions">
-                    <button type="submit" class="btn btn-primary">Đăng nhập</button>
-                    <button type="button" class="btn btn-secondary" id="cancel-admin-login">Hủy</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
     <!-- Modal for creating campaign -->
     <div id="create-campaign-modal" class="modal" style="display: none;">
         <div class="modal-content">
@@ -308,44 +320,36 @@
         </div>
     </div>
 
-    <script src="js/admin.js"></script>
-    <script>
-        // Override redirect to show inline admin login modal
-        function redirectToLogin() {
-            const modal = document.getElementById('admin-login-modal');
-            const closeBtn = document.getElementById('close-admin-login');
-            const cancelBtn = document.getElementById('cancel-admin-login');
-            const form = document.getElementById('admin-login-form');
-            const errorDiv = document.getElementById('admin-login-error');
+    <!-- Modal for creating partner -->
+    <div id="create-partner-modal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <span class="close" id="close-create-partner">&times;</span>
+            <h2>Thêm đối tác mới</h2>
+            <form id="create-partner-form">
+                <div class="form-group">
+                    <label for="partner-name">Tên</label>
+                    <input id="partner-name" name="name" required placeholder="Nhập tên đối tác" />
+                </div>
+                <div class="form-group">
+                    <label for="partner-email">Email</label>
+                    <input id="partner-email" name="email" type="email" placeholder="Email (tùy chọn)" />
+                </div>
+                <div class="form-group">
+                    <label for="partner-phone">Điện thoại</label>
+                    <input id="partner-phone" name="phone" placeholder="Điện thoại (tùy chọn)" />
+                </div>
+                <div class="form-group">
+                    <label for="partner-address">Địa chỉ</label>
+                    <input id="partner-address" name="address" placeholder="Địa chỉ (tùy chọn)" />
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">Tạo</button>
+                    <button type="button" class="btn btn-secondary" id="cancel-create-partner">Hủy</button>
+                </div>
+            </form>
+        </div>
+    </div>
 
-            if (!modal || !form) { window.location.href = '/admin-login.html'; return; }
-
-            const closeModal = () => { modal.style.display = 'none'; };
-            closeBtn && closeBtn.addEventListener('click', closeModal);
-            cancelBtn && cancelBtn.addEventListener('click', closeModal);
-            window.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
-
-            form.addEventListener('submit', async (e) => {
-                e.preventDefault();
-                errorDiv.style.display = 'none';
-                const formData = new FormData(form);
-                const email = (formData.get('email') || '').trim();
-                const password = (formData.get('password') || '').trim();
-
-                if (email === 'admin' && password === '123') {
-                    const expires = Date.now() + 24 * 60 * 60 * 1000; // 24h
-                    const session = { isAdmin: true, email: 'admin', expires };
-                    localStorage.setItem('adminSession', JSON.stringify(session));
-                    window.location.reload();
-                    return;
-                }
-
-                errorDiv.textContent = 'Tài khoản hoặc mật khẩu không đúng';
-                errorDiv.style.display = 'block';
-            }, { once: true });
-
-            modal.style.display = 'block';
-        }
-    </script>
+    <script src="../js/admin.js"></script>
 </body>
 </html>

@@ -109,8 +109,8 @@ public class CampaignController {
                 return ResponseEntity.status(401).body(error);
             }
             
-            Long userId = (Long) userIdObj;
-            List<Campaign> campaigns = service.findByUserId(userId);
+            Long partnerId = (Long) userIdObj; // Tạm dùng session userId như partnerId nếu chưa có module partners
+            List<Campaign> campaigns = service.findByPartnerId(partnerId);
             return ResponseEntity.ok(campaigns);
         } catch (Exception e) {
             Map<String, String> error = new HashMap<>();
@@ -158,8 +158,8 @@ public class CampaignController {
                 return ResponseEntity.status(401).body(error);
             }
             
-            Long userId = (Long) userIdObj;
-            campaign.setUserId(userId);
+            Long partnerId = (Long) userIdObj; // tạm map userId -> partnerId
+            campaign.setPartnerId(partnerId);
             
             Campaign created = service.create(campaign);
             return ResponseEntity.ok(created);

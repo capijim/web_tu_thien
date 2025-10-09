@@ -6,9 +6,18 @@ create table if not exists users (
   created_at timestamp not null default current_timestamp
 );
 
+create table if not exists partners (
+  id bigint primary key auto_increment,
+  name varchar(255) not null,
+  email varchar(255) unique,
+  phone varchar(50),
+  address varchar(500),
+  created_at timestamp not null default current_timestamp
+);
+
 create table if not exists campaigns (
   id bigint primary key auto_increment,
-  user_id bigint not null,
+  partner_id bigint not null,
   title varchar(255) not null,
   description text not null,
   target_amount decimal(12,2) not null,
@@ -18,7 +27,7 @@ create table if not exists campaigns (
   status varchar(20) default 'active',
   end_date timestamp,
   created_at timestamp not null default current_timestamp,
-  foreign key (user_id) references users(id)
+  foreign key (partner_id) references partners(id)
 );
 
 create table if not exists donations (
