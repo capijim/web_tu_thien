@@ -2,6 +2,7 @@ package org.example.webtuthien.user;
 
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Repository;
 
 import java.sql.ResultSet;
@@ -20,7 +21,8 @@ public class UserRepository {
 
     private final RowMapper<User> userRowMapper = new RowMapper<User>() {
         @Override
-        public User mapRow(ResultSet rs, int rowNum) throws SQLException {
+        @NonNull
+        public User mapRow(@NonNull ResultSet rs, int rowNum) throws SQLException {
             User user = new User();
             user.setId(rs.getLong("id"));
             user.setName(rs.getString("name"));

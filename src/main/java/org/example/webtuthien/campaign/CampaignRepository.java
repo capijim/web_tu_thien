@@ -6,6 +6,7 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
+import org.springframework.lang.NonNull;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -36,7 +37,8 @@ public class CampaignRepository {
 
     private static final RowMapper<Campaign> ROW_MAPPER = new RowMapper<>() {
         @Override
-        public Campaign mapRow(ResultSet rs, int rowNum) throws SQLException {
+        @NonNull
+        public Campaign mapRow(@NonNull ResultSet rs, int rowNum) throws SQLException {
             Campaign campaign = new Campaign();
             campaign.setId(rs.getLong("id"));
             campaign.setUserId(rs.getLong("user_id"));

@@ -55,20 +55,39 @@ class CampaignDetailPage {
         content.style.display = 'none';
 
         try {
-            const res = await fetch(`/api/campaigns/${encodeURIComponent(id)}/with-stats`);
+            const res = await fetch(`/api/campaigns/${encodeURIComponent(id)}`, {
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/json'
+                },
+                credentials: 'include'
+            });
+
             if (!res.ok) {
-                const msg = await res.text().catch(() => '');
-                console.error('Failed to load campaign', { id, status: res.status, body: msg });
-                throw new Error(`status ${res.status}`);
+                const errorMsg = await res.text().catch(() => '');
+                console.error('Failed to load campaign:', {
+                    id,
+                    status: res.status,
+                    error: errorMsg
+                });
+                throw new Error(errorMsg || `Failed to load campaign (${res.status})`);
             }
+
             const campaign = await res.json();
+            
+            // Add default values for missing fields
+            campaign.currentAmount = campaign.currentAmount || 0;
+            campaign.targetAmount = campaign.targetAmount || 0;
+            campaign.donationCount = campaign.donationCount || 0;
+
             this.renderCampaign(campaign);
             loading.style.display = 'none';
             content.style.display = 'block';
+
         } catch (err) {
-            console.error('Error fetching campaign detail:', err);
+            console.error('Error fetching campaign:', err);
             loading.style.display = 'none';
-            this.showError(`Không tìm thấy chiến dịch (id=${id}).`);
+            this.showError('Không thể tải thông tin chiến dịch. Vui lòng thử lại sau.');
         }
     }
 
