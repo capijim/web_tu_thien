@@ -96,6 +96,8 @@ function setupCreateCampaign() {
 
     openBtn.addEventListener('click', () => {
         modal.style.display = 'block';
+        // Nạp danh sách bên đồng hành cho dropdown khi mở modal
+        populatePartnerSelect();
     });
 
     const closeModalCreate = () => {
@@ -144,12 +146,13 @@ async function handleAdminCreateCampaign(e) {
         description: formData.get('description'),
         targetAmount: parseFloat(formData.get('targetAmount')),
         category: formData.get('category'),
+        partnerId: formData.get('partnerId') ? Number(formData.get('partnerId')) : null,
         imageUrl,
         endDate: formData.get('endDate') ? new Date(formData.get('endDate')).toISOString() : null
     };
 
     try {
-        const response = await fetch('/api/campaigns', {
+        const response = await fetch(`${API_BASE_URL}/campaigns`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             credentials: 'include',
@@ -168,6 +171,38 @@ async function handleAdminCreateCampaign(e) {
     } catch (error) {
         console.error('Error creating campaign:', error);
         showNotification('Lỗi tạo campaign', 'error');
+    }
+}
+
+// Nạp dropdown chọn bên đồng hành trong form tạo campaign
+async function populatePartnerSelect() {
+    const select = document.getElementById('create-partnerId');
+    if (!select) return;
+    try {
+        const res = await fetch(`${API_BASE_URL}/partners`, { credentials: 'include' });
+        if (!res.ok) {
+            showNotification('Không thể tải danh sách bên đồng hành', 'error');
+            return;
+        }
+        const partners = await res.json();
+        // Xóa các option cũ (giữ placeholder đầu tiên)
+        while (select.options.length > 1) select.remove(1);
+        if (Array.isArray(partners) && partners.length > 0) {
+            partners.forEach(p => {
+                const opt = document.createElement('option');
+                opt.value = p.id;
+                opt.textContent = `${p.name || 'Đối tác'}${p.email ? ' - ' + p.email : ''}`;
+                select.appendChild(opt);
+            });
+        } else {
+            const opt = document.createElement('option');
+            opt.value = '';
+            opt.textContent = 'Chưa có đối tác nào - hãy thêm trước';
+            opt.disabled = true;
+            select.appendChild(opt);
+        }
+    } catch (e) {
+        showNotification('Lỗi khi tải danh sách bên đồng hành', 'error');
     }
 }
 
@@ -636,8 +671,7 @@ function openCreatePartnerModal() {
     const modal = document.getElementById('create-partner-modal');
     if (modal) modal.style.display = 'block';
 }
-// Đảm bảo hàm có trên scope global để onclick inline gọi được
-window.openCreatePartnerModal = openCreatePartnerModal;
+
 function formatCurrency(amount) {
     if (typeof amount === 'number') {
         return new Intl.NumberFormat('vi-VN', {

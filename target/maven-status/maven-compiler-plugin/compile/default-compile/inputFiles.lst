@@ -1,4 +1,5 @@
 C:\xampp\htdocs\web_tu_thien\src\main\java\org\example\webtuthien\WebTuThienApplication.java
+C:\xampp\htdocs\web_tu_thien\src\main\java\org\example\webtuthien\partner\PartnerRepository.java
 C:\xampp\htdocs\web_tu_thien\src\main\java\org\example\webtuthien\donation\DonationService.java
 C:\xampp\htdocs\web_tu_thien\src\main\java\org\example\webtuthien\donation\DonationRepository.java
 C:\xampp\htdocs\web_tu_thien\src\main\java\org\example\webtuthien\config\SessionConfig.java
@@ -8,6 +9,8 @@ C:\xampp\htdocs\web_tu_thien\src\main\java\org\example\webtuthien\user\UserRepos
 C:\xampp\htdocs\web_tu_thien\src\main\java\org\example\webtuthien\campaign\Campaign.java
 C:\xampp\htdocs\web_tu_thien\src\main\java\org\example\webtuthien\config\CorsConfig.java
 C:\xampp\htdocs\web_tu_thien\src\main\java\org\example\webtuthien\user\User.java
+C:\xampp\htdocs\web_tu_thien\src\main\java\org\example\webtuthien\partner\PartnerService.java
+C:\xampp\htdocs\web_tu_thien\src\main\java\org\example\webtuthien\partner\Partner.java
 C:\xampp\htdocs\web_tu_thien\src\main\java\org\example\webtuthien\donation\DonationController.java
 C:\xampp\htdocs\web_tu_thien\src\main\java\org\example\webtuthien\campaign\CampaignController.java
 C:\xampp\htdocs\web_tu_thien\src\main\java\org\example\webtuthien\admin\AdminController.java

@@ -79,6 +79,22 @@ public class AdminController {
         }
     }
 
+    @PostMapping("/campaigns")
+    public ResponseEntity<?> createCampaign(@RequestBody Campaign campaign) {
+        try {
+            // Cho phép admin chỉ định partnerId từ payload
+            if (campaign.getPartnerId() == null) {
+                return ResponseEntity.badRequest().body(Map.of("error", "partnerId là bắt buộc"));
+            }
+            Campaign created = campaignService.create(campaign);
+            return ResponseEntity.ok(created);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(Map.of("error", "Lỗi tạo campaign"));
+        }
+    }
+
     @PutMapping("/campaigns/{id}/status")
     public ResponseEntity<Void> updateCampaignStatus(@PathVariable Long id, @RequestBody Map<String, String> request) {
         try {
