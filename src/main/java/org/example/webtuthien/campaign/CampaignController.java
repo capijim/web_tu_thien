@@ -122,13 +122,15 @@ public class CampaignController {
     @GetMapping("/{id}")
     public ResponseEntity<?> getById(@PathVariable Long id) {
         try {
-            return service.findById(id)
-                    .map(ResponseEntity::ok)
-                    .orElse(ResponseEntity.notFound().build());
+            var campaignOpt = service.findById(id);
+            if (campaignOpt.isPresent()) {
+                return ResponseEntity.ok(campaignOpt.get());
+            }
+            return ResponseEntity.status(404).body(Map.of("error", "Không tìm thấy chiến dịch"));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(400).body(Map.of("error", e.getMessage()));
         } catch (Exception e) {
-            Map<String, String> error = new HashMap<>();
-            error.put("error", "Lỗi lấy thông tin khuyến góp: " + e.getMessage());
-            return ResponseEntity.status(500).body(error);
+            return ResponseEntity.status(500).body(Map.of("error", "Lỗi lấy thông tin khuyến góp"));
         }
     }
 

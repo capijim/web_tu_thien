@@ -52,14 +52,22 @@ public class CampaignRepository {
             campaign.setImageUrl(rs.getString("image_url"));
             campaign.setStatus(rs.getString("status"));
             
-            Timestamp endDateTs = rs.getTimestamp("end_date");
-            if (endDateTs != null) {
-                campaign.setEndDate(OffsetDateTime.ofInstant(endDateTs.toInstant(), ZoneOffset.UTC));
+            try {
+                Timestamp endDateTs = rs.getTimestamp("end_date");
+                if (endDateTs != null) {
+                    campaign.setEndDate(OffsetDateTime.ofInstant(endDateTs.toInstant(), ZoneOffset.UTC));
+                }
+            } catch (Exception ignored) {
+                // ignore invalid or zero timestamp
             }
             
-            Timestamp createdAtTs = rs.getTimestamp("created_at");
-            if (createdAtTs != null) {
-                campaign.setCreatedAt(OffsetDateTime.ofInstant(createdAtTs.toInstant(), ZoneOffset.UTC));
+            try {
+                Timestamp createdAtTs = rs.getTimestamp("created_at");
+                if (createdAtTs != null) {
+                    campaign.setCreatedAt(OffsetDateTime.ofInstant(createdAtTs.toInstant(), ZoneOffset.UTC));
+                }
+            } catch (Exception ignored) {
+                // ignore invalid or zero timestamp
             }
             
             return campaign;
