@@ -82,4 +82,25 @@ public class UserService {
     public boolean emailExists(String email) {
         return userRepository.existsByEmail(email);
     }
+
+    public void changePassword(Long userId, String currentPassword, String newPassword) {
+        Optional<User> existingUser = userRepository.findById(userId);
+        if (existingUser.isEmpty()) {
+            throw new IllegalArgumentException("User not found with id: " + userId);
+        }
+
+        User user = existingUser.get();
+        if (currentPassword == null || !currentPassword.equals(user.getPassword())) {
+            throw new IllegalArgumentException("Mật khẩu hiện tại không đúng");
+        }
+
+        if (newPassword == null || newPassword.trim().isEmpty()) {
+            throw new IllegalArgumentException("Mật khẩu mới không được để trống");
+        }
+
+        int updated = userRepository.updatePasswordById(userId, newPassword);
+        if (updated <= 0) {
+            throw new IllegalStateException("Không thể cập nhật mật khẩu");
+        }
+    }
 }

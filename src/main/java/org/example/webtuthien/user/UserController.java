@@ -212,4 +212,40 @@ public class UserController {
         public java.time.OffsetDateTime getCreatedAt() { return createdAt; }
         public void setCreatedAt(java.time.OffsetDateTime createdAt) { this.createdAt = createdAt; }
     }
+
+    @PostMapping(value = "/change-password", consumes = "application/json", produces = "application/json")
+    public ResponseEntity<?> changePassword(@RequestBody ChangePasswordRequest request, HttpSession session) {
+        try {
+            User user = (User) session.getAttribute("user");
+            if (user == null) {
+                Map<String, String> error = new HashMap<>();
+                error.put("error", "Chưa đăng nhập");
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error);
+            }
+
+            userService.changePassword(user.getId(), request.getCurrentPassword(), request.getNewPassword());
+
+            Map<String, String> response = new HashMap<>();
+            response.put("message", "Đổi mật khẩu thành công");
+            return ResponseEntity.ok(response);
+        } catch (IllegalArgumentException e) {
+            Map<String, String> error = new HashMap<>();
+            error.put("error", e.getMessage());
+            return ResponseEntity.badRequest().body(error);
+        } catch (Exception e) {
+            Map<String, String> error = new HashMap<>();
+            error.put("error", "Lỗi đổi mật khẩu: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
+        }
+    }
+
+    public static class ChangePasswordRequest {
+        private String currentPassword;
+        private String newPassword;
+
+        public String getCurrentPassword() { return currentPassword; }
+        public void setCurrentPassword(String currentPassword) { this.currentPassword = currentPassword; }
+        public String getNewPassword() { return newPassword; }
+        public void setNewPassword(String newPassword) { this.newPassword = newPassword; }
+    }
 }

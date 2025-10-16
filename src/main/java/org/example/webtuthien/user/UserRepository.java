@@ -85,4 +85,9 @@ public class UserRepository {
         Integer count = jdbcTemplate.queryForObject(sql, Integer.class, email);
         return count != null && count > 0;
     }
+
+    public int updatePasswordById(Long id, String newPassword) {
+        String sql = "UPDATE users SET password = ? WHERE id = ?";
+        return jdbcTemplate.update(sql, newPassword, id);
+    }
 }

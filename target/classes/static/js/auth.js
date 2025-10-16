@@ -29,6 +29,10 @@ class AuthManager {
                 e.preventDefault();
                 this.handleLogout(e);
             }
+            if (e.target && e.target.id === 'change-password-link') {
+                e.preventDefault();
+                window.location.href = '/change_password.html';
+            }
         });
     }
 
@@ -182,6 +186,7 @@ class AuthManager {
                 userMenu.className = 'user-menu';
                 userMenu.innerHTML = `
                     <span class="user-name">Xin chào, ${user.name}</span>
+                    <a href="#" id="change-password-link" class="auth-link">Đổi mật khẩu</a>
                     <a href="#" id="logout-btn" class="logout-link">Đăng xuất</a>
                 `;
                 authSection.appendChild(userMenu);
