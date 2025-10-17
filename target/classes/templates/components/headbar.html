@@ -1,0 +1,36 @@
+<div th:fragment="headbar">
+  <header class="headbar">
+    <div class="headbar-left">
+      <a th:href="@{/}" class="logo-link">
+        <img th:src="@{/assets/logo.svg}" alt="Logo" />
+        <span class="brand">Web Từ Thiện</span>
+      </a>
+    </div>
+    <nav class="headbar-nav">
+      <a th:href="@{/}" class="nav-link" data-page="home">Trang chủ</a>
+      <a th:href="@{/campaigns}" class="nav-link" data-page="campaigns">Chiến dịch</a>
+      <a th:href="@{/about}" class="nav-link" data-page="about">Về chúng tôi</a>
+    </nav>
+    <div class="headbar-actions">
+      <div class="auth-section">
+        <div th:if="${session.user == null}">
+          <a th:href="@{/login}" class="nav-link">Đăng nhập</a>
+          <a th:href="@{/register}" class="nav-link">Đăng ký</a>
+        </div>
+        <div th:if="${session.user != null}" style="display:flex;gap:8px;align-items:center;">
+          <span th:text="${session.user.name}"></span>
+          <form th:action="@{/logout}" method="post" style="display:inline">
+            <button type="submit" class="btn-secondary">Đăng xuất</button>
+          </form>
+        </div>
+      </div>
+      <button class="mobile-menu-toggle" id="mobile-menu-toggle">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+  </header>
+</div>
+
+
