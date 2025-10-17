@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Hệ thống Từ thiện</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/admin.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="admin-container">
+        <!-- Sidebar -->
+        <nav class="admin-sidebar">
+            <div class="sidebar-header">
+                <img src="../assets/logo.svg" alt="Logo" class="sidebar-logo">
+                <h2>Admin Panel</h2>
+            </div>
+            
+            <ul class="sidebar-menu">
+                <li class="menu-item active" data-section="dashboard">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <span>Dashboard</span>
+                </li>
+                <li class="menu-item" data-section="partners">
+                    <i class="fas fa-handshake-angle"></i>
+                    <span>Bên đồng hành</span>
+                </li>
+                <li class="menu-item" data-section="users">
+                    <i class="fas fa-users"></i>
+                    <span>Quản lý Users</span>
+                </li>
+                <li class="menu-item" data-section="campaigns">
+                    <i class="fas fa-heart"></i>
+                    <span>Quản lý Campaigns</span>
+                </li>
+                <li class="menu-item" data-section="donations">
+                    <i class="fas fa-donate"></i>
+                    <span>Quản lý Donations</span>
+                </li>
+            </ul>
+            
+            <div class="sidebar-footer">
+                <button class="logout-btn" onclick="logout()">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Đăng xuất</span>
+                </button>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="admin-main">
+            <header class="admin-header">
+                <h1 id="page-title">Dashboard</h1>
+                <div class="admin-user">
+                    <i class="fas fa-user-shield"></i>
+                    <span>Admin</span>
+                </div>
+            </header>
+
+            <!-- Dashboard Section -->
+            <section id="dashboard-section" class="admin-section active">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3 id="total-users">0</h3>
+                            <p>Tổng Users</p>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-heart"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3 id="total-campaigns">0</h3>
+                            <p>Tổng Campaigns</p>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-play"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3 id="active-campaigns">0</h3>
+                            <p>Campaigns Đang hoạt động</p>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-donate"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3 id="total-donations">0</h3>
+                            <p>Tổng Donations</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="charts-grid">
+                    <div class="chart-card">
+                        <h3>Tổng quan tài chính</h3>
+                        <div class="financial-overview">
+                            <div class="financial-item">
+                                <span class="label">Tổng mục tiêu:</span>
+                                <span class="amount" id="total-target">0 VNĐ</span>
+                            </div>
+                            <div class="financial-item">
+                                <span class="label">Đã quyên góp:</span>
+                                <span class="amount" id="total-raised">0 VNĐ</span>
+                            </div>
+                            <div class="financial-item">
+                                <span class="label">Tổng donations:</span>
+                                <span class="amount" id="total-donation-amount">0 VNĐ</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Users Section -->
+            <!-- Partners Section -->
+            <section id="partners-section" class="admin-section">
+                <div class="section-header">
+                    <h2>Quản lý Bên đồng hành</h2>
+                    <div>
+                        <button class="refresh-btn" onclick="loadPartners()">
+                            <i class="fas fa-sync-alt"></i> Làm mới
+                        </button>
+                        <button class="btn btn-primary" id="open-create-partner" onclick="openCreatePartnerModal()">
+                            <i class="fas fa-plus"></i> Thêm đối tác
+                        </button>
+                    </div>
+                </div>
+                <div class="table-container">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Tên</th>
+                                <th>Email</th>
+                                <th>Điện thoại</th>
+                                <th>Địa chỉ</th>
+                                <th>Ngày tạo</th>
+                                <th>Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody id="partners-table-body"></tbody>
+                    </table>
+                </div>
+            </section>
+
+            <section id="users-section" class="admin-section">
+                <div class="section-header">
+                    <h2>Quản lý Users</h2>
+                    <button class="refresh-btn" onclick="loadUsers()">
+                        <i class="fas fa-sync-alt"></i> Làm mới
+                    </button>
+                </div>
+                
+                <div class="table-container">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Tên</th>
+                                <th>Email</th>
+                                <th>Ngày tạo</th>
+                                <th>Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody id="users-table-body">
+                            <!-- Users data will be loaded here -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Campaigns Section -->
+            <section id="campaigns-section" class="admin-section">
+                <div class="section-header">
+                    <h2>Quản lý Campaigns</h2>
+                    <div>
+                        <button class="refresh-btn" onclick="loadCampaigns()">
+                            <i class="fas fa-sync-alt"></i> Làm mới
+                        </button>
+                        <button class="btn btn-primary" id="open-create-campaign">
+                            <i class="fas fa-plus"></i> Tạo campaign
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="table-container">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Tiêu đề</th>
+                                <th>Danh mục</th>
+                                <th>Mục tiêu</th>
+                                <th>Hiện tại</th>
+                                <th>Trạng thái</th>
+                                <th>Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody id="campaigns-table-body">
+                            <!-- Campaigns data will be loaded here -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Donations Section -->
+            <section id="donations-section" class="admin-section">
+                <div class="section-header">
+                    <h2>Quản lý Donations</h2>
+                    <button class="refresh-btn" onclick="loadDonations()">
+                        <i class="fas fa-sync-alt"></i> Làm mới
+                    </button>
+                </div>
+                
+                <div class="table-container">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Campaign ID</th>
+                                <th>Người donate</th>
+                                <th>Số tiền</th>
+                                <th>Tin nhắn</th>
+                                <th>Ngày tạo</th>
+                                <th>Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody id="donations-table-body">
+                            <!-- Donations data will be loaded here -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Modal for status update -->
+    <div id="status-modal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Cập nhật trạng thái Campaign</h2>
+            <form id="status-form">
+                <input type="hidden" id="campaign-id">
+                <div class="form-group">
+                    <label for="campaign-status">Trạng thái:</label>
+                    <select id="campaign-status" required>
+                        <option value="active">Đang hoạt động</option>
+                        <option value="completed">Hoàn thành</option>
+                        <option value="cancelled">Đã hủy</option>
+                        <option value="expired">Hết hạn</option>
+                    </select>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">Cập nhật</button>
+                    <button type="button" class="btn btn-secondary" onclick="closeModal()">Hủy</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal for creating campaign -->
+    <div id="create-campaign-modal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <span class="close" id="close-create-campaign">&times;</span>
+            <h2>Tạo campaign mới</h2>
+            <form id="create-campaign-form">
+                <div class="form-group">
+                    <label for="create-title">Tiêu đề</label>
+                    <input id="create-title" name="title" required placeholder="Nhập tiêu đề" />
+                </div>
+                <div class="form-group">
+                    <label for="create-description">Mô tả</label>
+                    <textarea id="create-description" name="description" required placeholder="Mô tả chi tiết"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="create-targetAmount">Số tiền mục tiêu (VNĐ)</label>
+                    <input id="create-targetAmount" name="targetAmount" type="number" step="0.01" required placeholder="Nhập số tiền mục tiêu" />
+                </div>
+                <div class="form-group">
+                    <label for="create-category">Danh mục</label>
+                    <select id="create-category" name="category" required>
+                        <option value="">Chọn danh mục</option>
+                        <option value="Y tế">Y tế</option>
+                        <option value="Giáo dục">Giáo dục</option>
+                        <option value="Thiên tai">Thiên tai</option>
+                        <option value="Trẻ em">Trẻ em</option>
+                        <option value="Người già">Người già</option>
+                        <option value="Môi trường">Môi trường</option>
+                        <option value="Động vật">Động vật</option>
+                        <option value="Văn hóa">Văn hóa</option>
+                        <option value="Thể thao">Thể thao</option>
+                        <option value="Khác">Khác</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="create-partnerId">Bên đồng hành</label>
+                    <select id="create-partnerId" name="partnerId" required>
+                        <option value="">Chọn bên đồng hành</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="create-imageFile">Ảnh từ máy (tùy chọn)</label>
+                    <input id="create-imageFile" name="imageFile" type="file" accept="image/*" />
+                </div>
+                <div class="form-group">
+                    <label for="create-endDate">Ngày kết thúc (tùy chọn)</label>
+                    <input id="create-endDate" name="endDate" type="datetime-local" />
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">Tạo campaign</button>
+                    <button type="button" class="btn btn-secondary" id="cancel-create-campaign">Hủy</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal for creating partner -->
+    <div id="create-partner-modal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <span class="close" id="close-create-partner">&times;</span>
+            <h2>Thêm đối tác mới</h2>
+            <form id="create-partner-form">
+                <div class="form-group">
+                    <label for="partner-name">Tên</label>
+                    <input id="partner-name" name="name" required placeholder="Nhập tên đối tác" />
+                </div>
+                <div class="form-group">
+                    <label for="partner-email">Email</label>
+                    <input id="partner-email" name="email" type="email" placeholder="Email (tùy chọn)" />
+                </div>
+                <div class="form-group">
+                    <label for="partner-phone">Điện thoại</label>
+                    <input id="partner-phone" name="phone" placeholder="Điện thoại (tùy chọn)" />
+                </div>
+                <div class="form-group">
+                    <label for="partner-address">Địa chỉ</label>
+                    <input id="partner-address" name="address" placeholder="Địa chỉ (tùy chọn)" />
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">Tạo</button>
+                    <button type="button" class="btn btn-secondary" id="cancel-create-partner">Hủy</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="../js/admin.js"></script>
+</body>
+</html>

@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Web Từ Thiện</title>
+    <link rel="stylesheet" href="/css/style.css" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+  </head>
+  <body>
+    <div class="container">
+      <!-- Headbar will be loaded by headbar.js -->
+    </div>
+
+    <!-- Hero section - optionally loads /assets/cover.jpg if available -->
+    <div class="hero">
+      <div class="inner">
+        <h1>Cùng lan tỏa yêu thương</h1>
+        <p>Nơi kết nối tấm lòng hảo tâm đến những hoàn cảnh cần giúp đỡ.</p>
+      </div>
+    </div>
+
+    <main class="container">
+      <!-- Featured Campaigns Section -->
+      <section class="campaigns-section">
+        <div class="section-header">
+          <h2>Các chiến dịch đang diễn ra</h2>
+          <a href="/campaigns.html" class="view-all-link">Xem tất cả</a>
+        </div>
+        
+        <div class="campaigns-grid" id="featured-campaigns">
+          <!-- Campaigns will be loaded here -->
+          <div class="loading-campaigns">
+            <div class="loading-spinner"></div>
+            <p>Đang tải các chiến dịch...</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- About Section -->
+      <section class="about-section">
+        <div class="grid">
+          <div class="card">
+            <h3>Về dự án</h3>
+            <p class="muted">Kết nối tấm lòng hảo tâm đến những hoàn cảnh khó khăn.</p>
+          </div>
+          <div class="card">
+            <h3>Ủng hộ</h3>
+            <p class="muted">Chung tay lan tỏa yêu thương đến cộng đồng.</p>
+            <p><a class="cta" href="/campaigns.html">Ủng hộ ngay</a></p>
+          </div>
+          <div class="card">
+            <h3>Minh bạch</h3>
+            <p class="muted">Danh sách ủng hộ được cập nhật theo thời gian thực.</p>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <script src="/js/headbar.js"></script>
+    <script src="/js/auth.js"></script>
+    <script src="/js/index.js"></script>
+  </body>
+  </html>
+
+
