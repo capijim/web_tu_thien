@@ -1,0 +1,95 @@
+package org.example.webtuthien.repository;
+
+import org.example.webtuthien.model.Donation;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
+import org.springframework.stereotype.Repository;
+import org.springframework.lang.NonNull;
+
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+
+@Repository
+public class DonationRepository {
+    private final NamedParameterJdbcTemplate jdbc;
+    private final JdbcTemplate coreJdbc;
+    private final SimpleJdbcInsert insertDonation;
+
+    public DonationRepository(NamedParameterJdbcTemplate jdbc) {
+        this.jdbc = jdbc;
+        this.coreJdbc = jdbc.getJdbcTemplate();
+        this.insertDonation = new SimpleJdbcInsert(this.coreJdbc)
+                .withTableName("donations")
+                .usingGeneratedKeyColumns("id")
+                .usingColumns("campaign_id", "donor_name", "amount", "message");
+    }
+
+    private static final RowMapper<Donation> ROW_MAPPER = new RowMapper<>() {
+        @Override
+        @NonNull
+        public Donation mapRow(@NonNull ResultSet rs, int rowNum) throws SQLException {
+            Donation d = new Donation();
+            d.setId(rs.getLong("id"));
+            d.setCampaignId(rs.getLong("campaign_id"));
+            d.setDonorName(rs.getString("donor_name"));
+            d.setAmount(rs.getBigDecimal("amount"));
+            d.setMessage(rs.getString("message"));
+            Timestamp ts = rs.getTimestamp("created_at");
+            if (ts != null) {
+                d.setCreatedAt(OffsetDateTime.ofInstant(ts.toInstant(), ZoneOffset.UTC));
+            }
+            return d;
+        }
+    };
+
+    public List<Donation> findAll() {
+        String sql = "select id, campaign_id, donor_name, amount, message, created_at from donations order by created_at desc";
+        return jdbc.query(sql, ROW_MAPPER);
+    }
+
+    public Optional<Donation> findById(Long id) {
+        String sql = "select id, campaign_id, donor_name, amount, message, created_at from donations where id = :id";
+        List<Donation> list = jdbc.query(sql, new MapSqlParameterSource("id", id), ROW_MAPPER);
+        return list.stream().findFirst();
+    }
+
+    public Donation insert(Donation donation) {
+        Map<String, Object> params = new HashMap<>();
+        params.put("campaign_id", donation.getCampaignId());
+        params.put("donor_name", donation.getDonorName());
+        params.put("amount", donation.getAmount());
+        params.put("message", donation.getMessage());
+
+        Number key = insertDonation.executeAndReturnKey(params);
+        Long id = key.longValue();
+        return findById(id).orElseThrow(() -> new IllegalStateException("Inserted donation not found"));
+    }
+
+    public void deleteById(Long id) {
+        String sql = "DELETE FROM donations WHERE id = :id";
+        jdbc.update(sql, new MapSqlParameterSource("id", id));
+    }
+
+    public void deleteByCampaignId(Long campaignId) {
+        String sql = "DELETE FROM donations WHERE campaign_id = :campaignId";
+        jdbc.update(sql, new MapSqlParameterSource("campaignId", campaignId));
+    }
+
+    public int countByCampaignId(Long campaignId) {
+        String sql = "SELECT COUNT(*) FROM donations WHERE campaign_id = :campaignId";
+        Integer count = jdbc.queryForObject(sql, new MapSqlParameterSource("campaignId", campaignId), Integer.class);
+        return count != null ? count : 0;
+    }
+}
+
+
