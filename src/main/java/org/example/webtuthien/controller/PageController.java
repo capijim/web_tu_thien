@@ -4,6 +4,7 @@ import org.example.webtuthien.service.CampaignService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 
 @Controller
 public class PageController {
@@ -36,8 +37,11 @@ public class PageController {
         return "campaigns";
     }
 
-    // Đường dẫn chi tiết chiến dịch đã được xử lý tại CampaignViewController#detail
-    // Tránh trùng mapping với "/campaign/{id}" để không gây lỗi Ambiguous mapping
+    @GetMapping("/campaign/{id}")
+    public String campaignDetail(@PathVariable("id") String id) {
+        // Trang chi tiết sử dụng JS để tải dữ liệu theo id
+        return "campaign_detail";
+    }
 
     @GetMapping("/change-password")
     public String changePassword() {
