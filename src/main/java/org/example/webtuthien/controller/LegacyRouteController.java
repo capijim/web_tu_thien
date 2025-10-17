@@ -23,6 +23,10 @@ public class LegacyRouteController {
 
     @GetMapping({"/change_password.html"})
     public String legacyChangePassword() { return "change_password"; }
+
+	// Support fetching headbar via JS
+	@GetMapping({"/components/headbar.html"})
+	public String headbarFragment() { return "components/headbar"; }
 }
 
 
