@@ -5,12 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Chi tiết khuyến góp</title>
     <link rel="stylesheet" th:href="@{/css/style.css}" />
-    <link rel="stylesheet" th:href="@{/css/pages.css}" />
   </head>
   <body>
     <div th:replace="~{components/headbar :: headbar}"></div>
 
-    <main class="container detail-page" id="campaign-detail-root">
+    <main class="container" id="campaign-detail-root" style="margin-top:16px;">
       <div th:if="${error}" class="message error" th:text="${error}"></div>
       <div th:if="${success}" class="success-message" th:text="${success}"></div>
 
@@ -18,30 +17,30 @@
         <h1 th:text="${campaign.title}" style="font-size:28px;margin-bottom:8px;"></h1>
         <p class="muted" style="margin-top:0" th:text="${campaign.category}"></p>
 
-        <div class="detail-grid">
+        <div class="grid" style="display:grid;grid-template-columns:2fr 1fr;gap:24px;align-items:start;">
           <div>
-            <div class="detail-cover">
-              <div class="detail-image" th:style="${campaign.imageUrl} != null ? 'background-image:url(' + campaign.imageUrl + ')' : ''"></div>
+            <div style="border-radius:12px;overflow:hidden;border:1px solid #e2e8f0;background:#f8fafc;">
+              <div class="detail-image" th:style="${campaign.imageUrl} != null ? 'background-image:url(' + campaign.imageUrl + ');height:360px;background-size:cover;background-position:center' : 'height:360px;background:#edf2f7'" ></div>
             </div>
 
-            <div class="detail-story">
+            <div style="margin-top:16px;">
               <h3 style="margin-bottom:8px;">Câu chuyện</h3>
               <p th:text="${campaign.description}"></p>
             </div>
           </div>
 
-          <aside class="sidebar">
+          <aside style="border:1px solid #e2e8f0;border-radius:12px;padding:16px;position:sticky;top:16px;background:#fff;">
             <h3 style="margin-top:0;">Thông tin quyên góp</h3>
-            <div class="headline">
+            <div style="font-weight:600;font-size:22px;">
               <span th:text="${#numbers.formatDecimal(stats != null && stats.currentAmount != null ? stats.currentAmount : (campaign.currentAmount != null ? campaign.currentAmount : 0), 0, 'COMMA', 0, 'POINT')}"></span>
               <span>đ</span>
               <span class="muted" style="font-weight:400;font-size:14px;">/</span>
               <span class="muted" style="font-weight:400;font-size:14px;" th:text="${#numbers.formatDecimal(campaign.targetAmount != null ? campaign.targetAmount : 0, 0, 'COMMA', 0, 'POINT')} + ' đ'"></span>
             </div>
-            <div class="progress-bar" style="height:10px;margin:12px 0;">
-              <div class="progress-fill" th:style="${(stats != null && stats.progressPercent != null ? stats.progressPercent : (campaign.progressPercentage != null ? campaign.progressPercentage : 0))} + '%;background:#ec4899'" style="width:0"></div>
+            <div class="progress-bar" style="height:10px;background:#edf2f7;border-radius:999px;margin:12px 0;overflow:hidden;">
+              <div class="progress-fill" th:style="${(stats != null && stats.progressPercent != null ? stats.progressPercent : (campaign.progressPercentage != null ? campaign.progressPercentage : 0))} + '%;height:100%;background:#ec4899'" style="width:0"></div>
             </div>
-            <div class="kpis">
+            <div style="display:flex;gap:16px;color:#4a5568;font-size:14px;">
               <div>
                 <div th:text="${stats != null && stats.donationCount != null ? stats.donationCount : 0}"></div>
                 <div class="muted">Lượt quyên góp</div>
@@ -61,7 +60,7 @@
               <input id="donateAmount" name="amount" type="number" step="0.01" required placeholder="Nhập số tiền ủng hộ" />
               <label for="donateMessage">Lời nhắn (tùy chọn)</label>
               <input id="donateMessage" name="message" type="text" placeholder="Lời nhắn" />
-              <button type="submit" class="cta fullwidth">Quyên góp</button>
+              <button type="submit" class="cta" style="width:100%">Quyên góp</button>
             </form>
             <a th:href="@{/campaigns}" class="btn-secondary" style="display:block;text-align:center;margin-top:8px;">Quay lại danh sách</a>
           </aside>
