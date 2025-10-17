@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Admin - Donations</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}" />
+    <link rel="stylesheet" th:href="@{/css/admin.css}" />
+  </head>
+  <body>
+    <div class="container" style="padding:16px;">
+      <h1>Donations</h1>
+      <table class="admin-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Campaign ID</th>
+            <th>Người donate</th>
+            <th>Số tiền</th>
+            <th>Tin nhắn</th>
+            <th>Ngày tạo</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr th:each="d : ${donations}">
+            <td th:text="${d.id}"></td>
+            <td th:text="${d.campaignId}"></td>
+            <td th:text="${d.donorName}"></td>
+            <td th:text="${d.amount}"></td>
+            <td th:text="${d.message}"></td>
+            <td th:text="${d.createdAt}"></td>
+          </tr>
+        </tbody>
+      </table>
+      <p><a th:href="@{/admin}">← Dashboard</a></p>
+    </div>
+  </body>
+  </html>
+
+

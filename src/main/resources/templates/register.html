@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Đăng ký - Web Từ Thiện</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}" />
+  </head>
+  <body>
+    <div th:replace="~{components/headbar :: headbar}"></div>
+
+    <section class="hero">
+      <div class="container inner">
+        <h1>Đăng ký tài khoản</h1>
+        <p class="muted">Tạo tài khoản để tham gia cộng đồng từ thiện.</p>
+      </div>
+    </section>
+
+    <main class="container">
+      <div class="auth-container">
+        <form th:action="@{/register}" method="post" class="auth-form">
+          <h2 class="section-title">Thông tin đăng ký</h2>
+          <div th:if="${error}" class="error-message" th:text="${error}"></div>
+          <div th:if="${success}" class="success-message" th:text="${success}"></div>
+          <label for="name">Họ và tên</label>
+          <input id="name" name="name" type="text" required placeholder="Nhập họ và tên" />
+          <label for="email">Email</label>
+          <input id="email" name="email" type="email" required placeholder="Nhập email của bạn" />
+          <label for="password">Mật khẩu</label>
+          <input id="password" name="password" type="password" required placeholder="Nhập mật khẩu" minlength="6" />
+          <label for="confirmPassword">Xác nhận mật khẩu</label>
+          <input id="confirmPassword" name="confirmPassword" type="password" required placeholder="Nhập lại mật khẩu" />
+          <button type="submit">Đăng ký</button>
+          <div class="auth-links">
+            <p>Đã có tài khoản? <a th:href="@{/login}">Đăng nhập ngay</a></p>
+            <p><a th:href="@{/}">← Về trang chủ</a></p>
+          </div>
+        </form>
+      </div>
+    </main>
+
+    <script th:src="@{/js/headbar.js}"></script>
+  </body>
+  </html>
+
+

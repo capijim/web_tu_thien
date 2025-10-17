@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 C:\xampp\htdocs\web_tu_thien\src\main\java\org\example\webtuthien\controller\LegacyRouteController.java
 C:\xampp\htdocs\web_tu_thien\src\main\java\org\example\webtuthien\service\CampaignService.java
 C:\xampp\htdocs\web_tu_thien\src\main\java\org\example\webtuthien\config\SessionConfig.java
@@ -7,38 +6,22 @@ C:\xampp\htdocs\web_tu_thien\src\main\java\org\example\webtuthien\repository\Use
 C:\xampp\htdocs\web_tu_thien\src\main\java\org\example\webtuthien\service\PartnerService.java
 C:\xampp\htdocs\web_tu_thien\src\main\java\org\example\webtuthien\controller\UserController.java
 C:\xampp\htdocs\web_tu_thien\src\main\java\org\example\webtuthien\model\Partner.java
-=======
->>>>>>> parent of 6230d12 (cập nhập lớn)
 C:\xampp\htdocs\web_tu_thien\src\main\java\org\example\webtuthien\model\Campaign.java
 C:\xampp\htdocs\web_tu_thien\src\main\java\org\example\webtuthien\service\UserService.java
 C:\xampp\htdocs\web_tu_thien\src\main\java\org\example\webtuthien\controller\admin\AdminActionController.java
 C:\xampp\htdocs\web_tu_thien\src\main\java\org\example\webtuthien\controller\CampaignController.java
-<<<<<<< HEAD
 C:\xampp\htdocs\web_tu_thien\src\main\java\org\example\webtuthien\WebTuThienApplication.java
 C:\xampp\htdocs\web_tu_thien\src\main\java\org\example\webtuthien\controller\admin\AdminViewController.java
 C:\xampp\htdocs\web_tu_thien\src\main\java\org\example\webtuthien\controller\AuthController.java
-=======
-C:\xampp\htdocs\web_tu_thien\src\main\java\org\example\webtuthien\controller\AdminController.java
-C:\xampp\htdocs\web_tu_thien\src\main\java\org\example\webtuthien\service\CampaignService.java
-C:\xampp\htdocs\web_tu_thien\src\main\java\org\example\webtuthien\WebTuThienApplication.java
->>>>>>> parent of 6230d12 (cập nhập lớn)
 C:\xampp\htdocs\web_tu_thien\src\main\java\org\example\webtuthien\repository\CampaignRepository.java
 C:\xampp\htdocs\web_tu_thien\src\main\java\org\example\webtuthien\service\AdminService.java
-C:\xampp\htdocs\web_tu_thien\src\main\java\org\example\webtuthien\config\SessionConfig.java
+C:\xampp\htdocs\web_tu_thien\src\main\java\org\example\webtuthien\controller\PageController.java
 C:\xampp\htdocs\web_tu_thien\src\main\java\org\example\webtuthien\model\User.java
-<<<<<<< HEAD
 C:\xampp\htdocs\web_tu_thien\src\main\java\org\example\webtuthien\controller\CampaignViewController.java
-=======
-C:\xampp\htdocs\web_tu_thien\src\main\java\org\example\webtuthien\model\Donation.java
-C:\xampp\htdocs\web_tu_thien\src\main\java\org\example\webtuthien\repository\UserRepository.java
->>>>>>> parent of 6230d12 (cập nhập lớn)
 C:\xampp\htdocs\web_tu_thien\src\main\java\org\example\webtuthien\service\DonationService.java
 C:\xampp\htdocs\web_tu_thien\src\main\java\org\example\webtuthien\controller\admin\AdminController.java
 C:\xampp\htdocs\web_tu_thien\src\main\java\org\example\webtuthien\repository\PartnerRepository.java
 C:\xampp\htdocs\web_tu_thien\src\main\java\org\example\webtuthien\config\CorsConfig.java
 C:\xampp\htdocs\web_tu_thien\src\main\java\org\example\webtuthien\repository\DonationRepository.java
-C:\xampp\htdocs\web_tu_thien\src\main\java\org\example\webtuthien\service\PartnerService.java
 C:\xampp\htdocs\web_tu_thien\src\main\java\org\example\webtuthien\controller\DonationController.java
-C:\xampp\htdocs\web_tu_thien\src\main\java\org\example\webtuthien\controller\UserController.java
 C:\xampp\htdocs\web_tu_thien\src\main\java\org\example\webtuthien\controller\HomeController.java
-C:\xampp\htdocs\web_tu_thien\src\main\java\org\example\webtuthien\model\Partner.java

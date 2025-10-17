@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Web Từ Thiện</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+  </head>
+  <body>
+    <div th:replace="~{components/headbar :: headbar}"></div>
+
+    <div class="hero">
+      <div class="inner">
+        <h1>Cùng lan tỏa yêu thương</h1>
+        <p>Nơi kết nối tấm lòng hảo tâm đến những hoàn cảnh cần giúp đỡ.</p>
+      </div>
+    </div>
+
+    <main class="container">
+      <section class="campaigns-section">
+        <div class="section-header">
+          <h2>Các chiến dịch đang diễn ra</h2>
+          <a th:href="@{/campaigns}" class="view-all-link">Xem tất cả</a>
+        </div>
+        <div class="campaigns-grid">
+          <div th:if="${featured == null || #lists.isEmpty(featured)}" class="muted">Chưa có chiến dịch</div>
+          <div th:each="c : ${featured}" class="card">
+            <div class="card-image" th:style="${c.imageUrl} != null ? 'background-image:url(' + c.imageUrl + ');height:160px;background-size:cover;background-position:center' : 'height:160px;background:#edf2f7'"></div>
+            <div class="card-body">
+              <h3 th:text="${c.title}"></h3>
+              <p class="muted" th:text="${c.category}"></p>
+              <div class="progress-bar" style="height:8px;background:#edf2f7;border-radius:999px;overflow:hidden;margin:8px 0;">
+                <div class="progress-fill" th:style="${c.progressPercentage} + '%;height:100%;background:#10b981'" style="width:0"></div>
+              </div>
+              <a class="cta" th:href="@{'/campaign/' + ${c.id}}">Xem chi tiết</a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="about-section">
+        <div class="grid">
+          <div class="card">
+            <h3>Về dự án</h3>
+            <p class="muted">Kết nối tấm lòng hảo tâm đến những hoàn cảnh khó khăn.</p>
+          </div>
+          <div class="card">
+            <h3>Ủng hộ</h3>
+            <p class="muted">Chung tay lan tỏa yêu thương đến cộng đồng.</p>
+            <p><a class="cta" th:href="@{/campaigns}">Ủng hộ ngay</a></p>
+          </div>
+          <div class="card">
+            <h3>Minh bạch</h3>
+            <p class="muted">Danh sách ủng hộ được cập nhật theo thời gian thực.</p>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <script th:src="@{/js/headbar.js}"></script>
+  </body>
+  </html>
+
+
