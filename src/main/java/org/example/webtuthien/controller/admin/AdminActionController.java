@@ -1,5 +1,6 @@
 package org.example.webtuthien.controller.admin;
 
+import org.example.webtuthien.model.Admin;
 import org.example.webtuthien.model.Campaign;
 import org.example.webtuthien.model.Partner;
 import org.example.webtuthien.service.AdminService;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import jakarta.servlet.http.HttpSession;
 
 @Controller
 @RequestMapping("/admin")
@@ -32,37 +34,67 @@ public class AdminActionController {
     }
 
     @PostMapping("/users/delete/{id}")
-    public String deleteUser(@PathVariable Long id) {
+    public String deleteUser(@PathVariable Long id, HttpSession session) {
+        Admin admin = (Admin) session.getAttribute("admin");
+        if (admin == null) {
+            return "redirect:/admin/login";
+        }
+        
         userService.deleteUser(id);
         return "redirect:/admin/users";
     }
 
     @PostMapping("/campaigns/delete/{id}")
-    public String deleteCampaign(@PathVariable Long id) {
+    public String deleteCampaign(@PathVariable Long id, HttpSession session) {
+        Admin admin = (Admin) session.getAttribute("admin");
+        if (admin == null) {
+            return "redirect:/admin/login";
+        }
+        
         campaignService.deleteCampaign(id);
         return "redirect:/admin/campaigns";
     }
 
     @PostMapping("/campaigns/status/{id}")
-    public String updateCampaignStatus(@PathVariable Long id, @RequestParam("status") String status) {
+    public String updateCampaignStatus(@PathVariable Long id, @RequestParam("status") String status, HttpSession session) {
+        Admin admin = (Admin) session.getAttribute("admin");
+        if (admin == null) {
+            return "redirect:/admin/login";
+        }
+        
         adminService.updateCampaignStatus(id, status);
         return "redirect:/admin/campaigns";
     }
 
     @PostMapping("/campaigns/create")
-    public String createCampaign(Campaign campaign) {
+    public String createCampaign(Campaign campaign, HttpSession session) {
+        Admin admin = (Admin) session.getAttribute("admin");
+        if (admin == null) {
+            return "redirect:/admin/login";
+        }
+        
         campaignService.create(campaign);
         return "redirect:/admin/campaigns";
     }
 
     @PostMapping("/partners/create")
-    public String createPartner(Partner partner) {
+    public String createPartner(Partner partner, HttpSession session) {
+        Admin admin = (Admin) session.getAttribute("admin");
+        if (admin == null) {
+            return "redirect:/admin/login";
+        }
+        
         partnerService.create(partner);
         return "redirect:/admin/partners";
     }
 
     @PostMapping("/partners/delete/{id}")
-    public String deletePartner(@PathVariable Long id) {
+    public String deletePartner(@PathVariable Long id, HttpSession session) {
+        Admin admin = (Admin) session.getAttribute("admin");
+        if (admin == null) {
+            return "redirect:/admin/login";
+        }
+        
         partnerService.delete(id);
         return "redirect:/admin/partners";
     }

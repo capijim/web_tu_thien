@@ -6,7 +6,6 @@ class HeadbarManager {
     }
 
     init() {
-        this.loadHeadbar();
         this.setupEventListeners();
         this.setupScrollBehavior();
         this.setupMobileMenu();
@@ -23,30 +22,11 @@ class HeadbarManager {
         return 'home';
     }
 
-    async loadHeadbar() {
-        try {
-            const response = await fetch('/components/headbar.html');
-            const headbarHTML = await response.text();
-            
-            // Find existing headbar and replace it
-            const existingHeadbar = document.querySelector('.headbar');
-            if (existingHeadbar) {
-                existingHeadbar.outerHTML = headbarHTML;
-            } else {
-                // Insert at the beginning of body
-                document.body.insertAdjacentHTML('afterbegin', headbarHTML);
-            }
-        } catch (error) {
-            console.error('Error loading headbar:', error);
-        }
-    }
 
     setupEventListeners() {
-        // Re-setup event listeners after headbar is loaded
-        setTimeout(() => {
-            this.setupMobileMenu();
-            this.setupActivePage();
-        }, 100);
+        // Setup event listeners for the server-rendered headbar
+        this.setupMobileMenu();
+        this.setupActivePage();
     }
 
     setupActivePage() {
@@ -146,13 +126,10 @@ class HeadbarManager {
         }, { passive: true });
     }
 
-    // Method to update headbar content
-    updateHeadbar(newContent) {
-        const headbar = document.querySelector('.headbar');
-        if (headbar) {
-            headbar.innerHTML = newContent;
-            this.setupEventListeners();
-        }
+    // Method to refresh headbar functionality
+    refreshHeadbar() {
+        this.setupEventListeners();
+        this.setupActivePage();
     }
 
     // Method to add new navigation item

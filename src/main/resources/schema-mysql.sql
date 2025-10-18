@@ -40,4 +40,15 @@ create table if not exists donations (
   foreign key (campaign_id) references campaigns(id)
 );
 
+create table if not exists admins (
+  id bigint primary key auto_increment,
+  username varchar(100) not null unique,
+  email varchar(255) not null unique,
+  password varchar(255) not null,
+  full_name varchar(255) not null,
+  is_active boolean default true,
+  created_at timestamp not null default current_timestamp,
+  updated_at timestamp not null default current_timestamp on update current_timestamp
+);
+
 
