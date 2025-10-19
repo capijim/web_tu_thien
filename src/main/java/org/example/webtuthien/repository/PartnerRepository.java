@@ -6,6 +6,7 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
+import org.springframework.lang.NonNull;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -32,7 +33,7 @@ public class PartnerRepository {
 
     private static final RowMapper<Partner> ROW_MAPPER = new RowMapper<>() {
         @Override
-        public Partner mapRow(ResultSet rs, int rowNum) throws SQLException {
+        public Partner mapRow(@NonNull ResultSet rs, int rowNum) throws SQLException {
             Partner p = new Partner();
             p.setId(rs.getLong("id"));
             p.setName(rs.getString("name"));

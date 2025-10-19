@@ -8,7 +8,7 @@
     <link rel="stylesheet" th:href="@{/css/admin.css}" />
   </head>
   <body>
-    <div class="container" style="padding:16px;">
+    <div class="container admin-container">
       <h1>Campaigns</h1>
 
       <h2>Tạo campaign</h2>
@@ -26,7 +26,7 @@
         <button type="submit" class="btn btn-primary">Tạo</button>
       </form>
 
-      <h2 style="margin-top:24px;">Danh sách</h2>
+      <h2 class="admin-section-title">Danh sách</h2>
       <table class="admin-table">
         <thead>
           <tr>
@@ -48,10 +48,10 @@
             <td th:text="${c.currentAmount}"></td>
             <td th:text="${c.status}"></td>
             <td>
-              <form th:action="@{/admin/campaigns/delete/{id}(id=${c.id})}" method="post" style="display:inline">
+              <form th:action="@{/admin/campaigns/delete/{id}(id=${c.id})}" method="post" class="admin-inline-form">
                 <button type="submit" class="btn btn-danger">Xóa</button>
               </form>
-              <form th:action="@{/admin/campaigns/status/{id}(id=${c.id})}" method="post" style="display:inline;margin-left:8px;">
+              <form th:action="@{/admin/campaigns/status/{id}(id=${c.id})}" method="post" class="admin-inline-form">
                 <select name="status">
                   <option value="active" th:selected="${c.status}=='active'">Active</option>
                   <option value="completed" th:selected="${c.status}=='completed'">Completed</option>

@@ -1,5 +1,12 @@
 server:
   port: ${PORT:8080}
+  servlet:
+    session:
+      cookie:
+        name: JSESSIONID
+        http-only: true
+        secure: false
+        max-age: 1800
 
 spring:
   application:
@@ -16,13 +23,7 @@ spring:
       schema-locations: classpath:schema-mysql.sql
       data-locations: classpath:data-mysql.sql
   session:
-    store-type: none
     timeout: 30m
-    cookie:
-      name: JSESSIONID
-      http-only: true
-      secure: false
-      max-age: 1800
 
 management:
   endpoints:
