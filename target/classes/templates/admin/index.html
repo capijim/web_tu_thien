@@ -1,36 +1,118 @@
 <!doctype html>
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
-  <head>
+<head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Admin - Dashboard</title>
+    <title>Admin Dashboard - Web Từ Thiện</title>
     <link rel="stylesheet" th:href="@{/css/style.css}" />
     <link rel="stylesheet" th:href="@{/css/admin.css}" />
-  </head>
-  <body>
-    <div class="container admin-container">
-      <h1>Dashboard</h1>
-      <div class="stats-grid">
-        <div class="stat-card">
-          <h3>Tổng Users</h3>
-          <div th:text="${stats.totalUsers}">0</div>
+</head>
+<body>
+    <div class="admin-container">
+        <div class="admin-sidebar">
+            <div class="sidebar-header">
+                <img th:src="@{/assets/logo.svg}" alt="Logo" class="sidebar-logo">
+                <h2>Admin Panel</h2>
+            </div>
+            
+            <ul class="sidebar-menu">
+                <li class="menu-item active">
+                    <i>📊</i>
+                    <span>Dashboard</span>
+                </li>
+                <li class="menu-item">
+                    <i>👥</i>
+                    <a th:href="@{/admin/users}" style="color: white; text-decoration: none;">Quản lý Users</a>
+                </li>
+                <li class="menu-item">
+                    <i>🎯</i>
+                    <a th:href="@{/admin/campaigns}" style="color: white; text-decoration: none;">Quản lý Campaigns</a>
+                </li>
+                <li class="menu-item">
+                    <i>💰</i>
+                    <a th:href="@{/admin/donations}" style="color: white; text-decoration: none;">Quản lý Donations</a>
+                </li>
+                <li class="menu-item">
+                    <i>🤝</i>
+                    <a th:href="@{/admin/partners}" style="color: white; text-decoration: none;">Quản lý Partners</a>
+                </li>
+            </ul>
+            
+            <div class="sidebar-footer">
+                <div class="admin-user">
+                    <i>👤</i>
+                    <span th:text="${admin.username}">admin</span>
+                </div>
+                <form th:action="@{/admin/logout}" method="post" class="logout-btn">
+                    <button type="submit" style="background: none; border: none; color: white; cursor: pointer;">
+                        <i>🚪</i> Đăng xuất
+                    </button>
+                </form>
+            </div>
         </div>
-        <div class="stat-card">
-          <h3>Tổng Campaigns</h3>
-          <div th:text="${stats.totalCampaigns}">0</div>
+        
+        <div class="admin-main">
+            <div class="admin-header">
+                <h1>📊 Dashboard</h1>
+                <div class="admin-user">
+                    <i>👤</i>
+                    <span th:text="${admin.fullName}">Administrator</span>
+                </div>
+            </div>
+            
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon">👥</div>
+                    <div class="stat-content">
+                        <h3 th:text="${stats.totalUsers}">0</h3>
+                        <p>Tổng Users</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">🎯</div>
+                    <div class="stat-content">
+                        <h3 th:text="${stats.totalCampaigns}">0</h3>
+                        <p>Tổng Campaigns</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">✅</div>
+                    <div class="stat-content">
+                        <h3 th:text="${stats.activeCampaigns}">0</h3>
+                        <p>Campaigns hoạt động</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">💰</div>
+                    <div class="stat-content">
+                        <h3 th:text="${#numbers.formatDecimal(stats.totalDonationAmount, 0, 'COMMA', 0, 'POINT')}">0</h3>
+                        <p>Tổng ủng hộ (VNĐ)</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="charts-grid">
+                <div class="chart-card">
+                    <h3>📈 Tổng quan tài chính</h3>
+                    <div class="financial-overview">
+                        <div class="financial-item">
+                            <span class="label">Tổng mục tiêu:</span>
+                            <span class="amount" th:text="${#numbers.formatDecimal(stats.totalTargetAmount, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'">0 VNĐ</span>
+                        </div>
+                        <div class="financial-item">
+                            <span class="label">Đã quyên góp:</span>
+                            <span class="amount" th:text="${#numbers.formatDecimal(stats.totalRaisedAmount, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'">0 VNĐ</span>
+                        </div>
+                        <div class="financial-item">
+                            <span class="label">Tổng donations:</span>
+                            <span class="amount" th:text="${stats.totalDonations} + ' lượt'">0 lượt</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
-        <div class="stat-card">
-          <h3>Campaigns hoạt động</h3>
-          <div th:text="${stats.activeCampaigns}">0</div>
-        </div>
-        <div class="stat-card">
-          <h3>Tổng ủng hộ</h3>
-          <div th:text="${stats.totalDonationAmount}">0</div>
-        </div>
-      </div>
-      <p><a th:href="@{/admin/users}">Quản lý Users</a> • <a th:href="@{/admin/campaigns}">Campaigns</a> • <a th:href="@{/admin/donations}">Donations</a> • <a th:href="@{/admin/partners}">Partners</a></p>
     </div>
-  </body>
-  </html>
+</body>
+</html>
 
 

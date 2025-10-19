@@ -14,6 +14,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import jakarta.servlet.http.HttpSession;
 import java.util.Optional;
+import java.util.HashMap;
+import java.util.Map;
 
 @Controller
 public class AdminViewController {
@@ -49,22 +51,27 @@ public class AdminViewController {
                                    @RequestParam String password, 
                                    Model model, 
                                    HttpSession session) {
-        Optional<Admin> adminOpt = adminAuthService.authenticate(usernameOrEmail, password);
-        if (adminOpt.isEmpty()) {
-            model.addAttribute("error", "Tên đăng nhập/email hoặc mật khẩu không đúng");
+        try {
+            Optional<Admin> adminOpt = adminAuthService.authenticate(usernameOrEmail, password);
+            if (adminOpt.isEmpty()) {
+                model.addAttribute("error", "Tên đăng nhập/email hoặc mật khẩu không đúng");
+                return "admin/login";
+            }
+            
+            Admin admin = adminOpt.get();
+            session.setAttribute("admin", admin);
+            session.setAttribute("adminId", admin.getId());
+            session.setAttribute("adminUsername", admin.getUsername());
+            
+            return "redirect:/admin";
+        } catch (Exception e) {
+            model.addAttribute("error", "Lỗi đăng nhập: " + e.getMessage());
             return "admin/login";
         }
-        
-        Admin admin = adminOpt.get();
-        session.setAttribute("admin", admin);
-        session.setAttribute("adminId", admin.getId());
-        session.setAttribute("adminUsername", admin.getUsername());
-        
-        return "redirect:/admin";
     }
 
-    @GetMapping("/admin/logout")
-    public String adminLogout(HttpSession session) {
+    @PostMapping("/admin/logout")
+    public String handleAdminLogout(HttpSession session) {
         session.removeAttribute("admin");
         session.removeAttribute("adminId");
         session.removeAttribute("adminUsername");
@@ -78,9 +85,23 @@ public class AdminViewController {
             return "redirect:/admin/login";
         }
         
-        model.addAttribute("admin", admin);
-        model.addAttribute("stats", adminService.getDashboardStats());
-        return "admin/index";
+        try {
+            model.addAttribute("admin", admin);
+            model.addAttribute("stats", adminService.getDashboardStats());
+            return "admin/index";
+        } catch (Exception e) {
+            System.err.println("Error loading admin dashboard: " + e.getMessage());
+            e.printStackTrace();
+            // Trả về stats mặc định nếu có lỗi
+            Map<String, Object> defaultStats = new HashMap<>();
+            defaultStats.put("totalUsers", 0);
+            defaultStats.put("totalCampaigns", 0);
+            defaultStats.put("activeCampaigns", 0);
+            defaultStats.put("totalDonationAmount", 0);
+            model.addAttribute("admin", admin);
+            model.addAttribute("stats", defaultStats);
+            return "admin/index";
+        }
     }
 
     @GetMapping("/admin/users")

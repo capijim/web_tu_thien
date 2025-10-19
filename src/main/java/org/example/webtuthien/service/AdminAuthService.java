@@ -15,21 +15,27 @@ public class AdminAuthService {
     private AdminRepository adminRepository;
 
     public Optional<Admin> authenticate(String usernameOrEmail, String password) {
-        // Try to find admin by username first, then by email
-        Optional<Admin> adminOpt = adminRepository.findByUsername(usernameOrEmail);
-        if (adminOpt.isEmpty()) {
-            adminOpt = adminRepository.findByEmail(usernameOrEmail);
-        }
-
-        if (adminOpt.isPresent()) {
-            Admin admin = adminOpt.get();
-            // Simple password comparison (in production, use proper password hashing)
-            if (admin.getPassword().equals(password) && admin.getIsActive()) {
-                return Optional.of(admin);
+        try {
+            // Try to find admin by username first, then by email
+            Optional<Admin> adminOpt = adminRepository.findByUsername(usernameOrEmail);
+            if (adminOpt.isEmpty()) {
+                adminOpt = adminRepository.findByEmail(usernameOrEmail);
             }
-        }
 
-        return Optional.empty();
+            if (adminOpt.isPresent()) {
+                Admin admin = adminOpt.get();
+                // Simple password comparison (in production, use proper password hashing)
+                if (admin.getPassword().equals(password) && admin.getIsActive()) {
+                    return Optional.of(admin);
+                }
+            }
+
+            return Optional.empty();
+        } catch (Exception e) {
+            System.err.println("Error in AdminAuthService.authenticate: " + e.getMessage());
+            e.printStackTrace();
+            throw e;
+        }
     }
 
     public List<Admin> getAllAdmins() {
