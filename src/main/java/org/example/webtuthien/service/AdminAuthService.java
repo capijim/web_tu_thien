@@ -24,17 +24,20 @@ public class AdminAuthService {
 
             if (adminOpt.isPresent()) {
                 Admin admin = adminOpt.get();
+                String storedPassword = admin.getPassword();
+                boolean active = Boolean.TRUE.equals(admin.getIsActive());
                 // Simple password comparison (in production, use proper password hashing)
-                if (admin.getPassword().equals(password) && admin.getIsActive()) {
+                if (storedPassword != null && storedPassword.equals(password) && active) {
                     return Optional.of(admin);
                 }
             }
 
             return Optional.empty();
         } catch (Exception e) {
-            System.err.println("Error in AdminAuthService.authenticate: " + e.getMessage());
+            System.err.println("Error in AdminAuthService.authenticate for input '" + usernameOrEmail + "': " + e.getMessage());
             e.printStackTrace();
-            throw e;
+            // Trả về empty để controller hiển thị lỗi thay vì trả 500
+            return Optional.empty();
         }
     }
 

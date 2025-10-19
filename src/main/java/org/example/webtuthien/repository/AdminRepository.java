@@ -27,8 +27,10 @@ public class AdminRepository {
             admin.setPassword(rs.getString("password"));
             admin.setFullName(rs.getString("full_name"));
             admin.setIsActive(rs.getBoolean("is_active"));
-            admin.setCreatedAt(rs.getObject("created_at", java.time.LocalDateTime.class));
-            admin.setUpdatedAt(rs.getObject("updated_at", java.time.LocalDateTime.class));
+            java.sql.Timestamp createdTs = rs.getTimestamp("created_at");
+            java.sql.Timestamp updatedTs = rs.getTimestamp("updated_at");
+            admin.setCreatedAt(createdTs != null ? createdTs.toLocalDateTime() : null);
+            admin.setUpdatedAt(updatedTs != null ? updatedTs.toLocalDateTime() : null);
             return admin;
         }
     };
