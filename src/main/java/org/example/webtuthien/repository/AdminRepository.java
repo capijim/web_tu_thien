@@ -27,8 +27,8 @@ public class AdminRepository {
             admin.setPassword(rs.getString("password"));
             admin.setFullName(rs.getString("full_name"));
             admin.setIsActive(rs.getBoolean("is_active"));
-            admin.setCreatedAt(rs.getObject("created_at", java.time.OffsetDateTime.class));
-            admin.setUpdatedAt(rs.getObject("updated_at", java.time.OffsetDateTime.class));
+            admin.setCreatedAt(rs.getObject("created_at", java.time.LocalDateTime.class));
+            admin.setUpdatedAt(rs.getObject("updated_at", java.time.LocalDateTime.class));
             return admin;
         }
     };

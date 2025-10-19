@@ -1,6 +1,6 @@
 package org.example.webtuthien.model;
 
-import java.time.OffsetDateTime;
+import java.time.LocalDateTime;
 
 public class Admin {
     private Long id;
@@ -9,8 +9,8 @@ public class Admin {
     private String password;
     private String fullName;
     private Boolean isActive = true;
-    private OffsetDateTime createdAt;
-    private OffsetDateTime updatedAt;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 
     public Admin() {}
 
@@ -69,19 +69,19 @@ public class Admin {
         this.isActive = isActive;
     }
 
-    public OffsetDateTime getCreatedAt() {
+    public LocalDateTime getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(OffsetDateTime createdAt) {
+    public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
     }
 
-    public OffsetDateTime getUpdatedAt() {
+    public LocalDateTime getUpdatedAt() {
         return updatedAt;
     }
 
-    public void setUpdatedAt(OffsetDateTime updatedAt) {
+    public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
     }
 

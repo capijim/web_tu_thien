@@ -160,16 +160,75 @@ body {
 .user-menu {
     display: flex;
     align-items: center;
-    gap: 12px;
-    padding: 8px 12px;
-    background: rgba(14, 165, 233, 0.1);
-    border-radius: 8px;
+    gap: 16px;
+    padding: 8px 16px;
+    background: linear-gradient(135deg, rgba(14, 165, 233, 0.08), rgba(16, 185, 129, 0.08));
+    border-radius: 12px;
+    border: 1px solid rgba(14, 165, 233, 0.15);
+    box-shadow: 0 2px 8px rgba(14, 165, 233, 0.1);
+    transition: all 0.3s ease;
+}
+
+.user-menu:hover {
+    background: linear-gradient(135deg, rgba(14, 165, 233, 0.12), rgba(16, 185, 129, 0.12));
+    box-shadow: 0 4px 12px rgba(14, 165, 233, 0.15);
+    transform: translateY(-1px);
+}
+
+.user-info {
+    display: flex;
+    align-items: center;
 }
 
 .user-name {
-    color: var(--muted);
+    color: var(--ink);
     font-size: 0.9rem;
+    font-weight: 600;
+    background: linear-gradient(135deg, var(--brand), var(--brand2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.user-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.user-actions .btn-secondary {
+    background: rgba(255, 255, 255, 0.8);
+    color: var(--muted);
+    border: 1px solid rgba(14, 165, 233, 0.2);
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-size: 0.85rem;
     font-weight: 500;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    cursor: pointer;
+    backdrop-filter: blur(10px);
+}
+
+.user-actions .btn-secondary:hover {
+    background: rgba(255, 255, 255, 0.95);
+    color: var(--brand);
+    border-color: var(--brand);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(14, 165, 233, 0.2);
+}
+
+.user-actions .logout-btn {
+    background: rgba(239, 68, 68, 0.1);
+    color: #dc2626;
+    border-color: rgba(239, 68, 68, 0.2);
+}
+
+.user-actions .logout-btn:hover {
+    background: rgba(239, 68, 68, 0.15);
+    color: #b91c1c;
+    border-color: rgba(239, 68, 68, 0.3);
+    box-shadow: 0 2px 8px rgba(239, 68, 68, 0.2);
 }
 
 .logout-link {
@@ -280,7 +339,25 @@ body {
     .user-menu {
         flex-direction: column;
         width: 100%;
+        gap: 12px;
+        padding: 12px 16px;
+    }
+    
+    .user-info {
+        justify-content: center;
+    }
+    
+    .user-actions {
+        flex-direction: column;
+        width: 100%;
         gap: 8px;
+    }
+    
+    .user-actions .btn-secondary {
+        width: 100%;
+        text-align: center;
+        padding: 10px 16px;
+        font-size: 0.9rem;
     }
 }
 
