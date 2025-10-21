@@ -55,12 +55,7 @@ public class AdminActionController {
             return "redirect:/admin/login";
         }
         
-        try {
-            campaignService.deleteCampaign(id);
-        } catch (Exception e) {
-            System.err.println("Error deleting campaign: " + e.getMessage());
-            e.printStackTrace();
-        }
+        campaignService.deleteCampaign(id);
         return "redirect:/admin/campaigns";
     }
 
@@ -71,12 +66,7 @@ public class AdminActionController {
             return "redirect:/admin/login";
         }
         
-        try {
-            adminService.updateCampaignStatus(id, status);
-        } catch (Exception e) {
-            System.err.println("Error updating campaign status: " + e.getMessage());
-            e.printStackTrace();
-        }
+        adminService.updateCampaignStatus(id, status);
         return "redirect:/admin/campaigns";
     }
 
