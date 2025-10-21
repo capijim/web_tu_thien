@@ -46,32 +46,15 @@ public class AdminViewController {
         return "admin/login";
     }
 
-    @GetMapping("/admin/test")
-    public String testDatabase(Model model) {
-        try {
-            System.out.println("Testing database connection...");
-            var admins = adminAuthService.getAllAdmins();
-            System.out.println("Found " + admins.size() + " admins in database");
-            model.addAttribute("message", "Database connection OK. Found " + admins.size() + " admins.");
-            model.addAttribute("admins", admins);
-            return "admin/test";
-        } catch (Exception e) {
-            System.err.println("Database test failed: " + e.getMessage());
-            e.printStackTrace();
-            model.addAttribute("error", "Database test failed: " + e.getMessage());
-            return "admin/test";
-        }
-    }
+
 
     @PostMapping("/admin/login")
-    public String handleAdminLogin(@RequestParam String usernameOrEmail, 
-                                   @RequestParam String password, 
+    public String handleAdminLogin(@RequestParam("usernameOrEmail") String usernameOrEmail, 
+                                   @RequestParam("password") String password, 
                                    Model model, 
                                    HttpSession session) {
         try {
-            System.out.println("Admin login attempt for: " + usernameOrEmail);
-            
-            // Kiểm tra input
+            // Kiểm tra input cơ bản
             if (usernameOrEmail == null || usernameOrEmail.trim().isEmpty()) {
                 model.addAttribute("error", "Tên đăng nhập/email không được để trống");
                 return "admin/login";
@@ -82,22 +65,25 @@ public class AdminViewController {
                 return "admin/login";
             }
             
+            // Gọi authenticate service
             Optional<Admin> adminOpt = adminAuthService.authenticate(usernameOrEmail.trim(), password);
+            
             if (adminOpt.isEmpty()) {
-                System.out.println("Authentication failed for: " + usernameOrEmail);
                 model.addAttribute("error", "Tên đăng nhập/email hoặc mật khẩu không đúng");
                 return "admin/login";
             }
             
             Admin admin = adminOpt.get();
-            System.out.println("Authentication successful for admin: " + admin.getUsername());
             
+            // Lưu session
             session.setAttribute("admin", admin);
             session.setAttribute("adminId", admin.getId());
             session.setAttribute("adminUsername", admin.getUsername());
             
             return "redirect:/admin";
+            
         } catch (Exception e) {
+            System.err.println("=== ADMIN LOGIN ERROR ===");
             System.err.println("Error in admin login: " + e.getMessage());
             e.printStackTrace();
             model.addAttribute("error", "Lỗi đăng nhập: " + e.getMessage());

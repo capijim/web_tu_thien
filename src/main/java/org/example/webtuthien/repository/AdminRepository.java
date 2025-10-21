@@ -48,10 +48,8 @@ public class AdminRepository {
 
     public Optional<Admin> findByUsername(String username) {
         try {
-            System.out.println("AdminRepository.findByUsername called with: " + username);
             String sql = "SELECT * FROM admins WHERE username = ? AND is_active = true";
             List<Admin> admins = jdbcTemplate.query(sql, adminRowMapper, username);
-            System.out.println("Query result count: " + admins.size());
             return admins.isEmpty() ? Optional.empty() : Optional.of(admins.get(0));
         } catch (Exception e) {
             System.err.println("Error in findByUsername: " + e.getMessage());
@@ -62,10 +60,8 @@ public class AdminRepository {
 
     public Optional<Admin> findByEmail(String email) {
         try {
-            System.out.println("AdminRepository.findByEmail called with: " + email);
             String sql = "SELECT * FROM admins WHERE email = ? AND is_active = true";
             List<Admin> admins = jdbcTemplate.query(sql, adminRowMapper, email);
-            System.out.println("Query result count: " + admins.size());
             return admins.isEmpty() ? Optional.empty() : Optional.of(admins.get(0));
         } catch (Exception e) {
             System.err.println("Error in findByEmail: " + e.getMessage());

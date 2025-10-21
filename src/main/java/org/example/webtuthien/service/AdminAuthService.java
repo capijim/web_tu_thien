@@ -16,42 +16,27 @@ public class AdminAuthService {
 
     public Optional<Admin> authenticate(String usernameOrEmail, String password) {
         try {
-            System.out.println("AdminAuthService.authenticate called with: " + usernameOrEmail);
-            
             // Try to find admin by username first, then by email
             Optional<Admin> adminOpt = adminRepository.findByUsername(usernameOrEmail);
-            System.out.println("Found by username: " + adminOpt.isPresent());
-            
             if (adminOpt.isEmpty()) {
                 adminOpt = adminRepository.findByEmail(usernameOrEmail);
-                System.out.println("Found by email: " + adminOpt.isPresent());
             }
 
             if (adminOpt.isPresent()) {
                 Admin admin = adminOpt.get();
-                System.out.println("Admin found: " + admin.getUsername() + ", active: " + admin.getIsActive());
-                
                 String storedPassword = admin.getPassword();
                 boolean active = Boolean.TRUE.equals(admin.getIsActive());
                 
                 // Simple password comparison (in production, use proper password hashing)
                 if (storedPassword != null && storedPassword.equals(password) && active) {
-                    System.out.println("Password match and admin is active");
                     return Optional.of(admin);
-                } else {
-                    System.out.println("Password mismatch or admin inactive. Password match: " + 
-                        (storedPassword != null && storedPassword.equals(password)) + 
-                        ", Active: " + active);
                 }
-            } else {
-                System.out.println("No admin found with username/email: " + usernameOrEmail);
             }
 
             return Optional.empty();
         } catch (Exception e) {
             System.err.println("Error in AdminAuthService.authenticate for input '" + usernameOrEmail + "': " + e.getMessage());
             e.printStackTrace();
-            // Trả về empty để controller hiển thị lỗi thay vì trả 500
             return Optional.empty();
         }
     }
