@@ -20,6 +20,7 @@ org\example\webtuthien\controller\AuthController.class
 org\example\webtuthien\service\AdminAuthService.class
 org\example\webtuthien\service\PartnerService.class
 org\example\webtuthien\config\SessionConfig.class
+org\example\webtuthien\config\WebConfig.class
 org\example\webtuthien\model\Campaign.class
 org\example\webtuthien\controller\CampaignController.class
 org\example\webtuthien\service\AdminService.class

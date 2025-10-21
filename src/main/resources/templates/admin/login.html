@@ -22,6 +22,7 @@
             <div th:if="${error}" class="admin-error-message" th:text="${error}"></div>
             
             <form th:action="@{/admin/login}" method="post">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
                 <div class="admin-form-group">
                     <label for="usernameOrEmail">Tên đăng nhập hoặc Email:</label>
                     <input type="text" id="usernameOrEmail" name="usernameOrEmail" required>

@@ -24,6 +24,11 @@ spring:
       data-locations: classpath:data-mysql.sql
   session:
     timeout: 30m
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 5MB
+      max-request-size: 10MB
 
 management:
   endpoints:

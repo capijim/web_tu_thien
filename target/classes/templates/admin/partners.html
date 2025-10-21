@@ -1,58 +1,134 @@
 <!doctype html>
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
-  <head>
+<head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Admin - Partners</title>
     <link rel="stylesheet" th:href="@{/css/style.css}" />
     <link rel="stylesheet" th:href="@{/css/admin.css}" />
-  </head>
-  <body>
-    <div class="container admin-container">
-      <h1>Partners</h1>
-      <h2>Thêm đối tác</h2>
-      <form th:action="@{/admin/partners/create}" method="post" class="auth-form">
-        <label>Tên</label>
-        <input name="name" required />
-        <label>Email</label>
-        <input name="email" type="email" />
-        <label>Điện thoại</label>
-        <input name="phone" />
-        <label>Địa chỉ</label>
-        <input name="address" />
-        <button type="submit" class="btn btn-primary">Tạo</button>
-      </form>
+</head>
+<body>
+    <div class="admin-container">
+        <div class="admin-sidebar">
+            <div class="sidebar-header">
+                <img th:src="@{/assets/logo.svg}" alt="Logo" class="sidebar-logo">
+                <h2>Admin Panel</h2>
+            </div>
+            
+            <ul class="sidebar-menu">
+                <li class="menu-item">
+                    <i>📊</i>
+                    <a th:href="@{/admin}" style="color: white; text-decoration: none;">Dashboard</a>
+                </li>
+                <li class="menu-item">
+                    <i>👥</i>
+                    <a th:href="@{/admin/users}" style="color: white; text-decoration: none;">Quản lý Users</a>
+                </li>
+                <li class="menu-item">
+                    <i>🎯</i>
+                    <a th:href="@{/admin/campaigns}" style="color: white; text-decoration: none;">Quản lý Campaigns</a>
+                </li>
+                <li class="menu-item">
+                    <i>💰</i>
+                    <a th:href="@{/admin/donations}" style="color: white; text-decoration: none;">Quản lý Donations</a>
+                </li>
+                <li class="menu-item active">
+                    <i>🤝</i>
+                    <span>Quản lý Partners</span>
+                </li>
+            </ul>
+            
+            <div class="sidebar-footer">
+                <div class="admin-user">
+                    <i>👤</i>
+                    <span th:text="${admin.username}">admin</span>
+                </div>
+                <form th:action="@{/admin/logout}" method="post" class="logout-btn">
+                    <button type="submit" style="background: none; border: none; color: white; cursor: pointer;">
+                        <i>🚪</i> Đăng xuất
+                    </button>
+                </form>
+            </div>
+        </div>
+        
+        <div class="admin-main">
+            <div class="admin-header">
+                <h1>🤝 Quản lý Partners</h1>
+                <div class="admin-user">
+                    <i>👤</i>
+                    <span th:text="${admin.fullName}">Administrator</span>
+                </div>
+            </div>
+            
+            <!-- Create Partner Form -->
+            <div class="table-container" style="margin-bottom: 2rem;">
+                <div style="padding: 2rem;">
+                    <h2 style="margin: 0 0 1.5rem 0; color: #2d3748; font-size: 1.5rem; font-weight: 600;">Thêm đối tác mới</h2>
+                    <form th:action="@{/admin/partners/create}" method="post" style="display: grid; gap: 1rem;">
+                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                        <div class="form-group">
+                            <label for="name">Tên đối tác</label>
+                            <input id="name" name="name" required style="width: 100%; padding: 0.75rem; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 1rem; transition: border-color 0.3s ease;" />
+                        </div>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                            <div class="form-group">
+                                <label for="email">Email</label>
+                                <input id="email" name="email" type="email" style="width: 100%; padding: 0.75rem; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 1rem; transition: border-color 0.3s ease;" />
+                            </div>
+                            <div class="form-group">
+                                <label for="phone">Điện thoại</label>
+                                <input id="phone" name="phone" style="width: 100%; padding: 0.75rem; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 1rem; transition: border-color 0.3s ease;" />
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="address">Địa chỉ</label>
+                            <input id="address" name="address" style="width: 100%; padding: 0.75rem; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 1rem; transition: border-color 0.3s ease;" />
+                        </div>
+                        <div style="display: flex; gap: 1rem; justify-content: flex-end;">
+                            <button type="submit" class="btn btn-primary" style="padding: 0.75rem 1.5rem; background: #667eea; color: white; border: none; border-radius: 8px; font-size: 1rem; font-weight: 500; cursor: pointer; transition: all 0.3s ease;">Tạo đối tác</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
 
-      <h2 style="margin-top:24px;">Danh sách</h2>
-      <table class="admin-table">
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Tên</th>
-            <th>Email</th>
-            <th>Điện thoại</th>
-            <th>Địa chỉ</th>
-            <th>Thao tác</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr th:each="p : ${partners}">
-            <td th:text="${p.id}"></td>
-            <td th:text="${p.name}"></td>
-            <td th:text="${p.email}"></td>
-            <td th:text="${p.phone}"></td>
-            <td th:text="${p.address}"></td>
-            <td>
-              <form th:action="@{/admin/partners/delete/{id}(id=${p.id})}" method="post" style="display:inline">
-                <button type="submit" class="btn btn-danger">Xóa</button>
-              </form>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-      <p><a th:href="@{/admin}">← Dashboard</a></p>
+            <!-- Partners List -->
+            <div class="table-container">
+                <div style="padding: 2rem 2rem 0 2rem;">
+                    <h2 style="margin: 0 0 1.5rem 0; color: #2d3748; font-size: 1.5rem; font-weight: 600;">Danh sách đối tác</h2>
+                </div>
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Tên</th>
+                            <th>Email</th>
+                            <th>Điện thoại</th>
+                            <th>Địa chỉ</th>
+                            <th>Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="p : ${partners}">
+                            <td th:text="${p.id}"></td>
+                            <td th:text="${p.name}"></td>
+                            <td th:text="${p.email}"></td>
+                            <td th:text="${p.phone}"></td>
+                            <td th:text="${p.address}"></td>
+                            <td>
+                                <div class="action-buttons">
+                                    <form th:action="@{/admin/partners/delete/{id}(id=${p.id})}" method="post" class="admin-inline-form">
+                                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                                        <button type="submit" class="btn btn-danger" onclick="return confirm('Bạn có chắc chắn muốn xóa đối tác này?')">Xóa</button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
-  </body>
-  </html>
+</body>
+</html>
 
 

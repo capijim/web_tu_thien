@@ -11,7 +11,13 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
 import jakarta.servlet.http.HttpSession;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.UUID;
 
 @Controller
 public class AdminActionController {
@@ -49,7 +55,12 @@ public class AdminActionController {
             return "redirect:/admin/login";
         }
         
-        campaignService.deleteCampaign(id);
+        try {
+            campaignService.deleteCampaign(id);
+        } catch (Exception e) {
+            System.err.println("Error deleting campaign: " + e.getMessage());
+            e.printStackTrace();
+        }
         return "redirect:/admin/campaigns";
     }
 
@@ -60,19 +71,58 @@ public class AdminActionController {
             return "redirect:/admin/login";
         }
         
-        adminService.updateCampaignStatus(id, status);
+        try {
+            adminService.updateCampaignStatus(id, status);
+        } catch (Exception e) {
+            System.err.println("Error updating campaign status: " + e.getMessage());
+            e.printStackTrace();
+        }
         return "redirect:/admin/campaigns";
     }
 
     @PostMapping("/admin/campaigns/create")
-    public String createCampaign(Campaign campaign, HttpSession session) {
+    public String createCampaign(Campaign campaign, 
+                                @RequestParam("image") MultipartFile image, 
+                                HttpSession session) {
         Admin admin = (Admin) session.getAttribute("admin");
         if (admin == null) {
             return "redirect:/admin/login";
         }
         
-        campaignService.create(campaign);
-        return "redirect:/admin/campaigns";
+        try {
+            // Xử lý upload ảnh
+            if (image != null && !image.isEmpty()) {
+                String uploadDir = "uploads/";
+                Path uploadPath = Paths.get(uploadDir);
+                
+                // Tạo thư mục nếu chưa tồn tại
+                if (!Files.exists(uploadPath)) {
+                    Files.createDirectories(uploadPath);
+                }
+                
+                // Tạo tên file unique
+                String originalFilename = image.getOriginalFilename();
+                String fileExtension = originalFilename.substring(originalFilename.lastIndexOf("."));
+                String uniqueFilename = UUID.randomUUID().toString() + fileExtension;
+                
+                // Lưu file
+                Path filePath = uploadPath.resolve(uniqueFilename);
+                Files.copy(image.getInputStream(), filePath);
+                
+                // Set imageUrl cho campaign
+                campaign.setImageUrl("/" + uploadDir + uniqueFilename);
+            }
+            
+            campaignService.create(campaign);
+            return "redirect:/admin/campaigns";
+            
+        } catch (IOException e) {
+            System.err.println("Error uploading image: " + e.getMessage());
+            e.printStackTrace();
+            // Vẫn tạo campaign nhưng không có ảnh
+            campaignService.create(campaign);
+            return "redirect:/admin/campaigns";
+        }
     }
 
     @PostMapping("/admin/partners/create")

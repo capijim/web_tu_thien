@@ -146,6 +146,7 @@ public class AdminViewController {
         
         model.addAttribute("admin", admin);
         model.addAttribute("campaigns", campaignService.list());
+        model.addAttribute("partners", partnerService.list());
         return "admin/campaigns";
     }
 

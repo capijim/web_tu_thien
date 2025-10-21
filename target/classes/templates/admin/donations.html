@@ -1,40 +1,96 @@
 <!doctype html>
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
-  <head>
+<head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Admin - Donations</title>
     <link rel="stylesheet" th:href="@{/css/style.css}" />
     <link rel="stylesheet" th:href="@{/css/admin.css}" />
-  </head>
-  <body>
-    <div class="container admin-container">
-      <h1>Donations</h1>
-      <table class="admin-table">
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Campaign ID</th>
-            <th>Người donate</th>
-            <th>Số tiền</th>
-            <th>Tin nhắn</th>
-            <th>Ngày tạo</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr th:each="d : ${donations}">
-            <td th:text="${d.id}"></td>
-            <td th:text="${d.campaignId}"></td>
-            <td th:text="${d.donorName}"></td>
-            <td th:text="${d.amount}"></td>
-            <td th:text="${d.message}"></td>
-            <td th:text="${d.createdAt}"></td>
-          </tr>
-        </tbody>
-      </table>
-      <p><a th:href="@{/admin}">← Dashboard</a></p>
+</head>
+<body>
+    <div class="admin-container">
+        <div class="admin-sidebar">
+            <div class="sidebar-header">
+                <img th:src="@{/assets/logo.svg}" alt="Logo" class="sidebar-logo">
+                <h2>Admin Panel</h2>
+            </div>
+            
+            <ul class="sidebar-menu">
+                <li class="menu-item">
+                    <i>📊</i>
+                    <a th:href="@{/admin}" style="color: white; text-decoration: none;">Dashboard</a>
+                </li>
+                <li class="menu-item">
+                    <i>👥</i>
+                    <a th:href="@{/admin/users}" style="color: white; text-decoration: none;">Quản lý Users</a>
+                </li>
+                <li class="menu-item">
+                    <i>🎯</i>
+                    <a th:href="@{/admin/campaigns}" style="color: white; text-decoration: none;">Quản lý Campaigns</a>
+                </li>
+                <li class="menu-item active">
+                    <i>💰</i>
+                    <span>Quản lý Donations</span>
+                </li>
+                <li class="menu-item">
+                    <i>🤝</i>
+                    <a th:href="@{/admin/partners}" style="color: white; text-decoration: none;">Quản lý Partners</a>
+                </li>
+            </ul>
+            
+            <div class="sidebar-footer">
+                <div class="admin-user">
+                    <i>👤</i>
+                    <span th:text="${admin.username}">admin</span>
+                </div>
+                <form th:action="@{/admin/logout}" method="post" class="logout-btn">
+                    <button type="submit" style="background: none; border: none; color: white; cursor: pointer;">
+                        <i>🚪</i> Đăng xuất
+                    </button>
+                </form>
+            </div>
+        </div>
+        
+        <div class="admin-main">
+            <div class="admin-header">
+                <h1>💰 Quản lý Donations</h1>
+                <div class="admin-user">
+                    <i>👤</i>
+                    <span th:text="${admin.fullName}">Administrator</span>
+                </div>
+            </div>
+            
+            <!-- Donations List -->
+            <div class="table-container">
+                <div style="padding: 2rem 2rem 0 2rem;">
+                    <h2 style="margin: 0 0 1.5rem 0; color: #2d3748; font-size: 1.5rem; font-weight: 600;">Danh sách Donations</h2>
+                </div>
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Campaign ID</th>
+                            <th>Người donate</th>
+                            <th>Số tiền</th>
+                            <th>Tin nhắn</th>
+                            <th>Ngày tạo</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="d : ${donations}">
+                            <td th:text="${d.id}"></td>
+                            <td th:text="${d.campaignId}"></td>
+                            <td th:text="${d.donorName}"></td>
+                            <td th:text="${#numbers.formatDecimal(d.amount, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'"></td>
+                            <td th:text="${d.message}"></td>
+                            <td th:text="${#temporals.format(d.createdAt, 'dd/MM/yyyy HH:mm')}"></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
-  </body>
-  </html>
+</body>
+</html>
 
 

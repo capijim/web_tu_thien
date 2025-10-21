@@ -15,6 +15,7 @@ C:\xampp\htdocs\web_tu_thien\src\main\java\org\example\webtuthien\controller\adm
 C:\xampp\htdocs\web_tu_thien\src\main\java\org\example\webtuthien\controller\AuthController.java
 C:\xampp\htdocs\web_tu_thien\src\main\java\org\example\webtuthien\repository\CampaignRepository.java
 C:\xampp\htdocs\web_tu_thien\src\main\java\org\example\webtuthien\service\AdminService.java
+C:\xampp\htdocs\web_tu_thien\src\main\java\org\example\webtuthien\config\WebConfig.java
 C:\xampp\htdocs\web_tu_thien\src\main\java\org\example\webtuthien\service\AdminAuthService.java
 C:\xampp\htdocs\web_tu_thien\src\main\java\org\example\webtuthien\controller\PageController.java
 C:\xampp\htdocs\web_tu_thien\src\main\java\org\example\webtuthien\model\User.java
