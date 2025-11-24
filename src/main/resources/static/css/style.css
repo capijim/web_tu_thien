@@ -939,6 +939,9 @@ th, td {
     height: 160px;
     overflow: hidden;
     background: #f3f4f6;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .campaign-image img {
@@ -946,6 +949,7 @@ th, td {
     height: 100%;
     object-fit: cover;
     transition: transform 0.3s ease;
+    display: block;
 }
 
 .campaign-card:hover .campaign-image img {
@@ -961,6 +965,7 @@ th, td {
     color: #9ca3af;
     font-size: 0.875rem;
     background: #f9fafb;
+    font-style: italic;
 }
 
 .campaign-content {

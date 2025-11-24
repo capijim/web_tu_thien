@@ -11,39 +11,45 @@
     <div th:replace="~{components/headbar :: headbar}"></div>
 
     <main class="container" id="campaign-detail-root">
-      <div th:if="${error}" class="message error" th:text="${error}"></div>
-      <div th:if="${success}" class="success-message" th:text="${success}"></div>
+      <!-- Error message -->
+      <div th:if="${error}" class="message error" th:text="${error}" style="padding: 15px; margin: 20px 0; background: #fee; border: 1px solid #fcc; border-radius: 4px; color: #c33;"></div>
+      
+      <!-- Success message -->
+      <div th:if="${success}" class="success-message" th:text="${success}" style="padding: 15px; margin: 20px 0; background: #efe; border: 1px solid #cfc; border-radius: 4px; color: #363;"></div>
 
+      <!-- Campaign content -->
       <div th:if="${campaign != null}">
-        <h1 th:text="${campaign.title}" class="campaign-title"></h1>
-        <p class="muted campaign-category" th:text="${campaign.category}"></p>
+        <h1 th:text="${campaign.title}" class="campaign-title">Tiêu đề chiến dịch</h1>
+        <p class="muted campaign-category" th:text="${campaign.category}">Danh mục</p>
 
         <div class="detail-grid">
           <div>
             <div class="detail-image-container">
-              <div class="detail-image" th:style="${campaign.imageUrl} != null ? 'background-image:url(' + campaign.imageUrl + ')'"></div>
+              <div class="detail-image" 
+                   th:style="${campaign.imageUrl != null} ? |background-image:url(${campaign.imageUrl})| : ''">
+              </div>
             </div>
 
             <div class="detail-content">
               <h3>Câu chuyện</h3>
-              <p th:text="${campaign.description}"></p>
+              <p th:text="${campaign.description}" style="white-space: pre-wrap;">Mô tả chiến dịch</p>
             </div>
           </div>
 
           <aside class="detail-sidebar">
             <h3>Thông tin quyên góp</h3>
             <div class="detail-amount">
-              <span th:text="${#numbers.formatDecimal(stats != null && stats.currentAmount != null ? stats.currentAmount : (campaign.currentAmount != null ? campaign.currentAmount : 0), 0, 'COMMA', 0, 'POINT')}"></span>
+              <span th:text="${#numbers.formatDecimal(campaign.currentAmount ?: 0, 0, 'COMMA', 0, 'POINT')}">0</span>
               <span>đ</span>
               <span class="muted">/</span>
-              <span class="muted" th:text="${#numbers.formatDecimal(campaign.targetAmount != null ? campaign.targetAmount : 0, 0, 'COMMA', 0, 'POINT')} + ' đ'"></span>
+              <span class="muted" th:text="${#numbers.formatDecimal(campaign.targetAmount ?: 0, 0, 'COMMA', 0, 'POINT')} + ' đ'"></span>
             </div>
             <div class="detail-progress-bar">
-              <div class="detail-progress-fill" th:style="${(stats != null && stats.progressPercent != null ? stats.progressPercent : (campaign.progressPercentage != null ? campaign.progressPercentage : 0))} + '%'"></div>
+              <div class="detail-progress-fill" th:style="|width:${campaign.progressPercentage ?: 0}%|"></div>
             </div>
             <div class="detail-stats">
               <div>
-                <div th:text="${stats != null && stats.donationCount != null ? stats.donationCount : 0}"></div>
+                <div th:text="${stats != null ? stats.donationCount : 0}">0</div>
                 <div class="muted">Lượt quyên góp</div>
               </div>
               <div>
@@ -51,12 +57,12 @@
                 <div class="muted">Trạng thái</div>
               </div>
               <div>
-                <div th:text="${campaign.endDate != null ? campaign.endDate : '—'}"></div>
+                <div th:text="${campaign.endDate != null ? campaign.endDate : '—'}">—</div>
                 <div class="muted">Kết thúc</div>
               </div>
             </div>
 
-            <form th:action="@{'/campaign/' + ${campaign.id} + '/donate'}" method="post" class="detail-form">
+            <form th:action="@{/campaign/{id}/donate(id=${campaign.id})}" method="post" class="detail-form">
               <label for="donateAmount">Số tiền ủng hộ (VNĐ)</label>
               <input id="donateAmount" name="amount" type="number" step="0.01" required placeholder="Nhập số tiền ủng hộ" />
               <label for="donateMessage">Lời nhắn (tùy chọn)</label>
@@ -67,10 +73,15 @@
           </aside>
         </div>
       </div>
+
+      <!-- Loading state -->
+      <div th:if="${campaign == null and error == null}" style="text-align: center; padding: 40px;">
+        <p class="muted">Đang tải thông tin chiến dịch...</p>
+      </div>
     </main>
 
     <script th:src="@{/js/headbar.js}"></script>
   </body>
- </html>
+</html>
 
 

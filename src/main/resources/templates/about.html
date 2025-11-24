@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Giới thiệu - Web Từ Thiện</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}" />
+    <link rel="stylesheet" th:href="@{/css/pages.css}" />
+  </head>
+  <body>
+    <div th:replace="~{components/headbar :: headbar}"></div>
+
+    <section class="hero">
+      <div class="container inner">
+        <h1>Giới thiệu về chúng tôi</h1>
+        <p class="muted">Kết nối trái tim - Chia sẻ yêu thương</p>
+      </div>
+    </section>
+
+    <main class="container about-page">
+      <!-- Mission Section -->
+      <section class="about-section">
+        <div class="about-content">
+          <h2>Sứ mệnh của chúng tôi</h2>
+          <p>
+            Web Từ Thiện được thành lập với sứ mệnh kết nối những tấm lòng hảo tâm với những hoàn cảnh 
+            khó khăn trên khắp cả nước. Chúng tôi tin rằng mỗi người đều có thể tạo ra sự thay đổi tích cực 
+            cho cộng đồng, dù chỉ là một đóng góp nhỏ.
+          </p>
+          <p>
+            Thông qua nền tảng của chúng tôi, các tổ chức từ thiện, cá nhân và doanh nghiệp có thể dễ dàng 
+            tạo và quản lý các chiến dịch quyên góp, trong khi người hảo tâm có thể tìm kiếm và ủng hộ 
+            những hoàn cảnh mình quan tâm một cách minh bạch và hiệu quả.
+          </p>
+        </div>
+      </section>
+
+      <!-- Values Section -->
+      <section class="about-section values-section">
+        <h2>Giá trị cốt lõi</h2>
+        <div class="values-grid">
+          <div class="value-card">
+            <div class="value-icon">
+              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M9 12L11 14L15 10M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+            <h3>Minh bạch</h3>
+            <p>Công khai mọi thông tin về chiến dịch quyên góp và cách sử dụng tiền từ thiện</p>
+          </div>
+
+          <div class="value-card">
+            <div class="value-icon">
+              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 21C16.9706 21 21 16.9706 21 12C21 7.02944 16.9706 3 12 3C7.02944 3 3 7.02944 3 12C3 16.9706 7.02944 21 12 21Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M12 8V12L15 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+            <h3>Nhanh chóng</h3>
+            <p>Xử lý và chuyển tiền hỗ trợ đến người cần giúp đỡ trong thời gian sớm nhất</p>
+          </div>
+
+          <div class="value-card">
+            <div class="value-icon">
+              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M8 14C8 14 9.5 16 12 16C14.5 16 16 14 16 14M15 9H15.01M9 9H9.01" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+            <h3>Tận tâm</h3>
+            <p>Luôn đặt lợi ích của người cần giúp đỡ lên hàng đầu trong mọi hoạt động</p>
+          </div>
+
+          <div class="value-card">
+            <div class="value-icon">
+              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M17 21V19C17 17.9391 16.5786 16.9217 15.8284 16.1716C15.0783 15.4214 14.0609 15 13 15H5C3.93913 15 2.92172 15.4214 2.17157 16.1716C1.42143 16.9217 1 17.9391 1 19V21M23 21V19C22.9993 18.1137 22.7044 17.2528 22.1614 16.5523C21.6184 15.8519 20.8581 15.3516 20 15.13M16 3.13C16.8604 3.3503 17.623 3.8507 18.1676 4.55231C18.7122 5.25392 19.0078 6.11683 19.0078 7.005C19.0078 7.89317 18.7122 8.75608 18.1676 9.45769C17.623 10.1593 16.8604 10.6597 16 10.88M13 7C13 9.20914 11.2091 11 9 11C6.79086 11 5 9.20914 5 7C5 4.79086 6.79086 3 9 3C11.2091 3 13 4.79086 13 7Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+            <h3>Cộng đồng</h3>
+            <p>Xây dựng cộng đồng những người có trái tim nhân ái và tinh thần tương trợ</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Statistics Section -->
+      <section class="about-section stats-section">
+        <h2>Thành tựu đạt được</h2>
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-number">1,234</div>
+            <div class="stat-label">Chiến dịch thành công</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number">15,678</div>
+            <div class="stat-label">Người quyên góp</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number">25.5 tỷ</div>
+            <div class="stat-label">Đồng đã quyên góp</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number">456</div>
+            <div class="stat-label">Đối tác từ thiện</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- How It Works Section -->
+      <section class="about-section how-it-works">
+        <h2>Cách thức hoạt động</h2>
+        <div class="steps-grid">
+          <div class="step-card">
+            <div class="step-number">1</div>
+            <h3>Đăng ký tài khoản</h3>
+            <p>Tạo tài khoản miễn phí để bắt đầu tham gia các hoạt động từ thiện</p>
+          </div>
+
+          <div class="step-card">
+            <div class="step-number">2</div>
+            <h3>Tìm kiếm chiến dịch</h3>
+            <p>Duyệt qua các chiến dịch và chọn những hoàn cảnh bạn muốn giúp đỡ</p>
+          </div>
+
+          <div class="step-card">
+            <div class="step-number">3</div>
+            <h3>Quyên góp dễ dàng</h3>
+            <p>Thực hiện quyên góp nhanh chóng thông qua các phương thức thanh toán</p>
+          </div>
+
+          <div class="step-card">
+            <div class="step-number">4</div>
+            <h3>Theo dõi tiến độ</h3>
+            <p>Cập nhật thường xuyên về cách sử dụng số tiền quyên góp của bạn</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Team Section -->
+      <section class="about-section team-section">
+        <h2>Đội ngũ của chúng tôi</h2>
+        <p class="section-description">
+          Đội ngũ Web Từ Thiện bao gồm những người trẻ nhiệt huyết, có chung mục tiêu 
+          mang lại những thay đổi tích cực cho cộng đồng.
+        </p>
+        <div class="team-grid">
+          <div class="team-member">
+            <div class="member-avatar"></div>
+            <h3>Nguyễn Văn A</h3>
+            <p class="member-role">Founder & CEO</p>
+            <p class="member-bio">10 năm kinh nghiệm trong lĩnh vực từ thiện và phát triển cộng đồng</p>
+          </div>
+
+          <div class="team-member">
+            <div class="member-avatar"></div>
+            <h3>Trần Thị B</h3>
+            <p class="member-role">Giám đốc Truyền thông</p>
+            <p class="member-bio">Chuyên gia về marketing và quản lý cộng đồng</p>
+          </div>
+
+          <div class="team-member">
+            <div class="member-avatar"></div>
+            <h3>Lê Văn C</h3>
+            <p class="member-role">Giám đốc Công nghệ</p>
+            <p class="member-bio">15 năm kinh nghiệm phát triển phần mềm và hệ thống</p>
+          </div>
+
+          <div class="team-member">
+            <div class="member-avatar"></div>
+            <h3>Phạm Thị D</h3>
+            <p class="member-role">Trưởng phòng Đối tác</p>
+            <p class="member-bio">Chuyên gia về quan hệ đối tác và hợp tác chiến lược</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Contact CTA Section -->
+      <section class="about-section contact-cta">
+        <h2>Liên hệ với chúng tôi</h2>
+        <p>
+          Bạn có câu hỏi hoặc muốn hợp tác? Hãy liên hệ với chúng tôi để được hỗ trợ tốt nhất.
+        </p>
+        <div class="contact-info">
+          <div class="contact-item">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M3 8L10.89 13.26C11.2187 13.4793 11.6049 13.5963 12 13.5963C12.3951 13.5963 12.7813 13.4793 13.11 13.26L21 8M5 19H19C19.5304 19 20.0391 18.7893 20.4142 18.4142C20.7893 18.0391 21 17.5304 21 17V7C21 6.46957 20.7893 5.96086 20.4142 5.58579C20.0391 5.21071 19.5304 5 19 5H5C4.46957 5 3.96086 5.21071 3.58579 5.58579C3.21071 5.96086 3 6.46957 3 7V17C3 17.5304 3.21071 18.0391 3.58579 18.4142C3.96086 18.7893 4.46957 19 5 19Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <span>contact@webtuthien.vn</span>
+          </div>
+          <div class="contact-item">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M3 5C3 3.89543 3.89543 3 5 3H8.27924C8.70967 3 9.09181 3.27543 9.22792 3.68377L10.7257 8.17721C10.8831 8.64932 10.6694 9.16531 10.2243 9.38787L7.96701 10.5165C9.06925 12.9612 11.0388 14.9308 13.4835 16.033L14.6121 13.7757C14.8347 13.3306 15.3507 13.1169 15.8228 13.2743L20.3162 14.7721C20.7246 14.9082 21 15.2903 21 15.7208V19C21 20.1046 20.1046 21 19 21H18C9.71573 21 3 14.2843 3 6V5Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <span>1900 1234</span>
+          </div>
+          <div class="contact-item">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M17.657 16.657L13.414 20.9C13.039 21.275 12.5306 21.4854 12 21.4854C11.4694 21.4854 10.961 21.275 10.586 20.9L6.343 16.657C5.22422 15.5381 4.46234 14.1127 4.15369 12.5608C3.84504 11.009 4.00349 9.40047 4.60901 7.93868C5.21452 6.4769 6.2399 5.22749 7.55548 4.34846C8.87107 3.46943 10.4178 3.00024 12 3.00024C13.5822 3.00024 15.1289 3.46943 16.4445 4.34846C17.7601 5.22749 18.7855 6.4769 19.391 7.93868C19.9965 9.40047 20.155 11.009 19.8463 12.5608C19.5377 14.1127 18.7758 15.5381 17.657 16.657V16.657Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M12 13C13.1046 13 14 12.1046 14 11C14 9.89543 13.1046 9 12 9C10.8954 9 10 9.89543 10 11C10 12.1046 10.8954 13 12 13Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <span>123 Đường ABC, Quận 1, TP.HCM</span>
+          </div>
+        </div>
+        <a th:href="@{/campaigns}" class="cta">Khám phá các chiến dịch</a>
+      </section>
+    </main>
+
+    <script th:src="@{/js/headbar.js}"></script>
+  </body>
+</html>

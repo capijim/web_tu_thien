@@ -50,12 +50,12 @@
       <div class="campaigns-list">
         <div th:if="${campaigns == null || #lists.isEmpty(campaigns)}" class="muted">Chưa có chiến dịch</div>
         <div th:each="c : ${campaigns}" class="card">
-          <div class="card-image" th:style="${c.imageUrl} != null ? 'background-image:url(' + c.imageUrl + ')'"></div>
+          <div class="card-image" th:style="${c.imageUrl != null ? 'background-image:url(' + c.imageUrl + ')' : ''}"></div>
           <div class="card-body">
             <h3 th:text="${c.title}"></h3>
             <p class="muted" th:text="${c.category}"></p>
             <div class="progress-bar">
-              <div class="progress-fill" th:style="${c.progressPercentage} + '%'"></div>
+              <div class="progress-fill" th:style="'width:' + ${c.progressPercentage} + '%'"></div>
             </div>
             <a class="cta" th:href="@{'/campaign/' + ${c.id}}">Xem chi tiết</a>
           </div>

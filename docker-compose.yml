@@ -1,67 +1,50 @@
 version: '3.8'
 
 services:
-  mysql:
-    image: mysql:8.0
-    container_name: web-tu-thien-mysql
-    environment:
-      MYSQL_ROOT_PASSWORD: root123
-      MYSQL_DATABASE: web_tu_thien
-      MYSQL_USER: app_user
-      MYSQL_PASSWORD: app_password
-    ports:
-      - "3307:3306"
-    volumes:
-      - mysql_data:/var/lib/mysql
-    networks:
-      - web-tu-thien-network
-    healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-
-  webapp:
-    build:
-      context: .
-      dockerfile: Dockerfile.webapp
-    container_name: web-tu-thien-webapp
+  app:
+    build: .
+    container_name: web-tu-thien-app
     ports:
       - "8080:8080"
+    volumes:
+      # Mount volume cho uploads - dữ liệu sẽ được lưu trong Docker volume
+      - uploads-data:/app/uploads
     environment:
-      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/web_tu_thien?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
-      SPRING_DATASOURCE_USERNAME: app_user
-      SPRING_DATASOURCE_PASSWORD: app_password
+      - SPRING_DATASOURCE_URL=jdbc:mysql://db:3306/web_tu_thien?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=rootpassword
+      - FILE_UPLOAD_DIR=/app/uploads
     depends_on:
-      mysql:
-        condition: service_healthy
+      - db
     networks:
-      - web-tu-thien-network
+      - app-network
     restart: unless-stopped
 
-  restapi:
-    build:
-      context: .
-      dockerfile: Dockerfile.restapi
-    container_name: web-tu-thien-restapi
-    ports:
-      - "8081:8081"
+  db:
+    image: mysql:8.0
+    container_name: web-tu-thien-db
     environment:
-      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/web_tu_thien?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
-      SPRING_DATASOURCE_USERNAME: app_user
-      SPRING_DATASOURCE_PASSWORD: app_password
-      SERVER_PORT: 8081
-    depends_on:
-      mysql:
-        condition: service_healthy
+      - MYSQL_ROOT_PASSWORD=rootpassword
+      - MYSQL_DATABASE=web_tu_thien
+      - MYSQL_CHARACTER_SET_SERVER=utf8mb4
+      - MYSQL_COLLATION_SERVER=utf8mb4_unicode_ci
+    volumes:
+      # Mount volume cho MySQL data
+      - mysql-data:/var/lib/mysql
+    ports:
+      - "3307:3306"
     networks:
-      - web-tu-thien-network
+      - app-network
     restart: unless-stopped
 
 networks:
-  web-tu-thien-network:
+  app-network:
     driver: bridge
 
 volumes:
-  mysql_data:
+  # Docker managed volume cho uploads
+  uploads-data:
+    driver: local
+  # Docker managed volume cho MySQL
+  mysql-data:
     driver: local
