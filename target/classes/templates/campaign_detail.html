@@ -62,7 +62,7 @@
               </div>
             </div>
 
-            <form th:action="@{/campaign/{id}/donate(id=${campaign.id})}" method="post" class="detail-form">
+            <form id="donateForm" th:action="@{/campaign/{id}/donate(id=${campaign.id})}" method="post" class="detail-form">
               <label for="donateAmount">Số tiền ủng hộ (VNĐ)</label>
               <input id="donateAmount" name="amount" type="number" step="0.01" required placeholder="Nhập số tiền ủng hộ" />
               <label for="donateMessage">Lời nhắn (tùy chọn)</label>
@@ -71,6 +71,47 @@
             </form>
             <a th:href="@{/campaigns}" class="btn-secondary detail-back-btn">Quay lại danh sách</a>
           </aside>
+        </div>
+
+        <!-- Donations Section -->
+        <div class="donations-section">
+          <h2>Danh sách ủng hộ (<span th:text="${donations != null ? donations.size() : 0}">0</span> lượt)</h2>
+          
+          <div class="donations-table" th:if="${donations != null and !donations.isEmpty()}">
+            <table>
+              <thead>
+                <tr>
+                  <th>STT</th>
+                  <th>Người ủng hộ</th>
+                  <th>Số tiền</th>
+                  <th>Lời nhắn</th>
+                  <th>Thời gian</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr th:each="donation, iterStat : ${donations}">
+                  <td th:text="${iterStat.count}">1</td>
+                  <td>
+                    <span class="donor-name" th:text="${donation.donorName}">Người ủng hộ</span>
+                  </td>
+                  <td>
+                    <span class="donation-amount" th:text="${#numbers.formatDecimal(donation.amount, 0, 'COMMA', 0, 'POINT')} + ' đ'">0 đ</span>
+                  </td>
+                  <td>
+                    <span class="donation-message" th:if="${donation.message != null and !donation.message.isEmpty()}" th:text="${donation.message}">Lời nhắn</span>
+                    <span class="donation-message" th:if="${donation.message == null or donation.message.isEmpty()}" style="color: #ccc;">—</span>
+                  </td>
+                  <td>
+                    <span class="donation-date" th:text="${#temporals.format(donation.createdAt, 'dd/MM/yyyy HH:mm')}">01/01/2024 10:00</span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          
+          <div class="no-donations" th:if="${donations == null or donations.isEmpty()}">
+            <p>Chưa có lượt ủng hộ nào</p>
+          </div>
         </div>
       </div>
 
@@ -81,6 +122,26 @@
     </main>
 
     <script th:src="@{/js/headbar.js}"></script>
+    <script th:inline="javascript">
+      // Check authentication before donation
+      document.addEventListener('DOMContentLoaded', function() {
+        const donateForm = document.getElementById('donateForm');
+        const isAuthenticated = /*[[${session.user != null}]]*/ false;
+        
+        if (donateForm) {
+          donateForm.addEventListener('submit', function(e) {
+            if (!isAuthenticated) {
+              e.preventDefault();
+              alert('Bạn cần đăng nhập để quyên góp');
+              window.location.href = '/login?redirect=' + encodeURIComponent(window.location.pathname);
+              return false;
+            }
+            // User is authenticated, allow form submission
+            return true;
+          });
+        }
+      });
+    </script>
   </body>
 </html>
 

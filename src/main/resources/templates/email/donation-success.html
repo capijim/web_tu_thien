@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .email-container {
+            background: white;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .header {
+            text-align: center;
+            padding-bottom: 20px;
+            border-bottom: 3px solid #4CAF50;
+        }
+        .header h1 {
+            color: #4CAF50;
+            margin: 0;
+            font-size: 28px;
+        }
+        .content {
+            padding: 30px 0;
+        }
+        .highlight {
+            background: #f0f9ff;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border-left: 4px solid #4CAF50;
+        }
+        .amount {
+            font-size: 32px;
+            font-weight: bold;
+            color: #4CAF50;
+            text-align: center;
+            margin: 20px 0;
+        }
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #eee;
+        }
+        .detail-label {
+            font-weight: 600;
+            color: #666;
+        }
+        .detail-value {
+            color: #333;
+        }
+        .message-box {
+            background: #fff9e6;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border-left: 4px solid #ffc107;
+        }
+        .footer {
+            text-align: center;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+            color: #999;
+            font-size: 14px;
+        }
+        .button {
+            display: inline-block;
+            padding: 12px 30px;
+            background: #4CAF50;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            margin: 20px 0;
+            font-weight: 600;
+        }
+        .social-links {
+            text-align: center;
+            margin: 20px 0;
+        }
+        .social-links a {
+            color: #4CAF50;
+            text-decoration: none;
+            margin: 0 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        <div class="header">
+            <h1>❤️ Cảm ơn bạn đã quyên góp!</h1>
+        </div>
+        
+        <div class="content">
+            <p>Xin chào <strong th:text="${donorName}">Người ủng hộ</strong>,</p>
+            
+            <p>Chúng tôi vô cùng biết ơn sự đóng góp quý báu của bạn cho chiến dịch từ thiện. Sự hảo tâm của bạn sẽ giúp chúng tôi tiến gần hơn đến mục tiêu giúp đỡ những người cần giúp đỡ.</p>
+            
+            <div class="highlight">
+                <h2 style="margin-top: 0; color: #4CAF50;">Thông tin quyên góp</h2>
+                
+                <div class="amount" th:text="${#numbers.formatDecimal(amount, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'">
+                    100,000 VNĐ
+                </div>
+                
+                <div class="detail-row">
+                    <span class="detail-label">Chiến dịch:</span>
+                    <span class="detail-value" th:text="${campaignTitle}">Tên chiến dịch</span>
+                </div>
+                
+                <div class="detail-row">
+                    <span class="detail-label">Danh mục:</span>
+                    <span class="detail-value" th:text="${campaignCategory}">Y tế</span>
+                </div>
+                
+                <div class="detail-row">
+                    <span class="detail-label">Ngày quyên góp:</span>
+                    <span class="detail-value" th:text="${#temporals.format(donationDate, 'dd/MM/yyyy HH:mm')}">01/01/2024 10:00</span>
+                </div>
+                
+                <div class="detail-row" style="border-bottom: none;">
+                    <span class="detail-label">Mã giao dịch:</span>
+                    <span class="detail-value" th:text="${donationId}">123456</span>
+                </div>
+            </div>
+            
+            <div th:if="${message != null and !message.isEmpty()}" class="message-box">
+                <p style="margin: 0;"><strong>Lời nhắn của bạn:</strong></p>
+                <p style="margin: 10px 0 0 0;" th:text="${message}">Lời nhắn</p>
+            </div>
+            
+            <div style="text-align: center;">
+                <a th:href="${campaignUrl}" class="button">Xem chi tiết chiến dịch</a>
+            </div>
+            
+            <p style="margin-top: 30px;">Số tiền quyên góp của bạn sẽ được sử dụng một cách minh bạch và hiệu quả nhất để giúp đỡ những người thực sự cần. Chúng tôi sẽ thường xuyên cập nhật tiến độ sử dụng quỹ trên website.</p>
+            
+            <p>Một lần nữa, xin chân thành cảm ơn tấm lòng hảo tâm của bạn! 🙏</p>
+        </div>
+        
+        <div class="footer">
+            <p><strong>Web Từ Thiện</strong></p>
+            <p>Kết nối trái tim - Chia sẻ yêu thương</p>
+            <div class="social-links">
+                <a href="http://localhost:8080">Website</a> |
+                <a href="mailto:contact@webtuthien.vn">Email</a> |
+                <a href="tel:1900-1234">Hotline: 1900 1234</a>
+            </div>
+            <p style="font-size: 12px; color: #999; margin-top: 20px;">
+                Email này được gửi tự động. Vui lòng không trả lời email này.<br>
+                Nếu bạn có thắc mắc, vui lòng liên hệ: contact@webtuthien.vn
+            </p>
+        </div>
+    </div>
+</body>
+</html>

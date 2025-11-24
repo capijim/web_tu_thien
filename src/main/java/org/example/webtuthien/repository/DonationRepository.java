@@ -90,6 +90,11 @@ public class DonationRepository {
         Integer count = jdbc.queryForObject(sql, new MapSqlParameterSource("campaignId", campaignId), Integer.class);
         return count != null ? count : 0;
     }
+
+    public List<Donation> findByCampaignId(Long campaignId) {
+        String sql = "select id, campaign_id, donor_name, amount, message, created_at from donations where campaign_id = :campaignId order by created_at desc";
+        return jdbc.query(sql, new MapSqlParameterSource("campaignId", campaignId), ROW_MAPPER);
+    }
 }
 
 

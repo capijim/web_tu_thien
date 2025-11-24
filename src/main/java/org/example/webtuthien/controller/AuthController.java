@@ -71,7 +71,10 @@ public class AuthController {
             model.addAttribute("error", "Mật khẩu không đúng");
             return "login";
         }
+        // Store complete session data
         session.setAttribute("user", user);
+        session.setAttribute("userId", user.getId());
+        session.setAttribute("userEmail", user.getEmail());
         return "redirect:/";
     }
 

@@ -191,7 +191,7 @@ public class CampaignController {
             Object userIdObj = session.getAttribute("userId");
             if (userIdObj == null) {
                 Map<String, String> error = new HashMap<>();
-                error.put("error", "Chưa đăng nhập");
+                error.put("error", "Bạn cần đăng nhập để quyên góp");
                 return ResponseEntity.status(401).body(error);
             }
 

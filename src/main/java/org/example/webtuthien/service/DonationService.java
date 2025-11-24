@@ -37,6 +37,13 @@ public class DonationService {
         }
         repository.deleteById(id);
     }
+
+    public List<Donation> findByCampaignId(Long campaignId) {
+        if (campaignId == null) {
+            throw new IllegalArgumentException("Campaign ID is required");
+        }
+        return repository.findByCampaignId(campaignId);
+    }
 }
 
 
