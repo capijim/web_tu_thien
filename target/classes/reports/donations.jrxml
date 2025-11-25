@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports"
+              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd"
+              name="donations" pageWidth="842" pageHeight="595" orientation="Landscape" columnWidth="802" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20">
+    
+    <field name="id" class="java.lang.Long"/>
+    <field name="campaignId" class="java.lang.Long"/>
+    <field name="donorName" class="java.lang.String"/>
+    <field name="amount" class="java.math.BigDecimal"/>
+    <field name="message" class="java.lang.String"/>
+    <field name="createdAt" class="java.time.OffsetDateTime"/>
+    
+    <title>
+        <band height="50">
+            <staticText>
+                <reportElement x="0" y="0" width="802" height="30"/>
+                <textElement textAlignment="Center" verticalAlignment="Middle">
+                    <font size="18" isBold="true"/>
+                </textElement>
+                <text><![CDATA[BÁO CÁO DANH SÁCH QUYÊN GÓP]]></text>
+            </staticText>
+            <textField pattern="dd/MM/yyyy HH:mm">
+                <reportElement x="0" y="30" width="802" height="20"/>
+                <textElement textAlignment="Center"/>
+                <textFieldExpression><![CDATA["Ngày xuất: " + new java.text.SimpleDateFormat("dd/MM/yyyy HH:mm").format(new java.util.Date())]]></textFieldExpression>
+            </textField>
+        </band>
+    </title>
+    
+    <columnHeader>
+        <band height="30">
+            <staticText>
+                <reportElement x="0" y="0" width="50" height="30" mode="Opaque" backcolor="#E0E0E0"/>
+                <box><pen lineWidth="0.5"/></box>
+                <textElement textAlignment="Center" verticalAlignment="Middle">
+                    <font isBold="true"/>
+                </textElement>
+                <text><![CDATA[ID]]></text>
+            </staticText>
+            <staticText>
+                <reportElement x="50" y="0" width="80" height="30" mode="Opaque" backcolor="#E0E0E0"/>
+                <box><pen lineWidth="0.5"/></box>
+                <textElement textAlignment="Center" verticalAlignment="Middle">
+                    <font isBold="true"/>
+                </textElement>
+                <text><![CDATA[Campaign ID]]></text>
+            </staticText>
+            <staticText>
+                <reportElement x="130" y="0" width="150" height="30" mode="Opaque" backcolor="#E0E0E0"/>
+                <box><pen lineWidth="0.5"/></box>
+                <textElement textAlignment="Center" verticalAlignment="Middle">
+                    <font isBold="true"/>
+                </textElement>
+                <text><![CDATA[Người ủng hộ]]></text>
+            </staticText>
+            <staticText>
+                <reportElement x="280" y="0" width="120" height="30" mode="Opaque" backcolor="#E0E0E0"/>
+                <box><pen lineWidth="0.5"/></box>
+                <textElement textAlignment="Center" verticalAlignment="Middle">
+                    <font isBold="true"/>
+                </textElement>
+                <text><![CDATA[Số tiền (VNĐ)]]></text>
+            </staticText>
+            <staticText>
+                <reportElement x="400" y="0" width="252" height="30" mode="Opaque" backcolor="#E0E0E0"/>
+                <box><pen lineWidth="0.5"/></box>
+                <textElement textAlignment="Center" verticalAlignment="Middle">
+                    <font isBold="true"/>
+                </textElement>
+                <text><![CDATA[Lời nhắn]]></text>
+            </staticText>
+            <staticText>
+                <reportElement x="652" y="0" width="150" height="30" mode="Opaque" backcolor="#E0E0E0"/>
+                <box><pen lineWidth="0.5"/></box>
+                <textElement textAlignment="Center" verticalAlignment="Middle">
+                    <font isBold="true"/>
+                </textElement>
+                <text><![CDATA[Thời gian]]></text>
+            </staticText>
+        </band>
+    </columnHeader>
+    
+    <detail>
+        <band height="25">
+            <textField>
+                <reportElement x="0" y="0" width="50" height="25"/>
+                <box><pen lineWidth="0.5"/></box>
+                <textElement textAlignment="Center" verticalAlignment="Middle"/>
+                <textFieldExpression><![CDATA[$F{id}]]></textFieldExpression>
+            </textField>
+            <textField>
+                <reportElement x="50" y="0" width="80" height="25"/>
+                <box><pen lineWidth="0.5"/></box>
+                <textElement textAlignment="Center" verticalAlignment="Middle"/>
+                <textFieldExpression><![CDATA[$F{campaignId}]]></textFieldExpression>
+            </textField>
+            <textField>
+                <reportElement x="130" y="0" width="150" height="25"/>
+                <box><pen lineWidth="0.5"/></box>
+                <textElement textAlignment="Left" verticalAlignment="Middle">
+                    <paragraph leftIndent="5"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$F{donorName}]]></textFieldExpression>
+            </textField>
+            <textField pattern="#,##0">
+                <reportElement x="280" y="0" width="120" height="25"/>
+                <box><pen lineWidth="0.5"/></box>
+                <textElement textAlignment="Right" verticalAlignment="Middle">
+                    <paragraph rightIndent="5"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$F{amount}]]></textFieldExpression>
+            </textField>
+            <textField isBlankWhenNull="true">
+                <reportElement x="400" y="0" width="252" height="25"/>
+                <box><pen lineWidth="0.5"/></box>
+                <textElement textAlignment="Left" verticalAlignment="Middle">
+                    <paragraph leftIndent="5"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$F{message} != null ? $F{message} : ""]]></textFieldExpression>
+            </textField>
+            <textField>
+                <reportElement x="652" y="0" width="150" height="25"/>
+                <box><pen lineWidth="0.5"/></box>
+                <textElement textAlignment="Center" verticalAlignment="Middle"/>
+                <textFieldExpression><![CDATA[new java.text.SimpleDateFormat("dd/MM/yyyy HH:mm").format(java.util.Date.from($F{createdAt}.toInstant()))]]></textFieldExpression>
+            </textField>
+        </band>
+    </detail>
+    
+    <summary>
+        <band height="30">
+            <textField pattern="#,##0">
+                <reportElement x="130" y="5" width="270" height="25" mode="Opaque" backcolor="#F0F0F0"/>
+                <box><pen lineWidth="0.5"/></box>
+                <textElement textAlignment="Right" verticalAlignment="Middle">
+                    <font isBold="true"/>
+                    <paragraph rightIndent="10"/>
+                </textElement>
+                <textFieldExpression><![CDATA["Tổng cộng:"]]></textFieldExpression>
+            </textField>
+            <textField pattern="#,##0">
+                <reportElement x="400" y="5" width="402" height="25" mode="Opaque" backcolor="#F0F0F0"/>
+                <box><pen lineWidth="0.5"/></box>
+                <textElement textAlignment="Left" verticalAlignment="Middle">
+                    <font isBold="true"/>
+                    <paragraph leftIndent="10"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$V{REPORT_COUNT} + " lượt quyên góp"]]></textFieldExpression>
+            </textField>
+        </band>
+    </summary>
+</jasperReport>
