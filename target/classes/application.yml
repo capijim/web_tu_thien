@@ -19,7 +19,11 @@ spring:
     hikari:
       initialization-fail-timeout: -1
       connection-timeout: 60000
-      maximum-pool-size: 3
+      maximum-pool-size: 5
+      minimum-idle: 2
+      idle-timeout: 300000
+      max-lifetime: 600000
+      connection-test-query: SELECT 1
   
   # Disable Spring Data JDBC
   autoconfigure:
@@ -66,4 +70,13 @@ vnpay:
   return-url: https://webtuthien-production.up.railway.app/vnpay/return
   version: 2.1.0
   command: pay
+
+# Supabase Configuration
+supabase:
+  url: https://gbzwqsyoihqtpcionaze.supabase.co
+  anon-key: ${SUPABASE_ANON_KEY:eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imdiendxc3lvaWhxdHBjaW9uYXplIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQxNTIwODYsImV4cCI6MjA3OTcyODA4Nn0.zQgjlkrV7Q8i8cKrjdJm21qqbruFUPEs0-0lWMHTzlY}
+  service-role-key: ${SUPABASE_SERVICE_KEY:eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imdiendxc3lvaWhxdHBjaW9uYXplIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2NDE1MjA4NiwiZXhwIjoyMDc5NzI4MDg2fQ.tv8G5TZfdDwO05cbgPcXbXlNHFPqI5j_eLD9tEHRB4s}
+  storage:
+    bucket: campaign-images
+    max-file-size: 5MB
 

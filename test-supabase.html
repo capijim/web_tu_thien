@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Supabase Connection</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        /* ...existing code... */
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔌 Test Kết Nối Supabase</h1>
+        
+        <div class="config">
+            <h3>Cấu hình Supabase (đã điền sẵn):</h3>
+            <label>Supabase URL:</label>
+            <input type="text" id="supabaseUrl" value="https://gbzwqsyoihqtpcionaze.supabase.co" readonly>
+            
+            <label>Supabase Anon Key:</label>
+            <input type="password" id="supabaseKey" value="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imdiendxc3lvaWhxdHBjaW9uYXplIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQxNTIwODYsImV4cCI6MjA3OTcyODA4Nn0.zQgjlkrV7Q8i8cKrjdJm21qqbruFUPEs0-0lWMHTzlY" readonly>
+            <small style="color: #6b7280; display: block; margin-top: 0.5rem;">Keys đã được điền sẵn từ project của bạn</small>
+        </div>
+
+        <button onclick="testConnection()">Kiểm tra kết nối</button>
+        
+        <div id="status"></div>
+        <div id="result"></div>
+    </div>
+
+    <script>
+        let supabase;
+
+        async function testConnection() {
+            const statusDiv = document.getElementById('status');
+            const resultDiv = document.getElementById('result');
+            const url = document.getElementById('supabaseUrl').value.trim();
+            const key = document.getElementById('supabaseKey').value.trim();
+
+            statusDiv.innerHTML = '<div class="status info">Đang kiểm tra kết nối...</div>';
+            resultDiv.innerHTML = '';
+
+            try {
+                // Khởi tạo Supabase client
+                supabase = window.supabase.createClient(url, key);
+
+                statusDiv.innerHTML = '<div class="status info">✓ Khởi tạo client thành công<br>Đang kiểm tra database...</div>';
+
+                // Test query campaigns table
+                const { data: campaigns, error: campaignsError } = await supabase
+                    .from('campaigns')
+                    .select('id, title, status')
+                    .limit(5);
+
+                if (campaignsError) throw campaignsError;
+
+                // Test query donations table
+                const { data: donations, error: donationsError } = await supabase
+                    .from('donations')
+                    .select('id, amount')
+                    .limit(5);
+
+                if (donationsError) throw donationsError;
+
+                statusDiv.innerHTML = '<div class="status success">✓ Kết nối thành công!</div>';
+                
+                resultDiv.innerHTML = `
+                    <h3>Thông tin kết nối:</h3>
+                    <pre>URL: ${url}
+Key: ${key.substring(0, 30)}...
+Status: Connected ✓
+
+Database Tables:
+- campaigns: ${campaigns.length} record(s)
+- donations: ${donations.length} record(s)</pre>
+                    
+                    <h3>Sample Data (Campaigns):</h3>
+                    <pre>${JSON.stringify(campaigns, null, 2)}</pre>
+                    
+                    <h3>Sample Data (Donations):</h3>
+                    <pre>${JSON.stringify(donations, null, 2)}</pre>
+                    
+                    <p><strong>✅ Các bảng đang hoạt động:</strong></p>
+                    <ul>
+                        <li>users</li>
+                        <li>campaigns</li>
+                        <li>donations</li>
+                        <li>partners</li>
+                        <li>admins</li>
+                        <li>payments</li>
+                    </ul>
+                `;
+
+            } catch (error) {
+                statusDiv.innerHTML = '<div class="status error">✗ Kết nối thất bại!</div>';
+                resultDiv.innerHTML = `
+                    <h3>Chi tiết lỗi:</h3>
+                    <pre>${error.message || JSON.stringify(error, null, 2)}</pre>
+                    <p><strong>Các nguyên nhân có thể:</strong></p>
+                    <ul>
+                        <li>Key không chính xác</li>
+                        <li>RLS policies chưa được cấu hình</li>
+                        <li>Bảng chưa tồn tại trong database</li>
+                        <li>Network/firewall blocking</li>
+                    </ul>
+                `;
+            }
+        }
+
+        // Auto test on load
+        window.addEventListener('DOMContentLoaded', testConnection);
+    </script>
+</body>
+</html>

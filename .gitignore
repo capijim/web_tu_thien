@@ -32,6 +32,11 @@ Thumbs.db
 .env.local
 .env.production
 
+# Environment files
+.env
+.env.local
+.env.*.local
+
 # Uploads directory (user-generated content)
 uploads/
 
@@ -63,3 +68,6 @@ spring-boot-*.jar
 **/application-local.yml
 credentials.json
 secrets.yaml
+
+# Supabase local config
+supabase/.env

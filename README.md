@@ -1,6 +1,6 @@
 # Web Từ Thiện
 
-Hệ thống quản lý hoạt động từ thiện - Spring Boot + PostgreSQL
+Hệ thống quản lý hoạt động từ thiện - Spring Boot + Supabase PostgreSQL
 
 ## 🎯 Chức Năng
 
@@ -44,6 +44,63 @@ DATABASE_PASSWORD=zvBSwzV/@S8D?uvn
 - **Database:** Supabase PostgreSQL
 - **Host:** db.gbzwqsyoihqtpcionaze.supabase.co
 - **Email:** 222x3.666@gmail.com (đã config sẵn)
+
+## 🔧 Cấu hình Supabase
+
+### 1. Lấy Supabase Keys
+
+1. Truy cập https://supabase.com/dashboard
+2. Chọn project: `gbzwqsyoihqtpcionaze`
+3. Settings > API:
+   - `anon` key (public) - dùng cho frontend
+   - `service_role` key - dùng cho backend admin operations
+
+### 2. Cài đặt Row Level Security
+
+```bash
+# Chạy file SQL trong Supabase SQL Editor
+cat src/main/resources/schema-supabase-rls.sql
+```
+
+### 3. Cấu hình Storage Bucket
+
+1. Supabase Dashboard > Storage
+2. Tạo bucket: `campaign-images`
+3. Public access: ✅ Enable
+4. File size limit: 5MB
+
+### 4. Environment Variables
+
+```bash
+# Local (.env)
+SUPABASE_ANON_KEY=your-anon-key
+SUPABASE_SERVICE_KEY=your-service-key
+
+# Railway
+SUPABASE_ANON_KEY=your-anon-key
+SUPABASE_SERVICE_KEY=your-service-key
+```
+
+## 📊 Supabase Features
+
+### ✅ Đã tích hợp:
+
+- PostgreSQL database (JDBC)
+- Real-time subscriptions (WebSocket)
+- Storage for images
+- Row Level Security (RLS)
+
+### 🔄 Real-time Updates:
+
+- Donations list tự động cập nhật
+- Campaign progress real-time
+- Admin dashboard live data
+
+### 📦 Storage:
+
+- Upload campaign images
+- CDN delivery
+- Automatic optimization
 
 ## 🔧 Troubleshooting
 
@@ -97,5 +154,18 @@ railway logs --tail 100
 
 - **Local:** FREE
 - **Production:** $0-5/month (Railway + Supabase free tier)
+
+## 🧪 Testing Supabase Connection
+
+```bash
+# Test database
+curl http://localhost:8080/api/health/db-test
+
+# Test Supabase config
+curl http://localhost:8080/api/supabase/health
+
+# Test Supabase config API
+curl http://localhost:8080/api/supabase/config
+```
 
 

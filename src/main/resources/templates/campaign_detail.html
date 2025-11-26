@@ -194,6 +194,33 @@
         }
       });
     </script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script th:src="@{/js/supabase-client.js}"></script>
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+        // Enable real-time updates for donations
+        if (window.SupabaseClient && window.SupabaseClient.isInitialized()) {
+            const campaignId = /*[[${campaign.id}]]*/ 0;
+            
+            // Subscribe to new donations
+            const subscription = window.SupabaseClient.subscribeToDonations(
+                campaignId,
+                (payload) => {
+                    console.log('New donation received:', payload);
+                    // Reload donations list
+                    location.reload();
+                }
+            );
+            
+            // Cleanup on page unload
+            window.addEventListener('beforeunload', () => {
+                if (subscription) {
+                    subscription.unsubscribe();
+                }
+            });
+        }
+        /*]]>*/
+    </script>
   </body>
 </html>
 
