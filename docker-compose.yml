@@ -10,9 +10,9 @@ services:
       # Mount volume cho uploads - dữ liệu sẽ được lưu trong Docker volume
       - uploads-data:/app/uploads
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:mysql://db:3306/web_tu_thien?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
-      - SPRING_DATASOURCE_USERNAME=root
-      - SPRING_DATASOURCE_PASSWORD=rootpassword
+      - DATABASE_URL=jdbc:postgresql://db:5432/web_tu_thien
+      - DATABASE_USERNAME=postgres
+      - DATABASE_PASSWORD=postgres123
       - FILE_UPLOAD_DIR=/app/uploads
     depends_on:
       - db
@@ -21,18 +21,17 @@ services:
     restart: unless-stopped
 
   db:
-    image: mysql:8.0
+    image: postgres:16-alpine
     container_name: web-tu-thien-db
     environment:
-      - MYSQL_ROOT_PASSWORD=rootpassword
-      - MYSQL_DATABASE=web_tu_thien
-      - MYSQL_CHARACTER_SET_SERVER=utf8mb4
-      - MYSQL_COLLATION_SERVER=utf8mb4_unicode_ci
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres123
+      - POSTGRES_DB=web_tu_thien
     volumes:
-      # Mount volume cho MySQL data
-      - mysql-data:/var/lib/mysql
+      # Mount volume cho PostgreSQL data
+      - postgres-data:/var/lib/postgresql/data
     ports:
-      - "3307:3306"
+      - "5432:5432"
     networks:
       - app-network
     restart: unless-stopped
@@ -45,6 +44,6 @@ volumes:
   # Docker managed volume cho uploads
   uploads-data:
     driver: local
-  # Docker managed volume cho MySQL
-  mysql-data:
+  # Docker managed volume cho PostgreSQL
+  postgres-data:
     driver: local
