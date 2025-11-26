@@ -51,7 +51,11 @@ public class FileStorageService {
         }
 
         // Get original filename
-        String originalFileName = StringUtils.cleanPath(file.getOriginalFilename());
+        String filename = file.getOriginalFilename();
+        if (filename == null || filename.isEmpty()) {
+            throw new IllegalArgumentException("File name is null or empty");
+        }
+        String originalFileName = StringUtils.cleanPath(filename);
         
         try {
             // Check if filename contains invalid characters

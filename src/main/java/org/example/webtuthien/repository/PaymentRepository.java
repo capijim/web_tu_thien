@@ -55,7 +55,9 @@ public class PaymentRepository {
             return ps;
         }, keyHolder);
         
-        payment.setId(keyHolder.getKey().longValue());
+        if (keyHolder.getKey() != null) {
+            payment.setId(keyHolder.getKey().longValue());
+        }
         return payment;
     }
     

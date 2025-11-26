@@ -92,6 +92,9 @@ public class AdminActionController {
                 
                 // Tạo tên file unique
                 String originalFilename = image.getOriginalFilename();
+                if (originalFilename == null || originalFilename.isEmpty()) {
+                    throw new IllegalArgumentException("Original filename is null or empty");
+                }
                 String fileExtension = originalFilename.substring(originalFilename.lastIndexOf("."));
                 String uniqueFilename = UUID.randomUUID().toString() + fileExtension;
                 
