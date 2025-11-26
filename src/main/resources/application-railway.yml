@@ -1,0 +1,36 @@
+spring:
+  datasource:
+    # Supabase connection pooler (recommended for Railway)
+    url: ${DATABASE_URL:jdbc:postgresql://aws-0-ap-southeast-1.pooler.supabase.com:6543/postgres?sslmode=require}
+    username: ${DATABASE_USERNAME:postgres.gbzwqsyoihqtpcionaze}
+    password: ${DATABASE_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 3
+      minimum-idle: 1
+      connection-timeout: 20000
+      idle-timeout: 300000
+      max-lifetime: 600000
+      leak-detection-threshold: 60000
+  
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: none
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: false
+  
+  sql:
+    init:
+      mode: always
+      continue-on-error: false
+      schema-locations: classpath:schema-postgresql.sql
+      data-locations: classpath:data-postgresql.sql
+
+logging:
+  level:
+    org.springframework.jdbc: INFO
+    org.hibernate.SQL: INFO
+    com.zaxxer.hikari: DEBUG
