@@ -68,13 +68,17 @@ SPRING_MAIL_PASSWORD=your-app-password
 
 ### 4. Khởi tạo Database Schema
 
-Sau khi deploy xong:
+**Quan trọng:** Do Railway có thể có vấn đề network khi khởi động, bạn cần setup schema thủ công:
 
-1. Railway sẽ tự động chạy file `schema-postgresql.sql` và `data-postgresql.sql`
-2. Kiểm tra logs để đảm bảo không có lỗi:
-   ```bash
-   railway logs
-   ```
+1. Vào Supabase Dashboard > SQL Editor
+2. Copy nội dung file `src/main/resources/schema-postgresql.sql`
+3. Paste và chạy trong SQL Editor
+4. Copy nội dung file `src/main/resources/data-postgresql.sql`
+5. Paste và chạy trong SQL Editor
+
+Sau đó Railway app sẽ có thể kết nối và hoạt động bình thường.
+
+**Lưu ý:** Application được cấu hình với `spring.sql.init.mode=never` để tránh lỗi khi khởi động.
 
 ### 5. Kiểm tra Application
 
@@ -86,9 +90,12 @@ Sau khi deploy xong:
 
 ## 🔧 Troubleshooting
 
-### Lỗi "Connection refused"
-- Kiểm tra biến `DATABASE_URL` đã đúng format: `jdbc:postgresql://...?sslmode=require`
-- Đảm bảo Supabase database đang chạy
+### Lỗi "Network unreachable" hoặc "Connection refused"
+- **Nguyên nhân:** Railway không thể kết nối Supabase khi khởi động để chạy schema
+- **Giải pháp:**
+  1. Chạy schema thủ công trong Supabase SQL Editor (xem bước 4)
+  2. Đảm bảo biến `DATABASE_URL` có `?sslmode=require`
+  3. Restart Railway deployment sau khi setup schema
 
 ### Lỗi "Authentication failed"
 - Kiểm tra `DATABASE_USERNAME` và `DATABASE_PASSWORD`
