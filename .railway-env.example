@@ -1,0 +1,20 @@
+# Railway Environment Variables Template
+# Copy these to Railway Dashboard > Variables
+
+# REQUIRED - Profile activation
+SPRING_PROFILES_ACTIVE=railway
+
+# REQUIRED - Database connection
+DATABASE_PASSWORD=zvBSwzV/@S8D?uvn
+
+# REQUIRED - File upload
+FILE_UPLOAD_DIR=/app/uploads
+
+# OPTIONAL - Email configuration (already in application-railway.yml)
+# SPRING_MAIL_USERNAME=222x3.666@gmail.com
+# SPRING_MAIL_PASSWORD=0359855353
+
+# OPTIONAL - VNPay configuration
+VNPAY_TMN_CODE=your-vnpay-tmn-code
+VNPAY_HASH_SECRET=your-vnpay-hash-secret
+VNPAY_RETURN_URL=https://web-tu-thien-production.up.railway.app/vnpay/return

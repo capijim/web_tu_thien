@@ -1,183 +1,272 @@
 # Hướng dẫn Deploy lên Railway với Supabase
 
-## 📋 Yêu cầu
-- Tài khoản [Railway](https://railway.app)
-- Tài khoản [Supabase](https://supabase.com) (Free tier đủ dùng)
-- Git repository (GitHub/GitLab)
+## 📋 Thông tin Database của bạn
 
-## 🚀 Các bước Deploy
+- **Host:** db.xxxxxxxxxx.supabase.co
+- **Port:** 5432
+- **Database:** postgres
+- **User:** postgres.xxxxxxxxxx
+- **Password:** [password bạn vừa tạo]
 
-### 1. Tạo Database trên Supabase
+## 🚀 CÁC BƯỚC DEPLOY (QUAN TRỌNG - LÀM ĐÚNG THỨ TỰ)
 
-1. Đăng nhập vào [Supabase Dashboard](https://app.supabase.com)
-2. Tạo project mới (hoặc dùng project có sẵn)
-3. Vào **Settings** > **Database**
-4. Copy thông tin connection:
-   - Host: `db.xxx.supabase.co`
-   - Port: `5432`
-   - Database name: `postgres`
-   - User: `postgres.xxx`
-   - Password: (password bạn đã tạo)
+### ⚠️ BƯỚC 0: Kiểm tra file cấu hình (BẮT BUỘC)
 
-### 2. Deploy lên Railway
-
-#### Cách 1: Deploy từ GitHub (Khuyến nghị)
-
-1. Push code lên GitHub repository
-2. Đăng nhập [Railway](https://railway.app)
-3. Click **New Project** > **Deploy from GitHub repo**
-4. Chọn repository `web_tu_thien`
-5. Railway sẽ tự động detect Dockerfile và bắt đầu build
-
-#### Cách 2: Deploy từ CLI
+Đảm bảo file `src/main/resources/application-railway.yml` TỒN TẠI.
 
 ```bash
-# Cài Railway CLI
+# Kiểm tra file có tồn tại không
+ls src/main/resources/application-railway.yml
+
+# Nếu không có, BẮT BUỘC phải tạo file này trước (xem nội dung ở trên)
+```
+
+### BƯỚC 1: Tạo Database trên Supabase
+
+1. Đăng nhập [Supabase Dashboard](https://app.supabase.com)
+2. Click **New Project**
+3. Điền thông tin:
+   - Name: `web-tu-thien-db`
+   - Database Password: **TẠO PASSWORD MẠNH VÀ LƯU LẠI**
+   - Region: `Southeast Asia (Singapore)`
+4. Đợi 2-3 phút project khởi tạo
+5. Vào **Settings** > **Database**
+6. **LƯU LẠI** các thông tin:
+   ```
+   Host: db.xxxxxxxxxx.supabase.co
+   Port: 5432
+   Database: postgres
+   User: postgres.xxxxxxxxxx
+   Password: [password bạn vừa tạo]
+   ```
+
+### BƯỚC 2: Khởi tạo Database Schema (LÀM TRƯỚC KHI DEPLOY)
+
+**⚠️ QUAN TRỌNG: Làm bước này TRƯỚC khi deploy application**
+
+1. Trong Supabase Dashboard > **SQL Editor**
+2. Click **New Query**
+3. Copy toàn bộ file `src/main/resources/schema-postgresql.sql`
+4. Paste và click **RUN**
+5. Kiểm tra output - phải thấy "Success"
+6. Tạo query mới, copy file `src/main/resources/data-postgresql.sql`
+7. Paste và **RUN**
+
+**Verify schema:**
+```sql
+SELECT table_name FROM information_schema.tables 
+WHERE table_schema = 'public';
+-- Phải thấy: users, campaigns, donations, partners, admins
+```
+
+### BƯỚC 3: Deploy lên Railway
+
+#### Cách 1: GitHub (Khuyến nghị)
+
+```bash
+# 1. Commit code (đảm bảo có application-railway.yml)
+git add .
+git commit -m "Add Railway config for Supabase"
+git push origin main
+
+# 2. Trên Railway Dashboard:
+# - New Project > Deploy from GitHub repo
+# - Chọn repo web_tu_thien
+# - Đợi build (5-10 phút)
+```
+
+#### Cách 2: Railway CLI
+
+```bash
 npm install -g @railway/cli
-
-# Login
 railway login
-
-# Deploy
+railway init
 railway up
 ```
 
-### 3. Cấu hình Environment Variables
+### BƯỚC 4: Cấu hình Environment Variables
 
-**QUAN TRỌNG:** Trong Railway dashboard, vào **Variables** tab và thêm các biến sau:
+**Trong Railway Dashboard > Variables tab:**
 
-```
+#### 🔴 BẮT BUỘC:
+
+```bash
 SPRING_PROFILES_ACTIVE=railway
-DATABASE_URL=jdbc:postgresql://db.xxx.supabase.co:5432/postgres?sslmode=require
-DATABASE_USERNAME=postgres.xxx
-DATABASE_PASSWORD=your-supabase-password
+DATABASE_URL=jdbc:postgresql://db.YOUR_REF.supabase.co:5432/postgres?sslmode=require
+DATABASE_USERNAME=postgres.YOUR_REF
+DATABASE_PASSWORD=your-password
 FILE_UPLOAD_DIR=/app/uploads
 ```
 
-**Lưu ý:** Biến `SPRING_PROFILES_ACTIVE=railway` là BẮT BUỘC để load cấu hình Railway profile.
+**⚠️ Thay `YOUR_REF` và `your-password` bằng giá trị thực từ Supabase**
 
-#### Optional: VNPay Configuration (nếu dùng thanh toán)
-```
+#### 🟡 Tùy chọn:
+
+```bash
 VNPAY_TMN_CODE=your-code
 VNPAY_HASH_SECRET=your-secret
 VNPAY_RETURN_URL=https://your-app.railway.app/vnpay/return
-```
-
-#### Optional: Email Configuration (nếu muốn override)
-```
 SPRING_MAIL_USERNAME=your-email@gmail.com
 SPRING_MAIL_PASSWORD=your-app-password
 ```
 
-### 4. Khởi tạo Database Schema
+**Sau khi thêm biến: Click Deploy để restart**
 
-**Quan trọng:** Do Railway có thể có vấn đề network khi khởi động, bạn cần setup schema thủ công:
+### BƯỚC 5: Kiểm tra Deployment
 
-1. Vào Supabase Dashboard > SQL Editor
-2. Copy nội dung file `src/main/resources/schema-postgresql.sql`
-3. Paste và chạy trong SQL Editor
-4. Copy nội dung file `src/main/resources/data-postgresql.sql`
-5. Paste và chạy trong SQL Editor
-
-Sau đó Railway app sẽ có thể kết nối và hoạt động bình thường.
-
-**Lưu ý:** Application được cấu hình với `spring.sql.init.mode=never` để tránh lỗi khi khởi động.
-
-### 5. Kiểm tra Application
-
-1. Railway sẽ cung cấp public URL: `https://your-app.railway.app`
-2. Truy cập URL để kiểm tra
-3. Login admin mặc định:
-   - Username: `admin`
-   - Password: `admin123`
-
-## 🔧 Troubleshooting
-
-### Lỗi "Network unreachable" hoặc "Connection refused"
-- **Nguyên nhân:** Railway không thể kết nối Supabase hoặc missing profile
-- **Giải pháp:**
-  1. **Kiểm tra biến `SPRING_PROFILES_ACTIVE=railway` đã được set chưa**
-  2. Chạy schema thủ công trong Supabase SQL Editor (xem bước 4)
-  3. Đảm bảo `DATABASE_URL` có đúng hostname và `?sslmode=require`
-  4. Thử dùng connection pooler: `aws-0-ap-southeast-1.pooler.supabase.com:6543`
-  5. Restart Railway deployment sau khi setup
-
-### Lỗi "HikariPool - Exception during pool initialization"
-- **Nguyên nhân:** Database chưa sẵn sàng hoặc credentials sai
-- **Giải pháp:**
-  1. Verify credentials trong Supabase Dashboard > Settings > Database
-  2. Test connection từ local bằng psql hoặc DBeaver
-  3. Đảm bảo Supabase project đang chạy (không bị pause)
-
-### Lỗi "Authentication failed"
-- Kiểm tra `DATABASE_USERNAME` và `DATABASE_PASSWORD`
-- Supabase username thường có format: `postgres.project-ref`
-
-### Lỗi "Schema not found"
-- Railway tự động chạy schema, kiểm tra logs xem có lỗi gì
-- Có thể chạy thủ công SQL trong Supabase SQL Editor
-
-### Application không start
 ```bash
-# Xem logs chi tiết
+# Test health check
+curl https://your-app.railway.app/actuator/health
+
+# Expected output:
+# {"status":"UP","components":{"db":{"status":"UP"}}}
+
+# View logs
 railway logs --tail 100
 ```
 
-## 📊 Monitoring
+## 🔧 XỬ LÝ LỖI (Troubleshooting)
 
-### Health Check
-```
-GET https://your-app.railway.app/actuator/health
-```
+### ❌ Lỗi: "Network is unreachable"
 
-### View Logs
+**Nguyên nhân:** Thiếu `SPRING_PROFILES_ACTIVE` hoặc `DATABASE_URL` sai
+
+**Giải pháp:**
 ```bash
-railway logs
+# 1. Kiểm tra biến môi trường
+railway variables
+
+# 2. Set lại nếu thiếu
+railway variables set SPRING_PROFILES_ACTIVE=railway
+
+# 3. Verify DATABASE_URL có format đúng:
+# jdbc:postgresql://db.xxx.supabase.co:5432/postgres?sslmode=require
+
+# 4. Thử connection pooler nếu vẫn lỗi:
+DATABASE_URL=jdbc:postgresql://aws-0-ap-southeast-1.pooler.supabase.com:6543/postgres?sslmode=require
 ```
 
-### Database Management
-- Vào Supabase Dashboard > Table Editor
-- Hoặc dùng SQL Editor để chạy queries
+### ❌ Lỗi: "HikariPool - Exception during pool initialization"
 
-## 🔐 Bảo mật
+**Nguyên nhân:** Database credentials sai hoặc Supabase bị pause
 
-**⚠️ QUAN TRỌNG:**
-
-1. **Không commit** file `.env` có chứa credentials
-2. **Thay đổi** password admin mặc định sau khi deploy
-3. **Sử dụng** strong passwords cho database
-4. Cập nhật VNPay return URL cho đúng domain
-
-## 💰 Chi phí
-
-- **Railway**: Free tier 500 hours/month (đủ cho 1 app nhỏ)
-- **Supabase**: Free tier 500MB database (đủ cho development)
-
-## 📝 Notes
-
-- Railway tự động detect port từ biến `PORT` environment
-- Dockerfile đã được tối ưu cho production
-- HikariCP connection pool đã được config sẵn
-- Auto-scaling có thể bật trong Railway settings
-
-## 🔄 Update Application
-
-### Automatic Deploy (GitHub)
-- Push code mới lên GitHub
-- Railway tự động rebuild và redeploy
-
-### Manual Deploy (CLI)
+**Giải pháp:**
 ```bash
-railway up
+# 1. Test connection từ local
+psql "postgresql://postgres.XXX:PASSWORD@db.XXX.supabase.co:5432/postgres?sslmode=require"
+
+# 2. Check Supabase project status (Dashboard)
+
+# 3. Reset password nếu cần (Settings > Database > Reset password)
 ```
 
-## 🆘 Support
+### ❌ Lỗi: "Authentication failed"
 
-Nếu gặp vấn đề:
-1. Check Railway logs: `railway logs`
-2. Check Supabase logs trong Dashboard
-3. Verify environment variables
-4. Test database connection từ local:
-   ```bash
-   psql "postgresql://postgres.xxx:password@db.xxx.supabase.co:5432/postgres?sslmode=require"
+**Nguyên nhân:** Username format sai
+
+**Giải pháp:**
+```bash
+# Username PHẢI có format: postgres.PROJECT_REF
+# Lấy từ: Supabase > Settings > Database > Connection string
+DATABASE_USERNAME=postgres.abcdefghijklmnop
+```
+
+### ❌ Lỗi: "Could not open JPA EntityManager"
+
+**Nguyên nhân:** Schema chưa được tạo
+
+**Giải pháp:**
+```sql
+-- Vào Supabase SQL Editor, kiểm tra:
+SELECT COUNT(*) FROM information_schema.tables 
+WHERE table_schema = 'public';
+
+-- Nếu = 0, chạy lại schema-postgresql.sql và data-postgresql.sql
+```
+
+### ❌ Lỗi: "application-railway.yml not found"
+
+**Nguyên nhân:** File chưa được tạo hoặc commit
+
+**Giải pháp:**
+```bash
+# 1. Tạo file (copy nội dung từ đầu guide)
+touch src/main/resources/application-railway.yml
+
+# 2. Commit
+git add src/main/resources/application-railway.yml
+git commit -m "Add Railway config"
+git push
+
+# Railway sẽ tự động rebuild
+```
+
+## 📊 MONITORING
+
+### View Logs Real-time
+```bash
+railway logs --tail 100
+```
+
+### Check Database Connections
+```sql
+-- Supabase SQL Editor:
+SELECT pid, usename, application_name, client_addr, state
+FROM pg_stat_activity
+WHERE datname = 'postgres';
+```
+
+### Test Endpoints
+```bash
+curl https://your-app.railway.app/actuator/health
+curl https://your-app.railway.app/actuator/info
+```
+
+## 🔐 BẢO MẬT PRODUCTION
+
+**⚠️ SAU KHI DEPLOY:**
+
+1. **Đổi admin password:**
+   ```sql
+   -- Supabase SQL Editor
+   UPDATE admins 
+   SET password = '$2a$10$NEW_HASHED_PASSWORD' 
+   WHERE username = 'admin';
    ```
+
+2. **Rotate database credentials**
+3. **Update VNPay return URL**
+4. **Enable Supabase RLS**
+
+## ✅ SUCCESS CHECKLIST
+
+- ✅ `application-railway.yml` file exists
+- ✅ `SPRING_PROFILES_ACTIVE=railway` set
+- ✅ Database schema created
+- ✅ Health check returns `{"status":"UP"}`
+- ✅ Can login admin dashboard
+- ✅ No ERROR in logs
+- ✅ Can create campaign
+
+## 💰 CHI PHÍ
+
+- **Railway**: Free tier 500h/month
+- **Supabase**: Free tier 500MB
+- **Total**: $0-5/month
+
+## 🔄 UPDATE APP
+
+```bash
+# Auto deploy (GitHub)
+git push origin main
+
+# Manual (CLI)
+railway up
+
+# Rollback
+# Railway Dashboard > Deployments > Redeploy old version
+```
+
+---
+
+**🎉 DONE! Nếu gặp lỗi, xem lại Troubleshooting section từng bước.**

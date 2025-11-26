@@ -1,7 +1,7 @@
 spring:
   datasource:
-    url: ${DATABASE_URL}
-    username: ${DATABASE_USERNAME}
+    url: jdbc:postgresql://db.gbzwqsyoihqtpcionaze.supabase.co:5432/postgres?sslmode=require
+    username: postgres.gbzwqsyoihqtpcionaze
     password: ${DATABASE_PASSWORD}
     driver-class-name: org.postgresql.Driver
     hikari:
@@ -11,43 +11,37 @@ spring:
       idle-timeout: 600000
       max-lifetime: 1800000
       leak-detection-threshold: 60000
-      connection-test-query: SELECT 1
-  
-  sql:
-    init:
-      mode: always
-      platform: postgresql
-      schema-locations: classpath:schema-postgresql.sql
-      data-locations: classpath:data-postgresql.sql
-      continue-on-error: false
-  
+      data-source-properties:
+        sslmode: require
+        ssl: true
+        sslfactory: org.postgresql.ssl.NonValidatingFactory
+        
   jpa:
     hibernate:
-      ddl-auto: validate
-    show-sql: false
+      ddl-auto: none
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
-        format_sql: true
+        format_sql: false
+        show_sql: false
         jdbc:
-          batch_size: 20
-        order_inserts: true
-        order_updates: true
-    open-in-view: false
-  
+          time_zone: UTC
+    show-sql: false
+    
+  sql:
+    init:
+      mode: never
+      
   servlet:
     multipart:
       max-file-size: 10MB
       max-request-size: 10MB
-  
-  thymeleaf:
-    cache: true
-  
+      
   mail:
     host: smtp.gmail.com
     port: 587
-    username: ${SPRING_MAIL_USERNAME:}
-    password: ${SPRING_MAIL_PASSWORD:}
+    username: 222x3.666@gmail.com
+    password: 0359855353
     properties:
       mail:
         smtp:
@@ -55,29 +49,40 @@ spring:
           starttls:
             enable: true
             required: true
-        transport:
-          protocol: smtp
+          connectiontimeout: 5000
+          timeout: 5000
+          writetimeout: 5000
+
+file:
+  upload-dir: /app/uploads
+
+vnpay:
+  tmn-code: ${VNPAY_TMN_CODE:your-vnpay-tmn-code}
+  hash-secret: ${VNPAY_HASH_SECRET:your-vnpay-hash-secret}
+  return-url: ${VNPAY_RETURN_URL:https://web-tu-thien-production.up.railway.app/vnpay/return}
+  api-url: https://sandbox.vnpayment.vn/paymentv2/vpcpay.html
 
 logging:
   level:
     root: INFO
-    org.example.webtuthien: INFO
-    org.springframework.web: INFO
-    org.springframework.jdbc: DEBUG
-    org.hibernate.SQL: DEBUG
     com.zaxxer.hikari: DEBUG
+    org.hibernate: INFO
+    org.springframework.web: INFO
+    org.springframework.security: INFO
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
+    
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: always
+  health:
+    db:
+      enabled: true
 
 server:
   port: ${PORT:8080}
-  error:
-    include-message: always
-    include-binding-errors: always
-
-file:
-  upload-dir: ${FILE_UPLOAD_DIR:/app/uploads}
-
-vnpay:
-  tmnCode: ${VNPAY_TMN_CODE:}
-  hashSecret: ${VNPAY_HASH_SECRET:}
-  url: https://sandbox.vnpayment.vn/paymentv2/vpcpay.html
-  returnUrl: ${VNPAY_RETURN_URL:http://localhost:8080/vnpay/return}
