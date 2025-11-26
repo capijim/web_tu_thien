@@ -51,4 +51,17 @@ create table if not exists admins (
   updated_at timestamp not null default current_timestamp on update current_timestamp
 );
 
+create table if not exists payments (
+  id bigint primary key auto_increment,
+  donation_id bigint,
+  vnpay_transaction_id varchar(100),
+  vnpay_response_code varchar(10),
+  vnpay_txn_ref varchar(100) not null unique,
+  amount decimal(12,2) not null,
+  bank_code varchar(50),
+  payment_status varchar(20) not null default 'PENDING',
+  created_at timestamp not null default current_timestamp,
+  updated_at timestamp not null default current_timestamp on update current_timestamp,
+  foreign key (donation_id) references donations(id)
+);
 

@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kết quả thanh toán</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <style>
+        .payment-result-container {
+            max-width: 600px;
+            margin: 100px auto;
+            padding: 30px;
+            text-align: center;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .success-icon {
+            font-size: 64px;
+            color: #28a745;
+            margin-bottom: 20px;
+        }
+        
+        .error-icon {
+            font-size: 64px;
+            color: #dc3545;
+            margin-bottom: 20px;
+        }
+        
+        .result-title {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+        
+        .result-message {
+            font-size: 16px;
+            color: #666;
+            margin-bottom: 30px;
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 12px 30px;
+            margin: 5px;
+            background: #007bff;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            transition: background 0.3s;
+        }
+        
+        .btn:hover {
+            background: #0056b3;
+        }
+        
+        .btn-secondary {
+            background: #6c757d;
+        }
+        
+        .btn-secondary:hover {
+            background: #545b62;
+        }
+    </style>
+</head>
+<body>
+    <div class="payment-result-container">
+        <div th:if="${success}">
+            <div class="success-icon">✓</div>
+            <h1 class="result-title">Thanh toán thành công!</h1>
+            <p class="result-message" th:text="${message}"></p>
+            <a th:href="@{/campaigns}" class="btn">Xem các chiến dịch khác</a>
+            <a th:href="@{/}" class="btn btn-secondary">Về trang chủ</a>
+        </div>
+        
+        <div th:unless="${success}">
+            <div class="error-icon">✗</div>
+            <h1 class="result-title">Thanh toán thất bại!</h1>
+            <p class="result-message" th:text="${message}"></p>
+            <a href="javascript:history.back()" class="btn">Thử lại</a>
+            <a th:href="@{/}" class="btn btn-secondary">Về trang chủ</a>
+        </div>
+    </div>
+</body>
+</html>

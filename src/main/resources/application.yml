@@ -36,4 +36,12 @@ management:
       exposure:
         include: health,info
 
+# VNPay Configuration
+vnpay:
+  tmn-code: CGBU01D6
+  hash-secret: GECKRBWVOKDDQSAEXBYNZFOJNPWSMXKV
+  url: https://sandbox.vnpayment.vn/paymentv2/vpcpay.html
+  return-url: http://localhost:8080/vnpay/return
+  version: 2.1.0
+  command: pay
 

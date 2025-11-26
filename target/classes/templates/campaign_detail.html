@@ -67,6 +67,21 @@
               <input id="donateAmount" name="amount" type="number" step="0.01" required placeholder="Nhập số tiền ủng hộ" />
               <label for="donateMessage">Lời nhắn (tùy chọn)</label>
               <input id="donateMessage" name="message" type="text" placeholder="Lời nhắn" />
+              
+              <div style="margin: 15px 0;">
+                <label style="display: block; margin-bottom: 10px; font-weight: bold;">Phương thức thanh toán:</label>
+                <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+                  <label style="display: flex; align-items: center; cursor: pointer;">
+                    <input type="radio" name="paymentMethod" value="direct" checked style="margin-right: 5px;" />
+                    Thanh toán trực tiếp
+                  </label>
+                  <label style="display: flex; align-items: center; cursor: pointer;">
+                    <input type="radio" name="paymentMethod" value="vnpay" style="margin-right: 5px;" />
+                    Thanh toán qua VNPay
+                  </label>
+                </div>
+              </div>
+              
               <button type="submit" class="cta">Quyên góp</button>
             </form>
             <a th:href="@{/campaigns}" class="btn-secondary detail-back-btn">Quay lại danh sách</a>
@@ -127,17 +142,54 @@
       document.addEventListener('DOMContentLoaded', function() {
         const donateForm = document.getElementById('donateForm');
         const isAuthenticated = /*[[${session.user != null}]]*/ false;
+        const campaignId = /*[[${campaign.id}]]*/ 0;
         
         if (donateForm) {
           donateForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
             if (!isAuthenticated) {
-              e.preventDefault();
               alert('Bạn cần đăng nhập để quyên góp');
               window.location.href = '/login?redirect=' + encodeURIComponent(window.location.pathname);
               return false;
             }
-            // User is authenticated, allow form submission
-            return true;
+            
+            const paymentMethod = document.querySelector('input[name="paymentMethod"]:checked').value;
+            const amount = document.getElementById('donateAmount').value;
+            const message = document.getElementById('donateMessage').value;
+            
+            if (paymentMethod === 'vnpay') {
+              // Thanh toán qua VNPay
+              fetch('/vnpay/create-payment', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                  campaignId: campaignId,
+                  donorName: 'User',
+                  amount: parseFloat(amount),
+                  message: message
+                })
+              })
+              .then(response => response.json())
+              .then(data => {
+                if (data.success && data.paymentUrl) {
+                  window.location.href = data.paymentUrl;
+                } else {
+                  alert(data.message || 'Có lỗi xảy ra khi tạo thanh toán');
+                }
+              })
+              .catch(error => {
+                console.error('Error:', error);
+                alert('Có lỗi xảy ra khi tạo thanh toán');
+              });
+            } else {
+              // Thanh toán trực tiếp - submit form bình thường
+              donateForm.submit();
+            }
+            
+            return false;
           });
         }
       });
