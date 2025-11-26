@@ -12,16 +12,24 @@ spring:
   application:
     name: web-tu-thien
   datasource:
-    url: jdbc:mysql://localhost:3306/web_tu_thien?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
-    driver-class-name: com.mysql.cj.jdbc.Driver
-    username: root
-    password: 
+    url: ${DATABASE_URL:jdbc:postgresql://db.gbzwqsyoihqtpcionaze.supabase.co:5432/postgres?sslmode=require}
+    driver-class-name: org.postgresql.Driver
+    username: ${DATABASE_USERNAME:postgres.gbzwqsyoihqtpcionaze}
+    password: ${DATABASE_PASSWORD:vBSwzV/@S8D?uvn}
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: none
+    properties:
+      hibernate:
+        format_sql: true
+    show-sql: false
   sql:
     init:
       mode: always
       continue-on-error: true
-      schema-locations: classpath:schema-mysql.sql
-      data-locations: classpath:data-mysql.sql
+      schema-locations: classpath:schema-postgresql.sql
+      data-locations: classpath:data-postgresql.sql
   session:
     timeout: 30m
   servlet:
