@@ -1,0 +1,65 @@
+# Compiled class files
+*.class
+target/
+
+# Log files
+*.log
+
+# Package Files
+*.jar
+*.war
+*.nar
+*.ear
+*.zip
+*.tar.gz
+*.rar
+
+# IDE Files
+.idea/
+*.iml
+*.iws
+.vscode/
+.project
+.classpath
+.settings/
+
+# OS Files
+.DS_Store
+Thumbs.db
+
+# Environment Variables (NEVER commit these!)
+.env
+.env.local
+.env.production
+
+# Uploads directory (user-generated content)
+uploads/
+
+# Maven
+.mvn/
+mvnw
+mvnw.cmd
+
+# Gradle
+.gradle/
+gradle/
+
+# Spring Boot
+spring-boot-*.jar
+
+# Temporary files
+*.tmp
+*.bak
+*.swp
+*~
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# Credentials (NEVER commit!)
+**/application-local.properties
+**/application-local.yml
+credentials.json
+secrets.yaml

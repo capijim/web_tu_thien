@@ -72,13 +72,9 @@ public class AdminRepository {
 
     public Admin save(Admin admin) {
         if (admin.getId() == null) {
-            // Insert new admin
-            String sql = "INSERT INTO admins (username, email, password, full_name, is_active, created_at, updated_at) VALUES (?, ?, ?, ?, ?, NOW(), NOW())";
-            jdbcTemplate.update(sql, admin.getUsername(), admin.getEmail(), admin.getPassword(), admin.getFullName(), admin.getIsActive());
-            
-            // Get the generated ID
-            String getIdSql = "SELECT LAST_INSERT_ID()";
-            Long id = jdbcTemplate.queryForObject(getIdSql, Long.class);
+            // Insert new admin - PostgreSQL compatible with RETURNING
+            String sql = "INSERT INTO admins (username, email, password, full_name, is_active, created_at, updated_at) VALUES (?, ?, ?, ?, ?, NOW(), NOW()) RETURNING id";
+            Long id = jdbcTemplate.queryForObject(sql, Long.class, admin.getUsername(), admin.getEmail(), admin.getPassword(), admin.getFullName(), admin.getIsActive());
             admin.setId(id);
         } else {
             // Update existing admin
