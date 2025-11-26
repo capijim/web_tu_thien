@@ -139,4 +139,24 @@ docker-compose up --build
 5. Rollback nếu lỗi: kubectl rollout undo deployment/webapp
 ```
 
+## 🌐 Production Deployment
+
+### Deploy to Railway + Supabase
+
+Xem hướng dẫn chi tiết tại [RAILWAY_DEPLOY.md](RAILWAY_DEPLOY.md)
+
+**Quick Start:**
+```bash
+# 1. Setup Supabase database
+# 2. Configure Railway environment variables
+# 3. Deploy
+railway up
+```
+
+**Environment Variables Required:**
+````
+<userPrompt>
+Provide the fully rewritten file, incorporating the suggested code change. You must produce the complete file.
+</userPrompt>
+
 
