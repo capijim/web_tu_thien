@@ -12,12 +12,14 @@ spring:
   application:
     name: web-tu-thien
   datasource:
-    url: ${DATABASE_URL:jdbc:postgresql://db.gbzwqsyoihqtpcionaze.supabase.co:5432/postgres?sslmode=require}
+    url: ${DATABASE_URL:jdbc:postgresql://db.gbzwqsyoihqtpcionaze.supabase.co:5432/postgres?sslmode=require&ssl=true&sslfactory=org.postgresql.ssl.NonValidatingFactory}
     driver-class-name: org.postgresql.Driver
-    username: ${DATABASE_USERNAME:postgres.webtuthien}
-    password: ${DATABASE_PASSWORD:vBSwzV/@S8D?uvn}
+    username: ${DATABASE_USERNAME:postgres.gbzwqsyoihqtpcionaze}
+    password: ${DATABASE_PASSWORD:zvBSwzV/@S8D?uvn}
     hikari:
       initialization-fail-timeout: -1
+      connection-timeout: 60000
+      maximum-pool-size: 3
   
   # Disable Spring Data JDBC
   autoconfigure:

@@ -48,14 +48,36 @@ DATABASE_PASSWORD=zvBSwzV/@S8D?uvn
 ## 🔧 Troubleshooting
 
 ```bash
-# View logs
-railway logs --tail 100
+# Test database connection (detailed info)
+curl https://your-app.railway.app/api/health/db-info
 
-# Test health
+# Simple database test
+curl https://your-app.railway.app/api/health/db-test
+
+# Spring Boot health check
 curl https://your-app.railway.app/actuator/health
 
-# Test database
-PGPASSWORD='zvBSwzV/@S8D?uvn' psql -h db.gbzwqsyoihqtpcionaze.supabase.co -p 5432 -U postgres.gbzwqsyoihqtpcionaze -d postgres
+# View logs
+railway logs --tail 100
+```
+
+### Expected Response (Success):
+```json
+{
+  "status": "SUCCESS",
+  "connected": true,
+  "databaseProductName": "PostgreSQL",
+  "databaseProductVersion": "15.x.x",
+  "url": "jdbc:postgresql://db.gbzwqsyoihqtpcionaze.supabase.co:5432/postgres",
+  "username": "postgres.gbzwqsyoihqtpcionaze",
+  "tablesCount": 5,
+  "tables": {
+    "users": true,
+    "campaigns": true,
+    "donations": true,
+    "admins": true
+  }
+}
 ```
 
 ## 🔐 Default Credentials

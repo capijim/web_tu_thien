@@ -115,36 +115,75 @@ SPRING_MAIL_PASSWORD=your-app-password
 ### BƯỚC 5: Kiểm tra Deployment
 
 ```bash
-# Test health check
+# 1. Detailed database info
+curl https://your-app.railway.app/api/health/db-info
+
+# 2. Simple test
+curl https://your-app.railway.app/api/health/db-test
+
+# 3. Spring health check
 curl https://your-app.railway.app/actuator/health
 
-# Expected output:
-# {"status":"UP","components":{"db":{"status":"UP"}}}
-
-# View logs
+# 4. View logs
 railway logs --tail 100
+```
+
+**✅ Success Response:**
+```json
+{
+  "status": "SUCCESS",
+  "connected": true,
+  "databaseProductName": "PostgreSQL",
+  "tablesCount": 5,
+  "tables": {
+    "users": true,
+    "campaigns": true,
+    "donations": true,
+    "admins": true
+  }
+}
+```
+
+**❌ Failed Response:**
+```json
+{
+  "status": "FAILED",
+  "connected": false,
+  "error": "Connection refused",
+  "errorType": "SQLException"
+}
 ```
 
 ## 🔧 XỬ LÝ LỖI (Troubleshooting)
 
-### ❌ Lỗi: "Network is unreachable"
+### ❌ Lỗi: "Connection refused" hoặc "Network unreachable"
 
-**Nguyên nhân:** Thiếu `SPRING_PROFILES_ACTIVE` hoặc `DATABASE_URL` sai
+**Giải pháp 1: Thử Connection Pooler**
 
-**Giải pháp:**
+Railway Dashboard > Variables:
 ```bash
-# 1. Kiểm tra biến môi trường
-railway variables
-
-# 2. Set lại nếu thiếu
-railway variables set SPRING_PROFILES_ACTIVE=railway
-
-# 3. Verify DATABASE_URL có format đúng:
-# jdbc:postgresql://db.xxx.supabase.co:5432/postgres?sslmode=require
-
-# 4. Thử connection pooler nếu vẫn lỗi:
-DATABASE_URL=jdbc:postgresql://aws-0-ap-southeast-1.pooler.supabase.com:6543/postgres?sslmode=require
+DATABASE_URL=jdbc:postgresql://aws-0-ap-southeast-1.pooler.supabase.com:6543/postgres?sslmode=require&ssl=true&sslfactory=org.postgresql.ssl.NonValidatingFactory
+DATABASE_USERNAME=postgres.gbzwqsyoihqtpcionaze
+DATABASE_PASSWORD=zvBSwzV/@S8D?uvn
 ```
+
+**Giải pháp 2: Verify Supabase IP Whitelist**
+
+1. Supabase Dashboard > Settings > Database
+2. Check "Restrict database access" - phải **TẮT** (allow all IPs)
+3. Hoặc add Railway IP ranges: `0.0.0.0/0`
+
+**Giải pháp 3: Test từ Railway Shell**
+
+```bash
+# Railway Dashboard > Shell
+apt update && apt install postgresql-client -y
+PGPASSWORD='zvBSwzV/@S8D?uvn' psql -h db.gbzwqsyoihqtpcionaze.supabase.co -U postgres.gbzwqsyoihqtpcionaze -d postgres -c "SELECT version();"
+```
+
+**Giải pháp 4: Pause & Unpause Project**
+
+Supabase Dashboard > Settings > General > Pause/Resume project
 
 ### ❌ Lỗi: "HikariPool - Exception during pool initialization"
 
@@ -199,6 +238,14 @@ git commit -m "Add Railway config"
 git push
 
 # Railway sẽ tự động rebuild
+```
+
+### ❌ Lỗi: "SSL connection required"
+
+**Giải pháp:**
+```bash
+# Railway Variables - ensure these params:
+DATABASE_URL=jdbc:postgresql://...?sslmode=require&ssl=true&sslfactory=org.postgresql.ssl.NonValidatingFactory
 ```
 
 ## 📊 MONITORING

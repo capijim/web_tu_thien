@@ -1,20 +1,26 @@
 spring:
   datasource:
-    url: jdbc:postgresql://db.gbzwqsyoihqtpcionaze.supabase.co:5432/postgres?sslmode=require
+    # Primary connection - Direct to Supabase
+    url: jdbc:postgresql://db.gbzwqsyoihqtpcionaze.supabase.co:5432/postgres?sslmode=require&ssl=true&sslfactory=org.postgresql.ssl.NonValidatingFactory
     username: postgres.gbzwqsyoihqtpcionaze
     password: ${DATABASE_PASSWORD}
     driver-class-name: org.postgresql.Driver
     hikari:
-      maximum-pool-size: 5
-      minimum-idle: 2
-      connection-timeout: 30000
-      idle-timeout: 600000
-      max-lifetime: 1800000
-      leak-detection-threshold: 60000
+      maximum-pool-size: 3
+      minimum-idle: 1
+      connection-timeout: 60000
+      idle-timeout: 300000
+      max-lifetime: 600000
+      leak-detection-threshold: 120000
+      # Force SSL
       data-source-properties:
         sslmode: require
         ssl: true
         sslfactory: org.postgresql.ssl.NonValidatingFactory
+        socketTimeout: 30
+        loginTimeout: 10
+        connectTimeout: 30
+        ApplicationName: web-tu-thien-railway
         
   jpa:
     hibernate:

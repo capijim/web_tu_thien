@@ -10,11 +10,19 @@ DATABASE_PASSWORD=zvBSwzV/@S8D?uvn
 # REQUIRED - File upload
 FILE_UPLOAD_DIR=/app/uploads
 
+# DATABASE CONNECTION OPTIONS (chọn 1 trong 2)
+# Option 1: Direct connection (default)
+# Không cần set gì thêm
+
+# Option 2: Connection Pooler (nếu option 1 fail)
+# DATABASE_URL=jdbc:postgresql://aws-0-ap-southeast-1.pooler.supabase.com:6543/postgres?sslmode=require&ssl=true&sslfactory=org.postgresql.ssl.NonValidatingFactory
+# DATABASE_USERNAME=postgres.gbzwqsyoihqtpcionaze
+
 # OPTIONAL - Email configuration (already in application-railway.yml)
 # SPRING_MAIL_USERNAME=222x3.666@gmail.com
 # SPRING_MAIL_PASSWORD=0359855353
 
 # OPTIONAL - VNPay configuration
-VNPAY_TMN_CODE=your-vnpay-tmn-code
-VNPAY_HASH_SECRET=your-vnpay-hash-secret
-VNPAY_RETURN_URL=https://web-tu-thien-production.up.railway.app/vnpay/return
+VNPAY_TMN_CODE=CGBU01D6
+VNPAY_HASH_SECRET=GECKRBWVOKDDQSAEXBYNZFOJNPWSMXKV
+VNPAY_RETURN_URL=https://your-app.railway.app/vnpay/return
