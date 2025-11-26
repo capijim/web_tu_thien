@@ -14,6 +14,12 @@ spring:
       leak-detection-threshold: 60000
       initialization-fail-timeout: -1
   
+  # Disable Spring Data JDBC
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.data.jdbc.JdbcRepositoriesAutoConfiguration
+      - org.springframework.boot.autoconfigure.jdbc.DataSourceTransactionManagerAutoConfiguration
+  
   jpa:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
