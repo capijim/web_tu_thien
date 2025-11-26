@@ -7,11 +7,12 @@ spring:
     driver-class-name: org.postgresql.Driver
     hikari:
       maximum-pool-size: 3
-      minimum-idle: 1
+      minimum-idle: 0
       connection-timeout: 30000
       idle-timeout: 300000
       max-lifetime: 600000
       leak-detection-threshold: 60000
+      initialization-fail-timeout: -1
   
   jpa:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
@@ -21,6 +22,12 @@ spring:
     properties:
       hibernate:
         format_sql: false
+        jdbc:
+          lob:
+            non_contextual_creation: true
+        temp:
+          use_jdbc_metadata_defaults: false
+    open-in-view: false
   
   sql:
     init:

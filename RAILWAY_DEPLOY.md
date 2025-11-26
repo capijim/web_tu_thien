@@ -44,14 +44,17 @@ railway up
 
 ### 3. Cấu hình Environment Variables
 
-Trong Railway dashboard, vào **Variables** tab và thêm các biến sau:
+**QUAN TRỌNG:** Trong Railway dashboard, vào **Variables** tab và thêm các biến sau:
 
 ```
+SPRING_PROFILES_ACTIVE=railway
 DATABASE_URL=jdbc:postgresql://db.xxx.supabase.co:5432/postgres?sslmode=require
 DATABASE_USERNAME=postgres.xxx
 DATABASE_PASSWORD=your-supabase-password
 FILE_UPLOAD_DIR=/app/uploads
 ```
+
+**Lưu ý:** Biến `SPRING_PROFILES_ACTIVE=railway` là BẮT BUỘC để load cấu hình Railway profile.
 
 #### Optional: VNPay Configuration (nếu dùng thanh toán)
 ```
@@ -91,11 +94,20 @@ Sau đó Railway app sẽ có thể kết nối và hoạt động bình thườ
 ## 🔧 Troubleshooting
 
 ### Lỗi "Network unreachable" hoặc "Connection refused"
-- **Nguyên nhân:** Railway không thể kết nối Supabase khi khởi động để chạy schema
+- **Nguyên nhân:** Railway không thể kết nối Supabase hoặc missing profile
 - **Giải pháp:**
-  1. Chạy schema thủ công trong Supabase SQL Editor (xem bước 4)
-  2. Đảm bảo biến `DATABASE_URL` có `?sslmode=require`
-  3. Restart Railway deployment sau khi setup schema
+  1. **Kiểm tra biến `SPRING_PROFILES_ACTIVE=railway` đã được set chưa**
+  2. Chạy schema thủ công trong Supabase SQL Editor (xem bước 4)
+  3. Đảm bảo `DATABASE_URL` có đúng hostname và `?sslmode=require`
+  4. Thử dùng connection pooler: `aws-0-ap-southeast-1.pooler.supabase.com:6543`
+  5. Restart Railway deployment sau khi setup
+
+### Lỗi "HikariPool - Exception during pool initialization"
+- **Nguyên nhân:** Database chưa sẵn sàng hoặc credentials sai
+- **Giải pháp:**
+  1. Verify credentials trong Supabase Dashboard > Settings > Database
+  2. Test connection từ local bằng psql hoặc DBeaver
+  3. Đảm bảo Supabase project đang chạy (không bị pause)
 
 ### Lỗi "Authentication failed"
 - Kiểm tra `DATABASE_USERNAME` và `DATABASE_PASSWORD`

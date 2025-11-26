@@ -16,6 +16,8 @@ spring:
     driver-class-name: org.postgresql.Driver
     username: ${DATABASE_USERNAME:postgres.webtuthien}
     password: ${DATABASE_PASSWORD:vBSwzV/@S8D?uvn}
+    hikari:
+      initialization-fail-timeout: -1
   jpa:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
@@ -23,7 +25,11 @@ spring:
     properties:
       hibernate:
         format_sql: true
+        jdbc:
+          lob:
+            non_contextual_creation: true
     show-sql: false
+    open-in-view: false
   sql:
     init:
       mode: never
