@@ -18,16 +18,33 @@ public class SupabaseConfig {
     
     @PostConstruct
     public void validate() {
-        if (url == null || url.isEmpty() || anonKey == null || anonKey.isEmpty()) {
-            logger.warn("Supabase is not fully configured. Real-time features and storage will be disabled.");
-            logger.info("To enable Supabase features, set SUPABASE_URL and SUPABASE_ANON_KEY environment variables.");
+        if (!isConfigured()) {
+            logger.warn("=============================================================");
+            logger.warn("Supabase is NOT configured!");
+            logger.warn("Real-time features and storage will be DISABLED.");
+            logger.warn("To enable Supabase, set these environment variables:");
+            logger.warn("  SUPABASE_URL=https://xxx.supabase.co");
+            logger.warn("  SUPABASE_ANON_KEY=your-anon-key");
+            logger.warn("  SUPABASE_SERVICE_ROLE_KEY=your-service-role-key (optional)");
+            logger.warn("=============================================================");
         } else {
-            logger.info("Supabase configured successfully: {}", url);
+            logger.info("✓ Supabase configured successfully");
+            logger.info("  URL: {}", maskUrl(url));
+            logger.info("  Anon Key: {}...", anonKey != null ? anonKey.substring(0, Math.min(20, anonKey.length())) : "null");
+            logger.info("  Storage Bucket: {}", storage.getBucket());
         }
     }
     
+    private String maskUrl(String url) {
+        if (url == null || url.isEmpty()) return "not set";
+        return url.replaceAll("//([^.]+)", "//*****");
+    }
+    
     public boolean isConfigured() {
-        return url != null && !url.isEmpty() && anonKey != null && !anonKey.isEmpty();
+        return url != null && !url.isEmpty() && 
+               !url.equals("${SUPABASE_URL:}") &&
+               anonKey != null && !anonKey.isEmpty() &&
+               !anonKey.equals("${SUPABASE_ANON_KEY:}");
     }
     
     public static class Storage {
