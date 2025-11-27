@@ -1,14 +1,37 @@
 // Supabase JavaScript Client for real-time features
 (function() {
-  // Supabase configuration
-  const SUPABASE_URL = 'https://gbzwqsyoihqtpcionaze.supabase.co';
-  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imdiendxc3lvaWhxdHBjaW9uYXplIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQxNTIwODYsImV4cCI6MjA3OTcyODA4Nn0.zQgjlkrV7Q8i8cKrjdJm21qqbruFUPEs0-0lWMHTzlY';
+  // Supabase configuration - will be loaded from backend
+  let SUPABASE_URL = '';
+  let SUPABASE_ANON_KEY = '';
   
   // Initialize Supabase client (if library is loaded)
   let supabaseClient = null;
   
-  if (typeof supabase !== 'undefined') {
-    supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  // Load configuration from backend
+  async function initializeSupabase() {
+    try {
+      const response = await fetch('/api/supabase/config');
+      const config = await response.json();
+      
+      SUPABASE_URL = config.url;
+      SUPABASE_ANON_KEY = config.anonKey;
+      
+      if (typeof supabase !== 'undefined') {
+        supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        console.log('Supabase client initialized successfully');
+      } else {
+        console.warn('Supabase library not loaded');
+      }
+    } catch (error) {
+      console.error('Failed to load Supabase config:', error);
+    }
+  }
+  
+  // Initialize on page load
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initializeSupabase);
+  } else {
+    initializeSupabase();
   }
   
   // Real-time subscription for campaigns
@@ -80,6 +103,7 @@
     subscribeToCampaigns,
     subscribeToDonations,
     uploadImage,
-    isInitialized: () => supabaseClient !== null
+    isInitialized: () => supabaseClient !== null,
+    initialize: initializeSupabase
   };
 })();

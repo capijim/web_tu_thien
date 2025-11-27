@@ -52,33 +52,65 @@ DATABASE_PASSWORD=zvBSwzV/@S8D?uvn
 1. Truy cập https://supabase.com/dashboard
 2. Chọn project: `gbzwqsyoihqtpcionaze`
 3. Settings > API:
-   - `anon` key (public) - dùng cho frontend
-   - `service_role` key - dùng cho backend admin operations
+   - **Project URL**: `https://gbzwqsyoihqtpcionaze.supabase.co`
+   - **anon/public key** - dùng cho frontend real-time features
+   - **service_role key** - dùng cho backend admin operations (GIỮ BÍ MẬT!)
 
-### 2. Cài đặt Row Level Security
+### 2. Cấu hình Environment Variables
 
-```bash
-# Chạy file SQL trong Supabase SQL Editor
-cat src/main/resources/schema-supabase-rls.sql
+#### Local Development (application-local.properties)
+```properties
+# Supabase Configuration
+supabase.url=https://gbzwqsyoihqtpcionaze.supabase.co
+supabase.anon-key=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imdiendxc3lvaWhxdHBjaW9uYXplIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQxNTIwODYsImV4cCI6MjA3OTcyODA4Nn0.zQgjlkrV7Q8i8cKrjdJm21qqbruFUPEs0-0lWMHTzlY
+supabase.service-role-key=your-service-role-key-here
+supabase.storage.bucket=campaign-images
 ```
 
-### 3. Cấu hình Storage Bucket
+#### Railway Production
+```bash
+# Railway Dashboard > Variables > Add variables:
+SUPABASE_URL=https://gbzwqsyoihqtpcionaze.supabase.co
+SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+SUPABASE_SERVICE_ROLE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+```
+
+### 3. Cài đặt Row Level Security
+
+```sql
+-- Chạy trong Supabase SQL Editor
+-- File: src/main/resources/schema-supabase-rls.sql
+
+-- Enable RLS
+ALTER TABLE campaigns ENABLE ROW LEVEL SECURITY;
+ALTER TABLE donations ENABLE ROW LEVEL SECURITY;
+
+-- Public read access
+CREATE POLICY "Public can view campaigns" ON campaigns FOR SELECT USING (true);
+CREATE POLICY "Public can view donations" ON donations FOR SELECT USING (true);
+
+-- Authenticated insert
+CREATE POLICY "Authenticated can insert donations" ON donations 
+  FOR INSERT WITH CHECK (auth.role() = 'authenticated' OR auth.role() = 'anon');
+```
+
+### 4. Cấu hình Storage Bucket
 
 1. Supabase Dashboard > Storage
 2. Tạo bucket: `campaign-images`
-3. Public access: ✅ Enable
-4. File size limit: 5MB
+3. Settings:
+   - ✅ Public bucket
+   - File size limit: 5MB
+   - Allowed MIME types: image/jpeg, image/png, image/webp
 
-### 4. Environment Variables
+4. Policies:
+```sql
+-- Allow public read
+CREATE POLICY "Public Access" ON storage.objects FOR SELECT USING (bucket_id = 'campaign-images');
 
-```bash
-# Local (.env)
-SUPABASE_ANON_KEY=your-anon-key
-SUPABASE_SERVICE_KEY=your-service-key
-
-# Railway
-SUPABASE_ANON_KEY=your-anon-key
-SUPABASE_SERVICE_KEY=your-service-key
+-- Allow authenticated upload
+CREATE POLICY "Authenticated Upload" ON storage.objects FOR INSERT 
+  WITH CHECK (bucket_id = 'campaign-images' AND auth.role() = 'authenticated');
 ```
 
 ## 📊 Supabase Features
@@ -158,14 +190,46 @@ railway logs --tail 100
 ## 🧪 Testing Supabase Connection
 
 ```bash
-# Test database
-curl http://localhost:8080/api/health/db-test
+# 1. Test Supabase config API (should return URL and anon key)
+curl http://localhost:8080/api/supabase/config
 
-# Test Supabase config
+# 2. Test Supabase health
 curl http://localhost:8080/api/supabase/health
 
-# Test Supabase config API
-curl http://localhost:8080/api/supabase/config
+# 3. Test database connection
+curl http://localhost:8080/api/health/db-test
+
+# 4. Test from browser console
+fetch('/api/supabase/config').then(r => r.json()).then(console.log)
 ```
+
+### Expected Responses:
+
+**Supabase Config:**
+```json
+{
+  "url": "https://gbzwqsyoihqtpcionaze.supabase.co",
+  "anonKey": "eyJhbGci...",
+  "storageBucket": "campaign-images"
+}
+```
+
+**Supabase Health:**
+```json
+{
+  "status": "healthy",
+  "supabaseUrl": "https://gbzwqsyoihqtpcionaze.supabase.co",
+  "configLoaded": true,
+  "storageBucket": "campaign-images"
+}
+```
+
+## ⚠️ Security Notes
+
+1. **KHÔNG commit service role key** vào Git
+2. **Anon key** là public key, có thể expose an toàn
+3. **Service role key** chỉ dùng cho backend, có full admin access
+4. Sử dụng Row Level Security (RLS) để bảo vệ data
+5. Configure CORS trong Supabase Dashboard nếu cần
 
 

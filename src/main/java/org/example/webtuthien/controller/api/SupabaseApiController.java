@@ -17,12 +17,13 @@ public class SupabaseApiController {
     
     /**
      * Get Supabase configuration for frontend
+     * Only exposes public anon key, never service role key
      */
     @GetMapping("/config")
     public ResponseEntity<Map<String, String>> getConfig() {
         Map<String, String> config = new HashMap<>();
         config.put("url", supabaseConfig.getUrl());
-        config.put("anonKey", supabaseConfig.getAnonKey());
+        config.put("anonKey", supabaseConfig.getAnonKey()); // Only public key
         config.put("storageBucket", supabaseConfig.getStorage().getBucket());
         
         return ResponseEntity.ok(config);
@@ -36,10 +37,19 @@ public class SupabaseApiController {
         Map<String, Object> response = new HashMap<>();
         
         try {
-            response.put("status", "healthy");
+            // Validate configuration
+            boolean isConfigured = supabaseConfig.getUrl() != null 
+                && !supabaseConfig.getUrl().isEmpty()
+                && supabaseConfig.getAnonKey() != null
+                && !supabaseConfig.getAnonKey().isEmpty();
+            
+            response.put("status", isConfigured ? "healthy" : "not_configured");
             response.put("supabaseUrl", supabaseConfig.getUrl());
-            response.put("configLoaded", true);
-            return ResponseEntity.ok(response);
+            response.put("configLoaded", isConfigured);
+            response.put("storageBucket", supabaseConfig.getStorage().getBucket());
+            
+            return isConfigured ? ResponseEntity.ok(response) 
+                : ResponseEntity.status(503).body(response);
         } catch (Exception e) {
             response.put("status", "unhealthy");
             response.put("error", e.getMessage());
