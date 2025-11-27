@@ -19,11 +19,9 @@ docker-compose up
 
 **Access:** http://localhost:8080
 
-## 🌐 Deploy Production
+## 🌐 Deploy Production (Railway)
 
-**📖 [RAILWAY_DEPLOY.md](RAILWAY_DEPLOY.md) - Hướng dẫn chi tiết**
-
-### Quick Deploy
+### Quick Deploy (Minimum Config)
 
 ```bash
 # 1. Commit code
@@ -32,20 +30,57 @@ git commit -m "Deploy to Railway"
 git push origin main
 
 # 2. Railway Dashboard > New Project > Deploy from GitHub
-# 3. Set variables (chỉ cần 2 biến):
+# 3. Set REQUIRED variables:
 SPRING_PROFILES_ACTIVE=railway
 DATABASE_PASSWORD=zvBSwzV/@S8D?uvn
 
-# 4. Done! App sẽ chạy sau 5-10 phút
+# 4. Optional - Enable Supabase features (real-time, storage):
+SUPABASE_URL=https://gbzwqsyoihqtpcionaze.supabase.co
+SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imdiendxc3lvaWhxdHBjaW9uYXplIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQxNTIwODYsImV4cCI6MjA3OTcyODA4Nn0.zQgjlkrV7Q8i8cKrjdJm21qqbruFUPEs0-0lWMHTzlY
+SUPABASE_SERVICE_ROLE_KEY=<your-service-role-key>
+
+# 5. Deploy - App runs in 5-10 minutes
 ```
 
-### Config Info
+### Railway Environment Variables
 
-- **Database:** Supabase PostgreSQL
-- **Host:** db.gbzwqsyoihqtpcionaze.supabase.co
-- **Email:** 222x3.666@gmail.com (đã config sẵn)
+#### ✅ Required (App will work without Supabase):
+```bash
+SPRING_PROFILES_ACTIVE=railway
+DATABASE_PASSWORD=zvBSwzV/@S8D?uvn
+```
 
-## 🔧 Cấu hình Supabase
+#### 🎯 Optional (Enable Supabase real-time & storage):
+```bash
+SUPABASE_URL=https://gbzwqsyoihqtpcionaze.supabase.co
+SUPABASE_ANON_KEY=<your-anon-key>
+SUPABASE_SERVICE_ROLE_KEY=<your-service-role-key>
+SUPABASE_STORAGE_BUCKET=campaign-images
+```
+
+#### 📧 Optional (Enable email notifications):
+```bash
+SPRING_MAIL_USERNAME=222x3.666@gmail.com
+SPRING_MAIL_PASSWORD=<your-app-password>
+```
+
+### ⚠️ Important Notes
+
+1. **App hoạt động KHÔNG CẦN Supabase** - Chỉ mất tính năng real-time và storage
+2. **Database đã được config sẵn** - Không cần thêm DATABASE_URL hay DATABASE_USERNAME
+3. **Supabase là OPTIONAL** - Chỉ cần khi muốn:
+   - Real-time donations updates
+   - Upload ảnh campaign lên Supabase Storage
+   - WebSocket live data
+
+## 🔧 Cấu hình Supabase (Optional)
+
+### Khi nào cần Supabase?
+
+- ✅ Cần real-time updates (donations, campaigns)
+- ✅ Cần upload ảnh lên cloud storage
+- ✅ Muốn dùng WebSocket cho live data
+- ❌ KHÔNG cần nếu chỉ cần app hoạt động cơ bản
 
 ### 1. Lấy Supabase Keys
 
@@ -231,5 +266,39 @@ fetch('/api/supabase/config').then(r => r.json()).then(console.log)
 3. **Service role key** chỉ dùng cho backend, có full admin access
 4. Sử dụng Row Level Security (RLS) để bảo vệ data
 5. Configure CORS trong Supabase Dashboard nếu cần
+
+## 🧪 Testing
+
+```bash
+# 1. Test app health (should always work)
+curl https://your-app.railway.app/actuator/health
+
+# 2. Test database (should always work)
+curl https://your-app.railway.app/api/health/db-test
+
+# 3. Test Supabase (optional - may return "not_configured")
+curl https://your-app.railway.app/api/supabase/health
+```
+
+### Expected Responses:
+
+**If Supabase NOT configured (app still works):**
+```json
+{
+  "status": "not_configured",
+  "message": "Supabase is not configured. Set SUPABASE_URL and SUPABASE_ANON_KEY to enable real-time features.",
+  "supabaseUrl": "not set"
+}
+```
+
+**If Supabase IS configured:**
+```json
+{
+  "status": "healthy",
+  "supabaseUrl": "https://gbzwqsyoihqtpcionaze.supabase.co",
+  "configLoaded": true,
+  "storageBucket": "campaign-images"
+}
+```
 
 

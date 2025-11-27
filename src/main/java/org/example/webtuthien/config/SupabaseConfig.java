@@ -3,10 +3,14 @@ package org.example.webtuthien.config;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 import jakarta.annotation.PostConstruct;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Configuration
 @ConfigurationProperties(prefix = "supabase")
 public class SupabaseConfig {
+    private static final Logger logger = LoggerFactory.getLogger(SupabaseConfig.class);
+    
     private String url;
     private String anonKey;
     private String serviceRoleKey;
@@ -14,12 +18,16 @@ public class SupabaseConfig {
     
     @PostConstruct
     public void validate() {
-        if (url == null || url.isEmpty()) {
-            throw new IllegalStateException("Supabase URL is not configured");
+        if (url == null || url.isEmpty() || anonKey == null || anonKey.isEmpty()) {
+            logger.warn("Supabase is not fully configured. Real-time features and storage will be disabled.");
+            logger.info("To enable Supabase features, set SUPABASE_URL and SUPABASE_ANON_KEY environment variables.");
+        } else {
+            logger.info("Supabase configured successfully: {}", url);
         }
-        if (anonKey == null || anonKey.isEmpty()) {
-            throw new IllegalStateException("Supabase anon key is not configured");
-        }
+    }
+    
+    public boolean isConfigured() {
+        return url != null && !url.isEmpty() && anonKey != null && !anonKey.isEmpty();
     }
     
     public static class Storage {

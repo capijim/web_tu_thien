@@ -21,9 +21,16 @@ public class SupabaseApiController {
      */
     @GetMapping("/config")
     public ResponseEntity<Map<String, String>> getConfig() {
+        if (!supabaseConfig.isConfigured()) {
+            return ResponseEntity.status(503).body(Map.of(
+                "error", "Supabase not configured",
+                "message", "Real-time features are disabled"
+            ));
+        }
+        
         Map<String, String> config = new HashMap<>();
         config.put("url", supabaseConfig.getUrl());
-        config.put("anonKey", supabaseConfig.getAnonKey()); // Only public key
+        config.put("anonKey", supabaseConfig.getAnonKey());
         config.put("storageBucket", supabaseConfig.getStorage().getBucket());
         
         return ResponseEntity.ok(config);
@@ -37,21 +44,19 @@ public class SupabaseApiController {
         Map<String, Object> response = new HashMap<>();
         
         try {
-            // Validate configuration
-            boolean isConfigured = supabaseConfig.getUrl() != null 
-                && !supabaseConfig.getUrl().isEmpty()
-                && supabaseConfig.getAnonKey() != null
-                && !supabaseConfig.getAnonKey().isEmpty();
+            boolean isConfigured = supabaseConfig.isConfigured();
             
             response.put("status", isConfigured ? "healthy" : "not_configured");
-            response.put("supabaseUrl", supabaseConfig.getUrl());
+            response.put("supabaseUrl", supabaseConfig.getUrl() != null ? supabaseConfig.getUrl() : "not set");
             response.put("configLoaded", isConfigured);
             response.put("storageBucket", supabaseConfig.getStorage().getBucket());
+            response.put("message", isConfigured 
+                ? "Supabase is configured and ready" 
+                : "Supabase is not configured. Set SUPABASE_URL and SUPABASE_ANON_KEY to enable real-time features.");
             
-            return isConfigured ? ResponseEntity.ok(response) 
-                : ResponseEntity.status(503).body(response);
+            return ResponseEntity.ok(response);
         } catch (Exception e) {
-            response.put("status", "unhealthy");
+            response.put("status", "error");
             response.put("error", e.getMessage());
             return ResponseEntity.status(500).body(response);
         }

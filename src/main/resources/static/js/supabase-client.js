@@ -11,7 +11,18 @@
   async function initializeSupabase() {
     try {
       const response = await fetch('/api/supabase/config');
+      
+      if (!response.ok) {
+        console.warn('Supabase not configured on server. Real-time features disabled.');
+        return;
+      }
+      
       const config = await response.json();
+      
+      if (config.error) {
+        console.warn('Supabase not available:', config.message);
+        return;
+      }
       
       SUPABASE_URL = config.url;
       SUPABASE_ANON_KEY = config.anonKey;
@@ -20,10 +31,10 @@
         supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         console.log('Supabase client initialized successfully');
       } else {
-        console.warn('Supabase library not loaded');
+        console.warn('Supabase library not loaded. Add <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>');
       }
     } catch (error) {
-      console.error('Failed to load Supabase config:', error);
+      console.warn('Supabase initialization failed:', error.message);
     }
   }
   
