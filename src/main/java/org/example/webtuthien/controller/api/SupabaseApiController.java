@@ -21,19 +21,19 @@ public class SupabaseApiController {
      */
     @GetMapping("/config")
     public ResponseEntity<Map<String, String>> getConfig() {
-        Map<String, String> response = new HashMap<>();
-        
         if (!supabaseConfig.isConfigured()) {
-            response.put("error", "true");
-            response.put("message", "Supabase not configured. Set SUPABASE_URL and SUPABASE_ANON_KEY environment variables.");
-            return ResponseEntity.status(503).body(response);
+            return ResponseEntity.status(503).body(Map.of(
+                "error", "Supabase not configured",
+                "message", "Real-time features are disabled"
+            ));
         }
         
-        response.put("url", supabaseConfig.getUrl());
-        response.put("anonKey", supabaseConfig.getAnonKey());
-        response.put("storageBucket", supabaseConfig.getStorage().getBucket());
+        Map<String, String> config = new HashMap<>();
+        config.put("url", supabaseConfig.getUrl());
+        config.put("anonKey", supabaseConfig.getAnonKey());
+        config.put("storageBucket", supabaseConfig.getStorage().getBucket());
         
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(config);
     }
     
     /**
@@ -47,35 +47,18 @@ public class SupabaseApiController {
             boolean isConfigured = supabaseConfig.isConfigured();
             
             response.put("status", isConfigured ? "healthy" : "not_configured");
-            response.put("configured", isConfigured);
-            
-            if (isConfigured) {
-                response.put("supabaseUrl", maskUrl(supabaseConfig.getUrl()));
-                response.put("storageBucket", supabaseConfig.getStorage().getBucket());
-                response.put("message", "Supabase is configured and ready");
-            } else {
-                response.put("supabaseUrl", "not set");
-                response.put("message", "Set SUPABASE_URL and SUPABASE_ANON_KEY to enable features");
-                response.put("instructions", Map.of(
-                    "windows", "set SUPABASE_URL=https://xxx.supabase.co && set SUPABASE_ANON_KEY=xxx",
-                    "linux", "export SUPABASE_URL=https://xxx.supabase.co && export SUPABASE_ANON_KEY=xxx"
-                ));
-            }
+            response.put("supabaseUrl", supabaseConfig.getUrl() != null ? supabaseConfig.getUrl() : "not set");
+            response.put("configLoaded", isConfigured);
+            response.put("storageBucket", supabaseConfig.getStorage().getBucket());
+            response.put("message", isConfigured 
+                ? "Supabase is configured and ready" 
+                : "Supabase is not configured. Set SUPABASE_URL and SUPABASE_ANON_KEY to enable real-time features.");
             
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             response.put("status", "error");
             response.put("error", e.getMessage());
             return ResponseEntity.status(500).body(response);
-        }
-    }
-    
-    private String maskUrl(String url) {
-        if (url == null || url.isEmpty()) return "not set";
-        try {
-            return url.replaceAll("//([^.]+)", "//*****");
-        } catch (Exception e) {
-            return "***";
         }
     }
 }

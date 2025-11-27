@@ -10,47 +10,31 @@
   // Load configuration from backend
   async function initializeSupabase() {
     try {
-      console.log('Initializing Supabase client...');
       const response = await fetch('/api/supabase/config');
       
       if (!response.ok) {
-        console.warn(`Supabase config endpoint returned ${response.status}`);
+        console.warn('Supabase not configured on server. Real-time features disabled.');
         return;
       }
       
       const config = await response.json();
       
-      if (config.error === "true" || config.error === true) {
-        console.warn('⚠️ Supabase not configured:', config.message);
-        console.info('💡 To enable Supabase features:');
-        console.info('   1. Get credentials from https://supabase.com/dashboard');
-        console.info('   2. Set environment variables:');
-        console.info('      SUPABASE_URL=https://xxx.supabase.co');
-        console.info('      SUPABASE_ANON_KEY=your-anon-key');
+      if (config.error) {
+        console.warn('Supabase not available:', config.message);
         return;
       }
       
       SUPABASE_URL = config.url;
       SUPABASE_ANON_KEY = config.anonKey;
       
-      // Check if Supabase library is loaded
-      if (typeof supabase === 'undefined') {
-        console.error('❌ Supabase JS library not loaded!');
-        console.info('💡 Add to HTML: <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>');
-        return;
+      if (typeof supabase !== 'undefined') {
+        supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        console.log('Supabase client initialized successfully');
+      } else {
+        console.warn('Supabase library not loaded. Add <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>');
       }
-      
-      supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-      console.log('✓ Supabase client initialized successfully');
-      console.log('  URL:', SUPABASE_URL);
-      console.log('  Storage Bucket:', config.storageBucket);
-      
     } catch (error) {
-      console.error('❌ Supabase initialization failed:', error.message);
-      console.info('💡 Check that:');
-      console.info('   1. Application is running');
-      console.info('   2. /api/supabase/config endpoint is accessible');
-      console.info('   3. Environment variables are set correctly');
+      console.warn('Supabase initialization failed:', error.message);
     }
   }
   
@@ -64,7 +48,7 @@
   // Real-time subscription for campaigns
   function subscribeToCampaigns(callback) {
     if (!supabaseClient) {
-      console.warn('Supabase client not initialized. Real-time features disabled.');
+      console.warn('Supabase client not initialized');
       return null;
     }
     
@@ -80,7 +64,7 @@
   // Real-time subscription for donations
   function subscribeToDonations(campaignId, callback) {
     if (!supabaseClient) {
-      console.warn('Supabase client not initialized. Real-time features disabled.');
+      console.warn('Supabase client not initialized');
       return null;
     }
     
@@ -101,7 +85,7 @@
   // Upload image to Supabase Storage
   async function uploadImage(file, bucket = 'campaign-images') {
     if (!supabaseClient) {
-      throw new Error('Supabase client not initialized. Cannot upload images.');
+      throw new Error('Supabase client not initialized');
     }
     
     const fileExt = file.name.split('.').pop();

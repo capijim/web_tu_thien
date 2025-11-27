@@ -1,540 +1,304 @@
-# Web Từ Thiện - Charity Platform
+# Web Từ Thiện
 
-[![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.x-green.svg)](https://spring.io/projects/spring-boot)
-[![Java](https://img.shields.io/badge/Java-17+-blue.svg)](https://www.oracle.com/java/)
-[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15-blue.svg)](https://www.postgresql.org/)
-[![Supabase](https://img.shields.io/badge/Supabase-Enabled-green.svg)](https://supabase.com/)
+Hệ thống quản lý hoạt động từ thiện - Spring Boot + Supabase PostgreSQL
 
-Nền tảng kết nối những tấm lòng hảo tâm với các hoàn cảnh khó khăn cần giúp đỡ. Hệ thống quản lý chiến dịch quyên góp minh bạch, hiệu quả với tích hợp thanh toán VNPay.
+## 🎯 Chức Năng
 
-## 🌟 Tính năng chính
+- ✅ Quản lý chiến dịch quyên góp
+- ✅ Theo dõi donations
+- ✅ Thanh toán VNPay
+- ✅ Admin dashboard
+- ✅ Email notifications
 
-### Người dùng
-- 🔐 Đăng ký/Đăng nhập tài khoản
-- 🔍 Tìm kiếm và lọc chiến dịch theo danh mục
-- 💰 Quyên góp qua VNPay
-- 📊 Theo dõi tiến độ chiến dịch
-- 📝 Để lại lời nhắn khi quyên góp
-
-### Admin
-- 👥 Quản lý người dùng
-- 🎯 Quản lý chiến dịch (CRUD)
-- 💵 Quản lý donations
-- 🤝 Quản lý đối tác từ thiện
-- 📈 Dashboard thống kê tổng quan
-- 🖼️ Upload hình ảnh qua Supabase Storage
-
-### Hệ thống
-- 🔒 Bảo mật với Spring Security
-- 💳 Tích hợp thanh toán VNPay
-- ☁️ Lưu trữ trên Supabase (PostgreSQL + Storage)
-- 🐳 Hỗ trợ Docker deployment
-- 📱 Responsive design
-
-## 🏗️ Kiến trúc
-
-```
-web_tu_thien/
-├── src/main/
-│   ├── java/org/example/webtuthien/
-│   │   ├── config/          # Cấu hình Spring, Security, Database
-│   │   ├── controller/      # REST & Web Controllers
-│   │   ├── entity/          # JPA Entities
-│   │   ├── repository/      # Spring Data JPA Repositories
-│   │   ├── service/         # Business Logic
-│   │   └── dto/             # Data Transfer Objects
-│   │
-│   ├── resources/
-│   │   ├── templates/       # Thymeleaf HTML templates
-│   │   │   ├── components/  # Reusable components
-│   │   │   ├── admin/       # Admin pages
-│   │   │   └── *.html       # Public pages
-│   │   ├── static/
-│   │   │   ├── css/         # Stylesheets
-│   │   │   ├── js/          # JavaScript utilities
-│   │   │   └── assets/      # Images, icons
-│   │   ├── application.properties
-│   │   ├── application-local.properties
-│   │   └── schema-supabase-init.sql
-│   │
-├── docker-compose.yml       # Docker orchestration
-├── Dockerfile              # Container definition
-├── pom.xml                 # Maven dependencies
-└── README.md
-```
-
-## 🛠️ Công nghệ sử dụng
-
-### Backend
-- **Spring Boot 3.x** - Application framework
-- **Spring Data JPA** - Database ORM
-- **Spring Security** - Authentication & Authorization
-- **Thymeleaf** - Server-side template engine
-- **PostgreSQL** - Relational database
-- **Supabase** - Backend as a Service (Database + Storage)
-- **HikariCP** - Connection pooling
-
-### Frontend
-- **HTML5/CSS3** - Markup & Styling
-- **JavaScript (Vanilla)** - Client-side logic
-- **Font Awesome 6** - Icons
-- **Responsive Design** - Mobile-friendly
-
-### Payment
-- **VNPay** - Payment gateway integration
-
-### DevOps
-- **Docker** - Containerization
-- **Docker Compose** - Multi-container orchestration
-- **Maven** - Build automation
-
-## 📋 Yêu cầu hệ thống
-
-- **Java**: 17 hoặc cao hơn
-- **Maven**: 3.6+
-- **Docker**: 20.10+ (optional)
-- **PostgreSQL**: 15+ (nếu không dùng Docker)
-
-## 🚀 Cài đặt và Chạy
-
-### 1. Clone repository
+## 🚀 Chạy Local (Docker)
 
 ```bash
-git clone <repository-url>
-cd web_tu_thien
+# Start Docker Desktop, sau đó:
+docker-compose up
 ```
 
-### 2. Cấu hình Supabase
+**Access:** http://localhost:8080
 
-#### Bước 2.1: Tạo Supabase project
+## 🌐 Deploy Production (Railway)
 
-1. Truy cập [Supabase Dashboard](https://supabase.com/dashboard)
-2. Tạo project mới
-3. Lưu lại các thông tin sau:
-
-#### Bước 2.2: Lấy Database credentials
-
-Vào **Settings** → **Database** và copy:
-- **Host**: `db.xxxxxxxxxxxxx.supabase.co`
-- **Database name**: `postgres`
-- **Port**: `5432`
-- **User**: `postgres.xxxxxxxxxxxxx`
-- **Password**: (password bạn đã tạo khi setup project)
-
-#### Bước 2.3: Lấy API credentials
-
-Vào **Settings** → **API** và copy:
-- **Project URL**: `https://xxxxxxxxxxxxx.supabase.co`
-- **anon/public key**: `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...`
-- **service_role key**: `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...` (bí mật, không commit)
-
-### 3. Tạo file .env
-
-Copy file mẫu và cập nhật với thông tin của bạn:
+### Quick Deploy (Minimum Config)
 
 ```bash
-# Linux/Mac
-cp .env.example .env
+# 1. Commit code
+git add .
+git commit -m "Deploy to Railway"
+git push origin main
 
-# Windows
-copy .env.example .env
-```
-Cập nhật các giá trị trong `.env`:
+# 2. Railway Dashboard > New Project > Deploy from GitHub
+# 3. Set REQUIRED variables:
+SPRING_PROFILES_ACTIVE=railway
+DATABASE_PASSWORD=zvBSwzV/@S8D?uvn
 
-```bash
-# Database Configuration (from Supabase Dashboard → Settings → Database)
-SPRING_DATASOURCE_URL=jdbc:postgresql://db.xxxxx.supabase.co:5432/postgres
-SPRING_DATASOURCE_USERNAME=postgres.xxxxx
-SPRING_DATASOURCE_PASSWORD=your-password-here
+# 4. Optional - Enable Supabase features (real-time, storage):
+SUPABASE_URL=https://gbzwqsyoihqtpcionaze.supabase.co
+SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imdiendxc3lvaWhxdHBjaW9uYXplIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQxNTIwODYsImV4cCI6MjA3OTcyODA4Nn0.zQgjlkrV7Q8i8cKrjdJm21qqbruFUPEs0-0lWMHTzlY
+SUPABASE_SERVICE_ROLE_KEY=<your-service-role-key>
 
-# API Configuration (from Supabase Dashboard → Settings → API)
-SUPABASE_URL=https://xxxxx.supabase.co
-SUPABASE_ANON_KEY=your-anon-key-here
-SUPABASE_SERVICE_ROLE_KEY=your-service-role-key-here
+# 5. Deploy - App runs in 5-10 minutes
 ```
 
-### 4. Khởi tạo database schema
+### Railway Environment Variables
 
-Chạy file SQL trong Supabase SQL Editor:
-
-1. Vào Supabase Dashboard → **SQL Editor**
-2. Tạo query mới
-3. Copy nội dung từ `src/main/resources/schema-supabase-init.sql`
-4. Run query
-
-### 5. Chạy ứng dụng
-
-#### Option A: Docker (Recommended)
-
+#### ✅ Required (App will work without Supabase):
 ```bash
-# Linux/Mac
-./docker-run.sh
-
-# Windows
-docker-run.bat
+SPRING_PROFILES_ACTIVE=railway
+DATABASE_PASSWORD=zvBSwzV/@S8D?uvn
 ```
 
-#### Option B: Local Development
-
+#### 🎯 Optional (Enable Supabase real-time & storage):
 ```bash
-# Set environment variables first (Linux/Mac)
-export $(cat .env | grep -v '^#' | xargs)
-
-# Windows PowerShell
-Get-Content .env | ForEach-Object { if ($_ -match '^([^=]+)=(.*)$') { [Environment]::SetEnvironmentVariable($matches[1], $matches[2]) } }
-
-# Run application
-mvn spring-boot:run -Dspring-boot.run.profiles=local
+SUPABASE_URL=https://gbzwqsyoihqtpcionaze.supabase.co
+SUPABASE_ANON_KEY=<your-anon-key>
+SUPABASE_SERVICE_ROLE_KEY=<your-service-role-key>
+SUPABASE_STORAGE_BUCKET=campaign-images
 ```
 
-### 6. Kiểm tra kết nối
+#### 📧 Optional (Enable email notifications):
+```bash
+SPRING_MAIL_USERNAME=222x3.666@gmail.com
+SPRING_MAIL_PASSWORD=<your-app-password>
+```
+
+### ⚠️ Important Notes
+
+1. **App hoạt động KHÔNG CẦN Supabase** - Chỉ mất tính năng real-time và storage
+2. **Database đã được config sẵn** - Không cần thêm DATABASE_URL hay DATABASE_USERNAME
+3. **Supabase là OPTIONAL** - Chỉ cần khi muốn:
+   - Real-time donations updates
+   - Upload ảnh campaign lên Supabase Storage
+   - WebSocket live data
+
+## 🔧 Cấu hình Supabase (Optional)
+
+### Khi nào cần Supabase?
+
+- ✅ Cần real-time updates (donations, campaigns)
+- ✅ Cần upload ảnh lên cloud storage
+- ✅ Muốn dùng WebSocket cho live data
+- ❌ KHÔNG cần nếu chỉ cần app hoạt động cơ bản
+
+### 1. Lấy Supabase Keys
+
+1. Truy cập https://supabase.com/dashboard
+2. Chọn project: `gbzwqsyoihqtpcionaze`
+3. Settings > API:
+   - **Project URL**: `https://gbzwqsyoihqtpcionaze.supabase.co`
+   - **anon/public key** - dùng cho frontend real-time features
+   - **service_role key** - dùng cho backend admin operations (GIỮ BÍ MẬT!)
+
+### 2. Cấu hình Environment Variables
+
+#### Local Development (application-local.properties)
+```properties
+# Supabase Configuration
+supabase.url=https://gbzwqsyoihqtpcionaze.supabase.co
+supabase.anon-key=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imdiendxc3lvaWhxdHBjaW9uYXplIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQxNTIwODYsImV4cCI6MjA3OTcyODA4Nn0.zQgjlkrV7Q8i8cKrjdJm21qqbruFUPEs0-0lWMHTzlY
+supabase.service-role-key=your-service-role-key-here
+supabase.storage.bucket=campaign-images
+```
+
+#### Railway Production
+```bash
+# Railway Dashboard > Variables > Add variables:
+SUPABASE_URL=https://gbzwqsyoihqtpcionaze.supabase.co
+SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+SUPABASE_SERVICE_ROLE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+```
+
+### 3. Cài đặt Row Level Security
+
+```sql
+-- Chạy trong Supabase SQL Editor
+-- File: src/main/resources/schema-supabase-rls.sql
+
+-- Enable RLS
+ALTER TABLE campaigns ENABLE ROW LEVEL SECURITY;
+ALTER TABLE donations ENABLE ROW LEVEL SECURITY;
+
+-- Public read access
+CREATE POLICY "Public can view campaigns" ON campaigns FOR SELECT USING (true);
+CREATE POLICY "Public can view donations" ON donations FOR SELECT USING (true);
+
+-- Authenticated insert
+CREATE POLICY "Authenticated can insert donations" ON donations 
+  FOR INSERT WITH CHECK (auth.role() = 'authenticated' OR auth.role() = 'anon');
+```
+
+### 4. Cấu hình Storage Bucket
+
+1. Supabase Dashboard > Storage
+2. Tạo bucket: `campaign-images`
+3. Settings:
+   - ✅ Public bucket
+   - File size limit: 5MB
+   - Allowed MIME types: image/jpeg, image/png, image/webp
+
+4. Policies:
+```sql
+-- Allow public read
+CREATE POLICY "Public Access" ON storage.objects FOR SELECT USING (bucket_id = 'campaign-images');
+
+-- Allow authenticated upload
+CREATE POLICY "Authenticated Upload" ON storage.objects FOR INSERT 
+  WITH CHECK (bucket_id = 'campaign-images' AND auth.role() = 'authenticated');
+```
+
+## 📊 Supabase Features
+
+### ✅ Đã tích hợp:
+
+- PostgreSQL database (JDBC)
+- Real-time subscriptions (WebSocket)
+- Storage for images
+- Row Level Security (RLS)
+
+### 🔄 Real-time Updates:
+
+- Donations list tự động cập nhật
+- Campaign progress real-time
+- Admin dashboard live data
+
+### 📦 Storage:
+
+- Upload campaign images
+- CDN delivery
+- Automatic optimization
+
+## 🔧 Troubleshooting
 
 ```bash
-# Health check
-curl http://localhost:8080/health
+# Test database connection (detailed info)
+curl https://your-app.railway.app/api/health/db-info
 
-# Database info
-curl http://localhost:8080/api/health/db-info
+# Simple database test
+curl https://your-app.railway.app/api/health/db-test
 
-# Supabase health
+# Spring Boot health check
+curl https://your-app.railway.app/actuator/health
+
+# View logs
+railway logs --tail 100
+```
+
+### Expected Response (Success):
+```json
+{
+  "status": "SUCCESS",
+  "connected": true,
+  "databaseProductName": "PostgreSQL",
+  "databaseProductVersion": "15.x.x",
+  "url": "jdbc:postgresql://db.gbzwqsyoihqtpcionaze.supabase.co:5432/postgres",
+  "username": "postgres.gbzwqsyoihqtpcionaze",
+  "tablesCount": 5,
+  "tables": {
+    "users": true,
+    "campaigns": true,
+    "donations": true,
+    "admins": true
+  }
+}
+```
+
+## 🔐 Default Credentials
+
+- Admin: `admin` / `admin123`
+
+**⚠️ ĐỔI PASSWORD SAU KHI DEPLOY**
+
+## 📊 Tech Stack
+
+- Spring Boot 3.x + Spring Security
+- PostgreSQL (Supabase)
+- Thymeleaf + Bootstrap 5
+- VNPay Payment Gateway
+
+## 💰 Cost
+
+- **Local:** FREE
+- **Production:** $0-5/month (Railway + Supabase free tier)
+
+## 🧪 Testing Supabase Connection
+
+```bash
+# 1. Test Supabase config API (should return URL and anon key)
+curl http://localhost:8080/api/supabase/config
+
+# 2. Test Supabase health
 curl http://localhost:8080/api/supabase/health
+
+# 3. Test database connection
+curl http://localhost:8080/api/health/db-test
+
+# 4. Test from browser console
+fetch('/api/supabase/config').then(r => r.json()).then(console.log)
 ```
 
-Ứng dụng sẽ chạy tại: `http://localhost:8080`
+### Expected Responses:
 
-## 👤 Tài khoản mặc định
-
-### Admin
-- **Username**: `admin`
-- **Password**: `admin123`
-- **URL**: `http://localhost:8080/admin/login`
-
-## 📚 Cấu trúc Database
-
-### Bảng chính
-
-1. **users** - Người dùng hệ thống
-2. **admins** - Quản trị viên
-3. **partners** - Đối tác từ thiện
-4. **campaigns** - Chiến dịch quyên góp
-5. **donations** - Lịch sử quyên góp
-6. **payments** - Giao dịch thanh toán VNPay
-
-### Relationships
-
-```
-partners (1) ─────── (N) campaigns
-campaigns (1) ─────── (N) donations
-donations (1) ─────── (1) payments
+**Supabase Config:**
+```json
+{
+  "url": "https://gbzwqsyoihqtpcionaze.supabase.co",
+  "anonKey": "eyJhbGci...",
+  "storageBucket": "campaign-images"
+}
 ```
 
-## 🔐 Bảo mật
-
-- Password hashing với BCrypt
-- CSRF protection
-- Session management
-- Role-based access control (RBAC)
-- SQL injection prevention (JPA)
-- Row Level Security policies (Supabase)
-
-## 📱 API Endpoints
-
-### Public
-- `GET /` - Trang chủ
-- `GET /campaigns` - Danh sách chiến dịch
-- `GET /campaign/{id}` - Chi tiết chiến dịch
-- `GET /about` - Giới thiệu
-
-### User (Authenticated)
-- `POST /donate/{id}` - Quyên góp
-- `GET /payment/callback` - VNPay callback
-
-### Admin (Admin role)
-- `GET /admin` - Dashboard
-- `/admin/users` - Quản lý users
-- `/admin/campaigns` - Quản lý campaigns
-- `/admin/donations` - Quản lý donations
-- `/admin/partners` - Quản lý partners
-
-## 🔧 Cấu hình môi trường
-
-### Profiles
-
-- **local** - Development với Supabase
-- **production** - Production deployment
-
-### Environment Variables
-
-```bash
-SPRING_PROFILES_ACTIVE=local
-SUPABASE_SERVICE_ROLE_KEY=your-key
-VNPAY_TMN_CODE=your-code
-VNPAY_HASH_SECRET=your-secret
+**Supabase Health:**
+```json
+{
+  "status": "healthy",
+  "supabaseUrl": "https://gbzwqsyoihqtpcionaze.supabase.co",
+  "configLoaded": true,
+  "storageBucket": "campaign-images"
+}
 ```
+
+## ⚠️ Security Notes
+
+1. **KHÔNG commit service role key** vào Git
+2. **Anon key** là public key, có thể expose an toàn
+3. **Service role key** chỉ dùng cho backend, có full admin access
+4. Sử dụng Row Level Security (RLS) để bảo vệ data
+5. Configure CORS trong Supabase Dashboard nếu cần
 
 ## 🧪 Testing
 
 ```bash
-# Run unit tests
-mvn test
+# 1. Test app health (should always work)
+curl https://your-app.railway.app/actuator/health
 
-# Run with coverage
-mvn test jacoco:report
+# 2. Test database (should always work)
+curl https://your-app.railway.app/api/health/db-test
+
+# 3. Test Supabase (optional - may return "not_configured")
+curl https://your-app.railway.app/api/supabase/health
 ```
 
-## 📦 Build & Deploy
+### Expected Responses:
 
-### Build JAR
-
-```bash
-mvn clean package -DskipTests
+**If Supabase NOT configured (app still works):**
+```json
+{
+  "status": "not_configured",
+  "message": "Supabase is not configured. Set SUPABASE_URL and SUPABASE_ANON_KEY to enable real-time features.",
+  "supabaseUrl": "not set"
+}
 ```
 
-Output: `target/web_tu_thien-0.0.1-SNAPSHOT.jar`
-
-### Docker Build
-
-```bash
-docker build -t web-tu-thien:latest .
-docker run -p 8080:8080 web-tu-thien:latest
+**If Supabase IS configured:**
+```json
+{
+  "status": "healthy",
+  "supabaseUrl": "https://gbzwqsyoihqtpcionaze.supabase.co",
+  "configLoaded": true,
+  "storageBucket": "campaign-images"
+}
 ```
 
-## 🌐 Deployment
 
-### Docker Compose (Recommended)
-
-```bash
-docker-compose up -d
-```
-
-### Manual Deployment
-
-1. Build JAR file
-2. Upload to server
-3. Set environment variables
-4. Run: `java -jar web_tu_thien.jar --spring.profiles.active=local`
-
-## 🚂 Deploy to Railway.app
-
-### Prerequisites
-
-1. **Railway Account**: Sign up at [railway.app](https://railway.app)
-2. **Railway CLI**: 
-   ```bash
-   npm install -g @railway/cli
-   ```
-
-### Deployment Steps
-
-#### 1. Login to Railway
-
-```bash
-railway login
-```
-
-#### 2. Create New Project
-
-```bash
-railway init
-```
-
-#### 3. Set Environment Variables
-
-```bash
-# Database (Supabase)
-railway variables set SPRING_DATASOURCE_URL="jdbc:postgresql://db.gbzwqsyoihqtpcionaze.supabase.co:5432/postgres"
-railway variables set SPRING_DATASOURCE_USERNAME="postgres.gbzwqsyoihqtpcionaze"
-railway variables set SPRING_DATASOURCE_PASSWORD="zvBSwzV/@S8D?uvn"
-
-# Supabase API
-railway variables set SUPABASE_URL="https://gbzwqsyoihqtpcionaze.supabase.co"
-railway variables set SUPABASE_ANON_KEY="your-anon-key"
-railway variables set SUPABASE_SERVICE_ROLE_KEY="your-service-role-key"
-
-# VNPay
-railway variables set VNPAY_TMN_CODE="CGBU01D6"
-railway variables set VNPAY_HASH_SECRET="GECKRBWVOKDDQSAEXBYNZFOJNPWSMXKV"
-railway variables set VNPAY_RETURN_URL="https://your-app.railway.app/vnpay/return"
-
-# Spring Profile
-railway variables set SPRING_PROFILES_ACTIVE="production"
-```
-
-#### 4. Build and Deploy
-
-```bash
-# Build JAR
-mvn clean package -DskipTests
-
-# Deploy
-railway up
-```
-
-Or use the deploy script:
-
-```bash
-chmod +x deploy-railway.sh
-./deploy-railway.sh
-```
-
-#### 5. View Deployment
-
-```bash
-# View logs
-railway logs
-
-# Open in browser
-railway open
-
-# Get deployment URL
-railway domain
-```
-
-### Railway Configuration
-
-Railway automatically:
-- ✅ Detects Dockerfile and builds image
-- ✅ Assigns a public URL
-- ✅ Provides SSL certificate
-- ✅ Manages environment variables
-- ✅ Auto-deploys on git push (if connected to GitHub)
-
-### Environment Variables on Railway
-
-Set these in Railway Dashboard or CLI:
-
-| Variable | Description | Example |
-|----------|-------------|---------|
-| `SPRING_DATASOURCE_URL` | Supabase database URL | `jdbc:postgresql://db.xxx.supabase.co:5432/postgres` |
-| `SPRING_DATASOURCE_USERNAME` | Database username | `postgres.xxx` |
-| `SPRING_DATASOURCE_PASSWORD` | Database password | `your-password` |
-| `SUPABASE_URL` | Supabase API URL | `https://xxx.supabase.co` |
-| `SUPABASE_ANON_KEY` | Supabase anon key | `eyJ...` |
-| `SUPABASE_SERVICE_ROLE_KEY` | Supabase service key | `eyJ...` |
-| `VNPAY_TMN_CODE` | VNPay merchant code | `CGBU01D6` |
-| `VNPAY_HASH_SECRET` | VNPay secret | `GECK...` |
-| `VNPAY_RETURN_URL` | VNPay callback URL | `https://your-app.railway.app/vnpay/return` |
-
-### Troubleshooting on Railway
-
-#### Check Logs
-```bash
-railway logs --follow
-```
-
-#### Restart Service
-```bash
-railway restart
-```
-
-#### Check Build
-```bash
-railway status
-```
-
-#### Connect to Shell
-```bash
-railway shell
-```
-
-### Cost Estimate
-
-Railway offers:
-- **Free Tier**: $5 credit/month
-- **Pro Plan**: $20/month + usage
-
-Estimated cost for this app:
-- **Hobby usage**: ~$3-5/month
-- **Production**: ~$10-15/month
-
-### Alternative: Connect GitHub
-
-1. Push code to GitHub
-2. Connect repository in Railway dashboard
-3. Railway auto-deploys on push to main branch
-
-```bash
-git remote add origin https://github.com/yourusername/web_tu_thien.git
-git push -u origin main
-```
-
-## 📊 Database Schema Diagram
-
-```mermaid
-erDiagram
-    PARTNERS ||--o{ CAMPAIGNS : creates
-    CAMPAIGNS ||--o{ DONATIONS : receives
-    DONATIONS ||--|| PAYMENTS : has
-    USERS ||--o{ DONATIONS : makes
-    
-    PARTNERS {
-        bigint id PK
-        varchar name
-        varchar email
-        varchar phone
-        varchar address
-        timestamp created_at
-    }
-    
-    CAMPAIGNS {
-        bigint id PK
-        bigint partner_id FK
-        varchar title
-        text description
-        decimal target_amount
-        decimal current_amount
-        varchar category
-        varchar image_url
-        varchar status
-        timestamp end_date
-        timestamp created_at
-    }
-    
-    DONATIONS {
-        bigint id PK
-        bigint campaign_id FK
-        varchar donor_name
-        decimal amount
-        text message
-        timestamp created_at
-    }
-    
-    PAYMENTS {
-        bigint id PK
-        bigint donation_id FK
-        varchar vnpay_transaction_id
-        varchar vnpay_txn_ref
-        decimal amount
-        varchar payment_status
-        timestamp created_at
-    }
-```
-
-## 🤝 Đóng góp
-
-1. Fork repository
-2. Tạo feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to branch (`git push origin feature/AmazingFeature`)
-5. Open Pull Request
-
-## 📝 License
-
-This project is licensed under the MIT License.
-
-## 📧 Liên hệ
-
-- **Email**: contact@webtuthien.vn
-- **Phone**: 1900 1234
-- **Address**: 123 Đường ABC, Quận 1, TP.HCM
-
-## 🙏 Credits
-
-- Spring Boot Team
-- Supabase Team
-- VNPay
-- Font Awesome
-
----
-
-**Made with ❤️ by Web Từ Thiện Team**
