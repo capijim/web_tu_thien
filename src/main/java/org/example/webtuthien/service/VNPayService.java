@@ -50,8 +50,15 @@ public class VNPayService {
                           ", vnpay_txn_ref: " + payment.getVnpayTxnRef() + 
                           ", amount: " + payment.getAmount());
         
-        // Lưu payment
-        paymentRepository.save(payment);
+        try {
+            // Lưu payment
+            paymentRepository.save(payment);
+            System.out.println("Payment saved successfully with ID: " + payment.getId());
+        } catch (Exception e) {
+            System.err.println("Error saving payment: " + e.getMessage());
+            e.printStackTrace();
+            throw new RuntimeException("Failed to save payment: " + e.getMessage(), e);
+        }
         
         // Tạo các tham số cho VNPay
         Map<String, String> vnpParams = new HashMap<>();
