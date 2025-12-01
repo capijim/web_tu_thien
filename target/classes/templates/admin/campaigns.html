@@ -6,6 +6,202 @@
     <title>Admin - Campaigns</title>
     <link rel="stylesheet" th:href="@{/css/style.css}" />
     <link rel="stylesheet" th:href="@{/css/admin.css}" />
+    <style>
+        .campaigns-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 1.5rem;
+            padding: 2rem;
+        }
+        
+        .campaign-card {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .campaign-card:hover {
+            box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+            transform: translateY(-4px);
+        }
+        
+        .campaign-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .campaign-content {
+            padding: 1.5rem;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .campaign-header {
+            margin-bottom: 1rem;
+        }
+        
+        .campaign-id {
+            display: inline-block;
+            background: #e2e8f0;
+            color: #4a5568;
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        
+        .campaign-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #2d3748;
+            margin: 0 0 0.5rem 0;
+            line-height: 1.4;
+        }
+        
+        .campaign-meta {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+        
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.875rem;
+            color: #718096;
+        }
+        
+        .meta-badge {
+            background: #edf2f7;
+            color: #4a5568;
+            padding: 0.25rem 0.75rem;
+            border-radius: 6px;
+            font-weight: 500;
+        }
+        
+        .campaign-progress {
+            margin: 1rem 0;
+            flex: 1;
+        }
+        
+        .progress-info {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+            font-size: 0.875rem;
+        }
+        
+        .progress-label {
+            color: #4a5568;
+            font-weight: 500;
+        }
+        
+        .progress-amount {
+            color: #667eea;
+            font-weight: 600;
+        }
+        
+        .progress-bar-container {
+            width: 100%;
+            height: 8px;
+            background: #e2e8f0;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        
+        .progress-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+        
+        .progress-percentage {
+            text-align: right;
+            margin-top: 0.25rem;
+            font-size: 0.75rem;
+            color: #718096;
+            font-weight: 600;
+        }
+        
+        .campaign-footer {
+            display: flex;
+            gap: 0.75rem;
+            margin-top: auto;
+            padding-top: 1rem;
+            border-top: 1px solid #e2e8f0;
+        }
+        
+        .status-select {
+            flex: 1;
+            padding: 0.5rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 6px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .status-select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .btn-small {
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
+            border: none;
+            border-radius: 6px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-update {
+            background: #667eea;
+            color: white;
+        }
+        
+        .btn-update:hover {
+            background: #5568d3;
+        }
+        
+        .btn-delete {
+            background: #f56565;
+            color: white;
+        }
+        
+        .btn-delete:hover {
+            background: #e53e3e;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: #718096;
+        }
+        
+        .empty-state-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+        }
+        
+        .empty-state-text {
+            font-size: 1.125rem;
+            color: #4a5568;
+        }
+    </style>
 </head>
 <body>
     <div class="admin-container">
@@ -118,53 +314,80 @@
                 <div style="padding: 2rem 2rem 0 2rem;">
                     <h2 style="margin: 0 0 1.5rem 0; color: #2d3748; font-size: 1.5rem; font-weight: 600;">Danh sách Campaigns</h2>
                 </div>
-                <table class="admin-table">
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Tiêu đề</th>
-                            <th>Danh mục</th>
-                            <th>Đối tác</th>
-                            <th>Mục tiêu</th>
-                            <th>Hiện tại</th>
-                            <th>Trạng thái</th>
-                            <th>Thao tác</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr th:each="c : ${campaigns}">
-                            <td th:text="${c.id}"></td>
-                            <td th:text="${c.title}"></td>
-                            <td th:text="${c.category}"></td>
-                            <td>
-                                <span th:each="p : ${partners}" 
-                                      th:if="${p.id == c.partnerId}" 
-                                      th:text="${p.name}"></span>
-                            </td>
-                            <td th:text="${#numbers.formatDecimal(c.targetAmount, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'"></td>
-                            <td th:text="${#numbers.formatDecimal(c.currentAmount, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'"></td>
-                            <td>
-                                <span class="status-badge" th:classappend="'status-' + ${c.status}" th:text="${c.status}"></span>
-                            </td>
-                            <td>
-                                <div class="action-buttons">
-                                    <form th:action="@{/admin/campaigns/delete/{id}(id=${c.id})}" method="post" class="admin-inline-form">
-                                        <button type="submit" class="btn btn-danger" onclick="return confirm('Bạn có chắc chắn muốn xóa campaign này?')">Xóa</button>
-                                    </form>
-                                    <form th:action="@{/admin/campaigns/status/{id}(id=${c.id})}" method="post" class="admin-inline-form">
-                                        <select name="status" style="padding: 0.5rem; border: 1px solid #e2e8f0; border-radius: 6px; margin-right: 0.5rem;">
-                                            <option value="active" th:selected="${c.status}=='active'">Active</option>
-                                            <option value="completed" th:selected="${c.status}=='completed'">Completed</option>
-                                            <option value="cancelled" th:selected="${c.status}=='cancelled'">Cancelled</option>
-                                            <option value="expired" th:selected="${c.status}=='expired'">Expired</option>
-                                        </select>
-                                        <button type="submit" class="btn btn-secondary">Cập nhật</button>
-                                    </form>
+                
+                <div class="campaigns-grid" th:if="${campaigns != null and !campaigns.isEmpty()}">
+                    <div class="campaign-card" th:each="c : ${campaigns}">
+                        <img th:if="${c.imageUrl != null}" 
+                             th:src="@{${c.imageUrl}}" 
+                             th:alt="${c.title}" 
+                             class="campaign-image"
+                             onerror="this.style.display='none'" />
+                        <div th:if="${c.imageUrl == null}" 
+                             class="campaign-image" 
+                             style="display: flex; align-items: center; justify-content: center; font-size: 3rem;">
+                            🎯
+                        </div>
+                        
+                        <div class="campaign-content">
+                            <div class="campaign-header">
+                                <span class="campaign-id" th:text="'#' + ${c.id}"></span>
+                                <h3 class="campaign-title" th:text="${c.title}"></h3>
+                            </div>
+                            
+                            <div class="campaign-meta">
+                                <div class="meta-item">
+                                    <span>📁</span>
+                                    <span class="meta-badge" th:text="${c.category}"></span>
                                 </div>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
+                                <div class="meta-item">
+                                    <span>🤝</span>
+                                    <span class="meta-badge">
+                                        <span th:each="p : ${partners}" 
+                                              th:if="${p.id == c.partnerId}" 
+                                              th:text="${p.name}"></span>
+                                    </span>
+                                </div>
+                                <div class="meta-item">
+                                    <span class="status-badge" th:classappend="'status-' + ${c.status}" th:text="${c.status}"></span>
+                                </div>
+                            </div>
+                            
+                            <div class="campaign-progress">
+                                <div class="progress-info">
+                                    <span class="progress-label">Đã quyên góp</span>
+                                    <span class="progress-amount" th:text="${#numbers.formatDecimal(c.currentAmount, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'"></span>
+                                </div>
+                                <div class="progress-bar-container">
+                                    <div class="progress-bar-fill" 
+                                         th:style="'width: ' + ${c.targetAmount > 0 ? (c.currentAmount * 100 / c.targetAmount) : 0} + '%'"></div>
+                                </div>
+                                <div class="progress-percentage" 
+                                     th:text="${c.targetAmount > 0 ? #numbers.formatDecimal((c.currentAmount * 100 / c.targetAmount), 1, 'POINT', 2, 'POINT') : '0'} + '% / ' + ${#numbers.formatDecimal(c.targetAmount, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'">
+                                </div>
+                            </div>
+                            
+                            <div class="campaign-footer">
+                                <form th:action="@{/admin/campaigns/status/{id}(id=${c.id})}" method="post" style="display: flex; gap: 0.5rem; flex: 1;">
+                                    <select name="status" class="status-select">
+                                        <option value="active" th:selected="${c.status}=='active'">Active</option>
+                                        <option value="completed" th:selected="${c.status}=='completed'">Completed</option>
+                                        <option value="cancelled" th:selected="${c.status}=='cancelled'">Cancelled</option>
+                                        <option value="expired" th:selected="${c.status}=='expired'">Expired</option>
+                                    </select>
+                                    <button type="submit" class="btn-small btn-update">Cập nhật</button>
+                                </form>
+                                <form th:action="@{/admin/campaigns/delete/{id}(id=${c.id})}" method="post">
+                                    <button type="submit" class="btn-small btn-delete" onclick="return confirm('Bạn có chắc chắn muốn xóa campaign này?')">Xóa</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="empty-state" th:if="${campaigns == null or campaigns.isEmpty()}">
+                    <div class="empty-state-icon">📭</div>
+                    <p class="empty-state-text">Chưa có campaign nào</p>
+                </div>
             </div>
         </div>
     </div>
