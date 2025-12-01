@@ -40,8 +40,15 @@ public class VNPayController {
                 return response;
             }
             
-            // Tạo donation trước
+            // Tạo donation trước và lưu vào DB
             Donation createdDonation = donationService.create(donation);
+            
+            // Kiểm tra donation đã có ID
+            if (createdDonation.getId() == null) {
+                response.put("success", false);
+                response.put("message", "Lỗi: Không thể tạo donation");
+                return response;
+            }
             
             // Tạo URL thanh toán VNPay
             String paymentUrl = vnPayService.createPaymentUrl(createdDonation, request);

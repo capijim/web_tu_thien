@@ -28,6 +28,11 @@ public class VNPayService {
     public String createPaymentUrl(Donation donation, HttpServletRequest request) 
             throws UnsupportedEncodingException {
         
+        // Đảm bảo donation đã có ID (đã được persist vào DB)
+        if (donation.getId() == null) {
+            throw new IllegalArgumentException("Donation must be saved to database before creating payment");
+        }
+        
         // Tạo payment record với status PENDING
         Payment payment = new Payment();
         payment.setDonationId(donation.getId());
