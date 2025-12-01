@@ -32,9 +32,9 @@ public class EmailService {
     
     @Value("${app.email.name}")
     private String fromName;
-    
-    @Value("${server.port:8080}")
-    private String serverPort;
+
+    @Value("${app.base-url}")
+    private String baseUrl;
 
     public void sendDonationSuccessEmail(
             String toEmail,
@@ -55,9 +55,18 @@ public class EmailService {
         logger.info("║ Donor:   {}", donorName);
         logger.info("║ Amount:  {} VNĐ", String.format("%,d", amount.longValue()));
         logger.info("║ Campaign: {}", campaignTitle);
+        logger.info("║ Base URL: {}", baseUrl);
         logger.info("╚════════════════════════════════════════════════════════════╝");
         
         try {
+            // Validate email configuration
+            if (fromEmail == null || fromEmail.isEmpty()) {
+                throw new IllegalStateException("Email sender address is not configured!");
+            }
+            if (toEmail == null || toEmail.isEmpty()) {
+                throw new IllegalArgumentException("Recipient email address is required!");
+            }
+            
             // Prepare template variables
             Context context = new Context();
             context.setVariable("donorName", donorName);
@@ -67,7 +76,7 @@ public class EmailService {
             context.setVariable("donationId", donationId);
             context.setVariable("message", message);
             context.setVariable("donationDate", donationDate);
-            context.setVariable("campaignUrl", "http://localhost:" + serverPort + "/campaign/" + campaignId);
+            context.setVariable("campaignUrl", baseUrl + "/campaign/" + campaignId);
             
             logger.info("Processing email template...");
             // Process template
@@ -84,7 +93,8 @@ public class EmailService {
             helper.setSubject("✅ Xác nhận quyên góp thành công - " + campaignTitle);
             helper.setText(htmlContent, true);
             
-            logger.info("Sending email via Gmail SMTP...");
+            logger.info("Attempting to send email via Gmail SMTP...");
+            
             // Send email
             mailSender.send(mimeMessage);
             
@@ -103,15 +113,26 @@ public class EmailService {
             logger.error("╠════════════════════════════════════════════════════════════╣");
             logger.error("║ Error Type: MessagingException");
             logger.error("║ Message: {}", e.getMessage());
+            if (e.getCause() != null) {
+                logger.error("║ Cause: {}", e.getCause().getMessage());
+            }
             logger.error("╠════════════════════════════════════════════════════════════╣");
             logger.error("║ Troubleshooting:                                          ║");
-            logger.error("║ 1. Check App Password is correct (16 chars, no spaces)   ║");
-            logger.error("║ 2. Verify 2-Step Verification is enabled                 ║");
-            logger.error("║ 3. Check Gmail account security settings                 ║");
+            logger.error("║ 1. Verify App Password: 16 chars, no spaces              ║");
+            logger.error("║ 2. Enable 2-Step Verification in Gmail                   ║");
+            logger.error("║ 3. Check Gmail SMTP settings on Railway                  ║");
+            logger.error("║ 4. Verify Railway environment variables                  ║");
             logger.error("╚════════════════════════════════════════════════════════════╝\n");
-            e.printStackTrace();
+            logger.error("Full stack trace:", e);
+            throw new RuntimeException("Failed to send email: " + e.getMessage(), e);
         } catch (Exception e) {
-            logger.error("Unexpected error sending email", e);
+            logger.error("\n╔════════════════════════════════════════════════════════════╗");
+            logger.error("║              ❌ UNEXPECTED ERROR!                          ║");
+            logger.error("╠════════════════════════════════════════════════════════════╣");
+            logger.error("║ Error: {}", e.getMessage());
+            logger.error("╚════════════════════════════════════════════════════════════╝\n");
+            logger.error("Full stack trace:", e);
+            throw new RuntimeException("Unexpected error sending email: " + e.getMessage(), e);
         }
     }
 }
