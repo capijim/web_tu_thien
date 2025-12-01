@@ -1,154 +1,79 @@
 package org.example.webtuthien.controller;
 
-import org.example.webtuthien.service.*;
-import org.example.webtuthien.model.*;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.example.webtuthien.model.Donation;
+import org.example.webtuthien.service.DonationService;
+import org.example.webtuthien.service.VNPayService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
-
-import java.math.BigDecimal;
+import java.util.HashMap;
 import java.util.Map;
 
 @Controller
 @RequestMapping("/vnpay")
 public class VNPayController {
     
-    private static final Logger logger = LoggerFactory.getLogger(VNPayController.class);
+    private final VNPayService vnPayService;
+    private final DonationService donationService;
     
-    @Autowired
-    private VNPayService vnPayService;
-    
-    @Autowired
-    private DonationService donationService;
-    
-    @Autowired
-    private CampaignService campaignService;
-    
-    @Autowired
-    private UserService userService;
-    
-    @Autowired
-    private EmailService emailService;
+    public VNPayController(VNPayService vnPayService, DonationService donationService) {
+        this.vnPayService = vnPayService;
+        this.donationService = donationService;
+    }
     
     @PostMapping("/create-payment")
     @ResponseBody
-    public Map<String, Object> createPayment(@RequestBody Map<String, Object> request, HttpSession session) {
+    public Map<String, Object> createPayment(@RequestBody Donation donation, 
+                                              HttpServletRequest request,
+                                              HttpSession session) {
+        Map<String, Object> response = new HashMap<>();
+        
         try {
-            Long campaignId = Long.valueOf(request.get("campaignId").toString());
-            BigDecimal amount = new BigDecimal(request.get("amount").toString());
-            String message = (String) request.get("message");
-            
-            // Get user info
+            // Kiểm tra đăng nhập
             Object userIdObj = session.getAttribute("userId");
             if (userIdObj == null) {
-                return Map.of("success", false, "message", "Vui lòng đăng nhập");
+                response.put("success", false);
+                response.put("message", "Bạn cần đăng nhập để quyên góp");
+                return response;
             }
             
-            Long userId = Long.valueOf(userIdObj.toString());
+            // Tạo donation trước và lưu vào DB
+            Donation createdDonation = donationService.create(donation);
             
-            // Store donation info in session for callback
-            session.setAttribute("pendingDonation", Map.of(
-                "campaignId", campaignId,
-                "userId", userId,
-                "amount", amount,
-                "message", message != null ? message : ""
-            ));
+            // Kiểm tra donation đã có ID
+            if (createdDonation.getId() == null) {
+                response.put("success", false);
+                response.put("message", "Lỗi: Không thể tạo donation");
+                return response;
+            }
             
-            // Create payment URL
-            String paymentUrl = vnPayService.createPaymentUrl(campaignId, amount, message);
+            // Tạo URL thanh toán VNPay
+            String paymentUrl = vnPayService.createPaymentUrl(createdDonation, request);
             
-            return Map.of("success", true, "paymentUrl", paymentUrl);
+            response.put("success", true);
+            response.put("paymentUrl", paymentUrl);
+            response.put("donationId", createdDonation.getId());
+            
         } catch (Exception e) {
-            logger.error("Error creating payment", e);
-            return Map.of("success", false, "message", "Lỗi tạo thanh toán: " + e.getMessage());
+            response.put("success", false);
+            response.put("message", "Lỗi tạo thanh toán: " + e.getMessage());
         }
+        
+        return response;
     }
     
     @GetMapping("/return")
-    public String paymentReturn(HttpServletRequest request, HttpSession session, Model model) {
-        try {
-            // Verify payment
-            Map<String, String> params = vnPayService.getParamsFromRequest(request);
-            boolean isValid = vnPayService.verifyPayment(params);
-            String responseCode = params.get("vnp_ResponseCode");
-            
-            if (isValid && "00".equals(responseCode)) {
-                // Payment successful - process donation
-                @SuppressWarnings("unchecked")
-                Map<String, Object> pendingDonation = (Map<String, Object>) session.getAttribute("pendingDonation");
-                
-                if (pendingDonation != null) {
-                    Long campaignId = ((Number) pendingDonation.get("campaignId")).longValue();
-                    Long userId = ((Number) pendingDonation.get("userId")).longValue();
-                    BigDecimal amount = (BigDecimal) pendingDonation.get("amount");
-                    String message = (String) pendingDonation.get("message");
-                    
-                    // Get user and campaign info
-                    var userOpt = userService.getUserById(userId);
-                    var campaignOpt = campaignService.findById(campaignId);
-                    
-                    if (userOpt.isPresent() && campaignOpt.isPresent()) {
-                        User user = userOpt.get();
-                        Campaign campaign = campaignOpt.get();
-                        
-                        // Create donation
-                        Donation donation = new Donation();
-                        donation.setCampaignId(campaignId);
-                        donation.setDonorName(user.getName());
-                        donation.setAmount(amount);
-                        donation.setMessage(message);
-                        
-                        Donation createdDonation = donationService.create(donation);
-                        
-                        // Update campaign amount
-                        campaignService.updateCurrentAmount(campaignId, amount);
-                        
-                        // Send email notification
-                        try {
-                            emailService.sendDonationSuccessEmail(
-                                user.getEmail(),
-                                user.getName(),
-                                amount,
-                                campaign.getTitle(),
-                                campaign.getCategory(),
-                                campaignId,
-                                createdDonation.getId(),
-                                message,
-                                createdDonation.getCreatedAt()
-                            );
-                            logger.info("Email sent successfully to: {}", user.getEmail());
-                        } catch (Exception e) {
-                            logger.error("Failed to send email", e);
-                        }
-                        
-                        // Clear pending donation
-                        session.removeAttribute("pendingDonation");
-                        
-                        model.addAttribute("success", true);
-                        model.addAttribute("message", "Thanh toán thành công! Cảm ơn bạn đã quyên góp " + 
-                            String.format("%,d", amount.longValue()) + " VNĐ. Email xác nhận đã được gửi đến " + user.getEmail());
-                    } else {
-                        model.addAttribute("success", false);
-                        model.addAttribute("message", "Không tìm thấy thông tin người dùng hoặc chiến dịch");
-                    }
-                } else {
-                    model.addAttribute("success", false);
-                    model.addAttribute("message", "Không tìm thấy thông tin thanh toán");
-                }
-            } else {
-                model.addAttribute("success", false);
-                model.addAttribute("message", "Thanh toán thất bại. Mã lỗi: " + responseCode);
-            }
-            
-        } catch (Exception e) {
-            logger.error("Error processing payment return", e);
-            model.addAttribute("success", false);
-            model.addAttribute("message", "Lỗi xử lý kết quả thanh toán: " + e.getMessage());
+    public String paymentReturn(HttpServletRequest request, Model model) {
+        Map<String, Object> result = vnPayService.handlePaymentReturn(request);
+        
+        model.addAttribute("success", result.get("success"));
+        model.addAttribute("message", result.get("message"));
+        
+        if (result.containsKey("donationId")) {
+            model.addAttribute("donationId", result.get("donationId"));
         }
         
         return "payment-result";
