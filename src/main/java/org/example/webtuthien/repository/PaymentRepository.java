@@ -3,8 +3,12 @@ package org.example.webtuthien.repository;
 import org.example.webtuthien.model.Payment;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
+import java.sql.PreparedStatement;
+import java.sql.Statement;
 import java.util.List;
 import java.util.Optional;
 
@@ -39,14 +43,20 @@ public class PaymentRepository {
     
     public Payment save(Payment payment) {
         String sql = "INSERT INTO payments (donation_id, vnpay_txn_ref, amount, payment_status, created_at, updated_at) " +
-                    "VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP) RETURNING id";
+                    "VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)";
         
-        Long id = jdbcTemplate.queryForObject(sql, Long.class, 
-            payment.getDonationId(), 
-            payment.getVnpayTxnRef(), 
-            payment.getAmount(), 
-            payment.getPaymentStatus());
+        KeyHolder keyHolder = new GeneratedKeyHolder();
         
+        jdbcTemplate.update(connection -> {
+            PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+            ps.setLong(1, payment.getDonationId());
+            ps.setString(2, payment.getVnpayTxnRef());
+            ps.setBigDecimal(3, payment.getAmount());
+            ps.setString(4, payment.getPaymentStatus());
+            return ps;
+        }, keyHolder);
+        
+        Long id = keyHolder.getKey().longValue();
         payment.setId(id);
         return payment;
     }
