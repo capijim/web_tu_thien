@@ -1,49 +1,18 @@
-version: '3.8'
-
 services:
   app:
     build: .
-    container_name: web-tu-thien-app
     ports:
       - "8080:8080"
-    volumes:
-      # Mount volume cho uploads - dữ liệu sẽ được lưu trong Docker volume
-      - uploads-data:/app/uploads
+    network_mode: bridge
     environment:
-      - DATABASE_URL=jdbc:postgresql://db:5432/web_tu_thien
-      - DATABASE_USERNAME=postgres
-      - DATABASE_PASSWORD=postgres123
-      - FILE_UPLOAD_DIR=/app/uploads
-    depends_on:
-      - db
-    networks:
-      - app-network
-    restart: unless-stopped
-
-  db:
-    image: postgres:16-alpine
-    container_name: web-tu-thien-db
-    environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres123
-      - POSTGRES_DB=web_tu_thien
+      - SPRING_DATASOURCE_URL=${SPRING_DATASOURCE_URL}
+      - SPRING_DATASOURCE_USERNAME=${SPRING_DATASOURCE_USERNAME}
+      - SPRING_DATASOURCE_PASSWORD=${SPRING_DATASOURCE_PASSWORD}
+      - SUPABASE_URL=${SUPABASE_URL}
+      - SUPABASE_ANON_KEY=${SUPABASE_ANON_KEY}
+      - SUPABASE_SERVICE_ROLE_KEY=${SUPABASE_SERVICE_ROLE_KEY}
+      - VNPAY_TMN_CODE=${VNPAY_TMN_CODE}
+      - VNPAY_HASH_SECRET=${VNPAY_HASH_SECRET}
+      - VNPAY_RETURN_URL=${VNPAY_RETURN_URL}
     volumes:
-      # Mount volume cho PostgreSQL data
-      - postgres-data:/var/lib/postgresql/data
-    ports:
-      - "5432:5432"
-    networks:
-      - app-network
-    restart: unless-stopped
-
-networks:
-  app-network:
-    driver: bridge
-
-volumes:
-  # Docker managed volume cho uploads
-  uploads-data:
-    driver: local
-  # Docker managed volume cho PostgreSQL
-  postgres-data:
-    driver: local
+      - ./uploads:/app/uploads
