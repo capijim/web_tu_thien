@@ -33,8 +33,8 @@ public class EmailService {
     @Value("${app.email.name}")
     private String fromName;
     
-    @Value("${server.port:8080}")
-    private String serverPort;
+    @Value("${app.base-url:http://localhost:8080}")
+    private String baseUrl;
 
     public void sendDonationSuccessEmail(
             String toEmail,
@@ -67,7 +67,7 @@ public class EmailService {
             context.setVariable("donationId", donationId);
             context.setVariable("message", message);
             context.setVariable("donationDate", donationDate);
-            context.setVariable("campaignUrl", "http://localhost:" + serverPort + "/campaign/" + campaignId);
+            context.setVariable("campaignUrl", baseUrl + "/campaign/" + campaignId);
             
             logger.info("Processing email template...");
             // Process template
