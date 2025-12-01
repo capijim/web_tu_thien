@@ -28,10 +28,13 @@ public class VNPayService {
     public String createPaymentUrl(Donation donation, HttpServletRequest request) 
             throws UnsupportedEncodingException {
         
-        // Đảm bảo donation đã có ID (đã được persist vào DB)
+        // Kiểm tra donation có ID chưa
         if (donation.getId() == null) {
-            throw new IllegalArgumentException("Donation must be saved to database before creating payment");
+            throw new IllegalArgumentException("Donation ID is null. Donation must be saved before creating payment URL");
         }
+        
+        System.out.println("Creating payment for donation ID: " + donation.getId());
+        System.out.println("Donation amount: " + donation.getAmount());
         
         // Tạo payment record với status PENDING
         Payment payment = new Payment();
@@ -42,6 +45,10 @@ public class VNPayService {
         // Tạo mã giao dịch duy nhất
         String vnpTxnRef = VNPayUtil.getRandomNumber(8);
         payment.setVnpayTxnRef(vnpTxnRef);
+        
+        System.out.println("Payment details - donation_id: " + payment.getDonationId() + 
+                          ", vnpay_txn_ref: " + payment.getVnpayTxnRef() + 
+                          ", amount: " + payment.getAmount());
         
         // Lưu payment
         paymentRepository.save(payment);

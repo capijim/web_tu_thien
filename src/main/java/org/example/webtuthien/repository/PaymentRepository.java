@@ -42,6 +42,17 @@ public class PaymentRepository {
     };
     
     public Payment save(Payment payment) {
+        // Validate input
+        if (payment.getDonationId() == null) {
+            throw new IllegalArgumentException("donation_id cannot be null");
+        }
+        if (payment.getVnpayTxnRef() == null || payment.getVnpayTxnRef().isEmpty()) {
+            throw new IllegalArgumentException("vnpay_txn_ref cannot be null or empty");
+        }
+        if (payment.getAmount() == null) {
+            throw new IllegalArgumentException("amount cannot be null");
+        }
+        
         String sql = "INSERT INTO payments (donation_id, vnpay_txn_ref, amount, payment_status, created_at, updated_at) " +
                     "VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)";
         
