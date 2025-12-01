@@ -9,7 +9,7 @@ Hệ thống quản lý hoạt động từ thiện - Spring Boot + Railway Post
 - ✅ Thanh toán VNPay
 - ✅ Admin dashboard
 - ✅ Email notifications
-- ✅ **Auto database migration on first deploy**
+- ✅ Upload ảnh local storage
 
 ## 🚀 Chạy Local (Docker)
 
@@ -22,16 +22,12 @@ docker-compose up
 
 ## 🌐 Deploy Production (Railway)
 
-### 🆕 Auto Database Setup
-
-App sẽ **TỰ ĐỘNG tạo tables** khi deploy lần đầu! Không cần chạy SQL thủ công.
-
 ### Quick Deploy
 
 ```bash
 # 1. Commit code
 git add .
-git commit -m "Deploy to Railway with auto-migration"
+git commit -m "Deploy to Railway"
 git push origin main
 
 # 2. Railway Dashboard > New Project > Deploy from GitHub
@@ -42,37 +38,12 @@ SPRING_DATASOURCE_URL=jdbc:postgresql://hopper.proxy.rlwy.net:14179/postgres?ssl
 SPRING_DATASOURCE_USERNAME=postgres
 SPRING_DATASOURCE_PASSWORD=ADfVtAfzyPNskyYwUcGblgbUaiChaimL
 
-# 4. Deploy - App sẽ tự động:
-#    ✅ Tạo tất cả tables
-#    ✅ Thêm indexes và constraints
-#    ✅ Insert admin account mặc định
-#    ✅ Insert dữ liệu mẫu
-```
-
-### Verify Database Setup
-
-```bash
-# Check database initialization status
-curl https://your-app.railway.app/api/health/db-info
-
-# Expected response:
-{
-  "status": "SUCCESS",
-  "connected": true,
-  "tablesCount": 6,
-  "tables": {
-    "users": true,
-    "partners": true,
-    "campaigns": true,
-    "donations": true,
-    "admins": true,
-    "payments": true
-  }
-}
+# 4. Deploy - App runs in 5-10 minutes
 ```
 
 ### Railway Environment Variables
 
+#### ✅ Required:
 ```bash
 SPRING_PROFILES_ACTIVE=railway
 SPRING_DATASOURCE_URL=jdbc:postgresql://hopper.proxy.rlwy.net:14179/postgres?sslmode=require
@@ -86,54 +57,43 @@ SPRING_MAIL_USERNAME=222x3.666@gmail.com
 SPRING_MAIL_PASSWORD=<your-app-password>
 ```
 
-## 📊 Database Migration System
-
-### How it works:
-
-1. **First Deploy:**
-   - App detects empty database
-   - Runs `V1__init_schema.sql` - Creates all tables
-   - Runs `V2__seed_data.sql` - Inserts default data
-   - Logs: "🎉 Database initialization completed!"
-
-2. **Subsequent Deploys:**
-   - App detects existing tables
-   - Skips migration
-   - Logs: "✅ Database already initialized"
-
-### Migration Files:
-
-```
-src/main/resources/db/migration/
-├── V1__init_schema.sql    # Create tables, indexes, triggers
-└── V2__seed_data.sql      # Insert admin & sample data
+#### 💳 Optional (Enable VNPay payment):
+```bash
+VNPAY_TMN_CODE=<your-vnpay-code>
+VNPAY_HASH_SECRET=<your-vnpay-secret>
+VNPAY_RETURN_URL=https://your-app.railway.app/vnpay/return
 ```
 
-### Add New Migration:
+## 🔧 Troubleshooting
 
 ```bash
-# Create new migration file
-touch src/main/resources/db/migration/V3__add_new_feature.sql
-
-### Common Issues:
-
-**1. Migration failed**
-```bash
-# Check Railway logs for SQL errors
-railway logs --tail 200
-
-# Manual fix: Connect to Railway PostgreSQL and run SQL manually
-railway connect postgres
-\i src/main/resources/db/migration/V1__init_schema.sql
-```
-
-**2. Tables exist but migration runs again**
-```bash
-# Check table count
+# Test database connection
 curl https://your-app.railway.app/api/health/db-info
 
-# If tableCount = 0 but tables exist, check schema:
-# Tables might be in wrong schema (not 'public')
+# Spring Boot health check
+curl https://your-app.railway.app/actuator/health
+
+# View logs
+railway logs --tail 100
+```
+
+### Expected Response (Success):
+```json
+{
+  "status": "SUCCESS",
+  "connected": true,
+  "databaseProductName": "PostgreSQL",
+  "databaseProductVersion": "15.x.x",
+  "tablesCount": 6,
+  "tables": {
+    "users": true,
+    "campaigns": true,
+    "donations": true,
+    "admins": true,
+    "payments": true,
+    "partners": true
+  }
+}
 ```
 
 ## 🔐 Default Credentials
@@ -148,11 +108,24 @@ curl https://your-app.railway.app/api/health/db-info
 - PostgreSQL (Railway)
 - Thymeleaf + Bootstrap 5
 - VNPay Payment Gateway
-- **Auto database migration system**
+- Local File Storage
 
 ## 💰 Cost
 
 - **Local:** FREE
 - **Production:** $5/month (Railway PostgreSQL)
+
+## 📦 File Upload
+
+Files are stored in local filesystem:
+- **Local:** `./uploads`
+- **Docker:** `/app/uploads` (mounted volume)
+- **Railway:** `/app/uploads` (ephemeral storage)
+
+**Note:** Railway's filesystem is ephemeral - files will be lost on restart. For production, consider using:
+- Cloudinary (free tier)
+- imgbb (free unlimited)
+- AWS S3
+- Any CDN service
 
 
