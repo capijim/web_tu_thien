@@ -12,13 +12,6 @@
         <div class="admin-login-form">
             <h1>🔐 Đăng nhập Admin</h1>
             
-            <div class="admin-info">
-                <strong>Thông tin tài khoản mặc định:</strong><br>
-                Username: <code>admin</code><br>
-                Email: <code>admin@webtuthien.com</code><br>
-                Password: <code>admin123</code>
-            </div>
-            
             <div th:if="${error}" class="admin-error-message" th:text="${error}"></div>
             
             <form th:action="@{/admin/login}" method="post">

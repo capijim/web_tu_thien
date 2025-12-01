@@ -67,7 +67,7 @@ public class CampaignService {
         Campaign campaign = repository.findById(id)
             .orElseThrow(() -> new IllegalArgumentException("Campaign not found"));
         
-        List<String> validStatuses = Arrays.asList("Active", "Completed", "Cancelled");
+        List<String> validStatuses = Arrays.asList("Active", "Completed", "Cancelled", "Expired");
         if (!validStatuses.contains(status)) {
             throw new IllegalArgumentException("Invalid status. Must be one of: " + String.join(", ", validStatuses));
         }

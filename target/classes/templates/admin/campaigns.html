@@ -313,10 +313,35 @@
             <div class="table-container">
                 <div style="padding: 2rem 2rem 0 2rem;">
                     <h2 style="margin: 0 0 1.5rem 0; color: #2d3748; font-size: 1.5rem; font-weight: 600;">Danh sách Campaigns</h2>
+                    
+                    <!-- Search and Filter Section -->
+                    <div style="display: flex; gap: 1rem; margin-bottom: 1.5rem;">
+                        <input 
+                            id="searchInput" 
+                            type="text" 
+                            placeholder="Tìm kiếm theo tên..." 
+                            style="flex: 1; padding: 0.75rem; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 1rem;"
+                        />
+                        <select 
+                            id="categoryFilter" 
+                            style="padding: 0.75rem; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 1rem; min-width: 200px;"
+                        >
+                            <option value="">Tất cả danh mục</option>
+                            <option value="Giáo dục">Giáo dục</option>
+                            <option value="Y tế">Y tế</option>
+                            <option value="Môi trường">Môi trường</option>
+                            <option value="Xã hội">Xã hội</option>
+                            <option value="Thiên tai">Thiên tai</option>
+                            <option value="Trẻ em">Trẻ em</option>
+                            <option value="Người già">Người già</option>
+                            <option value="Khuyết tật">Khuyết tật</option>
+                            <option value="Khác">Khác</option>
+                        </select>
+                    </div>
                 </div>
                 
-                <div class="campaigns-grid" th:if="${campaigns != null and !campaigns.isEmpty()}">
-                    <div class="campaign-card" th:each="c : ${campaigns}">
+                <div class="campaigns-grid" id="campaignsGrid" th:if="${campaigns != null and !campaigns.isEmpty()}">
+                    <div class="campaign-card" th:each="c : ${campaigns}" th:attr="data-title=${c.title}, data-category=${c.category}">
                         <img th:if="${c.imageUrl != null}" 
                              th:src="@{${c.imageUrl}}" 
                              th:alt="${c.title}" 
@@ -369,15 +394,12 @@
                             <div class="campaign-footer">
                                 <form th:action="@{/admin/campaigns/status/{id}(id=${c.id})}" method="post" style="display: flex; gap: 0.5rem; flex: 1;">
                                     <select name="status" class="status-select">
-                                        <option value="active" th:selected="${c.status}=='active'">Active</option>
-                                        <option value="completed" th:selected="${c.status}=='completed'">Completed</option>
-                                        <option value="cancelled" th:selected="${c.status}=='cancelled'">Cancelled</option>
-                                        <option value="expired" th:selected="${c.status}=='expired'">Expired</option>
+                                        <option value="Active" th:selected="${c.status}=='Active'">Active</option>
+                                        <option value="Completed" th:selected="${c.status}=='Completed'">Completed</option>
+                                        <option value="Cancelled" th:selected="${c.status}=='Cancelled'">Cancelled</option>
+                                        <option value="Expired" th:selected="${c.status}=='Expired'">Expired</option>
                                     </select>
                                     <button type="submit" class="btn-small btn-update">Cập nhật</button>
-                                </form>
-                                <form th:action="@{/admin/campaigns/delete/{id}(id=${c.id})}" method="post">
-                                    <button type="submit" class="btn-small btn-delete" onclick="return confirm('Bạn có chắc chắn muốn xóa campaign này?')">Xóa</button>
                                 </form>
                             </div>
                         </div>
@@ -391,6 +413,37 @@
             </div>
         </div>
     </div>
+    
+    <script>
+        // Search and filter functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchInput = document.getElementById('searchInput');
+            const categoryFilter = document.getElementById('categoryFilter');
+            const campaignCards = document.querySelectorAll('.campaign-card');
+            
+            function filterCampaigns() {
+                const searchTerm = searchInput.value.toLowerCase();
+                const selectedCategory = categoryFilter.value;
+                
+                campaignCards.forEach(card => {
+                    const title = card.getAttribute('data-title').toLowerCase();
+                    const category = card.getAttribute('data-category');
+                    
+                    const matchesSearch = title.includes(searchTerm);
+                    const matchesCategory = !selectedCategory || category === selectedCategory;
+                    
+                    if (matchesSearch && matchesCategory) {
+                        card.style.display = 'flex';
+                    } else {
+                        card.style.display = 'none';
+                    }
+                });
+            }
+            
+            searchInput.addEventListener('input', filterCampaigns);
+            categoryFilter.addEventListener('change', filterCampaigns);
+        });
+    </script>
 </body>
 </html>
 

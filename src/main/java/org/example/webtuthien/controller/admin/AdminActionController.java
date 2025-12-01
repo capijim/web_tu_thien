@@ -48,17 +48,6 @@ public class AdminActionController {
         return "redirect:/admin/users";
     }
 
-    @PostMapping("/admin/campaigns/delete/{id}")
-    public String deleteCampaign(@PathVariable Long id, HttpSession session) {
-        Admin admin = (Admin) session.getAttribute("admin");
-        if (admin == null) {
-            return "redirect:/admin/login";
-        }
-        
-        campaignService.deleteCampaign(id);
-        return "redirect:/admin/campaigns";
-    }
-
     @PostMapping("/admin/campaigns/status/{id}")
     public String updateCampaignStatus(@PathVariable Long id, @RequestParam("status") String status, HttpSession session) {
         Admin admin = (Admin) session.getAttribute("admin");
