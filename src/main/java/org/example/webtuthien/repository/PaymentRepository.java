@@ -39,7 +39,7 @@ public class PaymentRepository {
     
     public Payment save(Payment payment) {
         String sql = "INSERT INTO payments (donation_id, vnpay_txn_ref, amount, payment_status, created_at, updated_at) " +
-                    "VALUES (?, ?, ?, ?, NOW(), NOW()) RETURNING id";
+                    "VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP) RETURNING id";
         
         Long id = jdbcTemplate.queryForObject(sql, Long.class, 
             payment.getDonationId(), 
@@ -59,12 +59,12 @@ public class PaymentRepository {
     
     public void updatePaymentStatus(Long id, String status, String transactionId, String responseCode) {
         String sql = "UPDATE payments SET payment_status = ?, vnpay_transaction_id = ?, " +
-                    "vnpay_response_code = ?, updated_at = NOW() WHERE id = ?";
+                    "vnpay_response_code = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?";
         jdbcTemplate.update(sql, status, transactionId, responseCode, id);
     }
     
     public void updateBankCode(Long id, String bankCode) {
-        String sql = "UPDATE payments SET bank_code = ?, updated_at = NOW() WHERE id = ?";
+        String sql = "UPDATE payments SET bank_code = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?";
         jdbcTemplate.update(sql, bankCode, id);
     }
     
