@@ -39,12 +39,16 @@ public class VNPayService {
         System.out.println("Amount: " + donation.getAmount());
         System.out.println("Donor Name: " + donation.getDonorName());
         
-        // TẠM THỜI BỎ QUA LƯU PAYMENT VÀO DB - CHỈ TEST VNPAY
-        // Tạo mã giao dịch duy nhất
         String vnpTxnRef = VNPayUtil.getRandomNumber(8);
-        
         System.out.println("Payment TxnRef: " + vnpTxnRef);
         System.out.println("SKIPPING database save - testing VNPay only");
+        
+        // Get return URL
+        String returnUrl = vnPayConfig.getReturnUrl();
+        System.out.println("=== VNPay Configuration ===");
+        System.out.println("Return URL: " + returnUrl);
+        System.out.println("Base URL: " + vnPayConfig.getBaseUrl());
+        System.out.println("TMN Code: " + vnPayConfig.getTmnCode());
         
         // Tạo các tham số cho VNPay
         Map<String, String> vnpParams = new HashMap<>();
@@ -58,7 +62,7 @@ public class VNPayService {
         vnpParams.put("vnp_OrderInfo", "Quyen gop cho chien dich: " + donation.getCampaignId());
         vnpParams.put("vnp_OrderType", "other");
         vnpParams.put("vnp_Locale", "vn");
-        vnpParams.put("vnp_ReturnUrl", vnPayConfig.getReturnUrl());
+        vnpParams.put("vnp_ReturnUrl", returnUrl);
         vnpParams.put("vnp_IpAddr", VNPayUtil.getIpAddress(request));
         
         // Sử dụng múi giờ Việt Nam
@@ -105,7 +109,9 @@ public class VNPayService {
         String vnpSecureHash = VNPayUtil.hmacSHA512(vnPayConfig.getHashSecret(), hashData.toString());
         queryUrl += "&vnp_SecureHash=" + vnpSecureHash;
         
-        System.out.println("VNPay URL created successfully");
+        System.out.println("=== Final VNPay URL ===");
+        System.out.println(vnPayConfig.getVnpayUrl() + "?" + queryUrl);
+        
         return vnPayConfig.getVnpayUrl() + "?" + queryUrl;
     }
     
