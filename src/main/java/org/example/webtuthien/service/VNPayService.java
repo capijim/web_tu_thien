@@ -9,8 +9,6 @@ import org.springframework.stereotype.Service;
 
 import jakarta.servlet.http.HttpServletRequest;
 import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -52,10 +50,6 @@ public class VNPayService {
         vnpParams.put("vnp_OrderInfo", "DonateC" + donation.getCampaignId());
         vnpParams.put("vnp_OrderType", "other");
         vnpParams.put("vnp_Locale", "vn");
-        
-        // Thêm BankCode để chọn phương thức thanh toán (optional)
-        // vnpParams.put("vnp_BankCode", "VNBANK"); // Uncomment nếu cần
-        
         vnpParams.put("vnp_ReturnUrl", vnPayConfig.getReturnUrl());
         vnpParams.put("vnp_IpAddr", VNPayUtil.getIpAddress(request));
         
@@ -151,40 +145,39 @@ public class VNPayService {
             
             if (calculatedHash.equals(vnpSecureHash)) {
                 String vnpResponseCode = request.getParameter("vnp_ResponseCode");
-                String vnpTxnRef = request.getParameter("vnp_TxnRef");
                 
                 if ("00".equals(vnpResponseCode)) {
                     result.put("success", true);
                     result.put("message", "Thanh toán thành công! Cảm ơn bạn đã đóng góp cho chiến dịch.");
-                    System.out.println("Payment successful - TxnRef: " + vnpTxnRef);
+                    System.out.println("Payment successful");
                     
                     // Lấy campaignId từ OrderInfo
                     String orderInfo = request.getParameter("vnp_OrderInfo");
                     if (orderInfo != null && orderInfo.startsWith("DonateC")) {
-                        try {       System.out.println("Could not parse campaignId from OrderInfo: " + e.getMessage());
-                            Long campaignId = Long.parseLong(orderInfo.substring(7));}
+                        try {
+                            Long campaignId = Long.parseLong(orderInfo.substring(7));
                             result.put("campaignId", campaignId);
                         } catch (Exception e) {
+                            System.out.println("Could not parse campaignId from OrderInfo: " + e.getMessage());
+                        }
                     }
-                } else {   result.put("message", "Thanh toán thất bại. Mã lỗi: " + vnpResponseCode);
-                    result.put("success", false);System.out.println("Payment failed with code: " + vnpResponseCode);
+                } else {
+                    result.put("success", false);
                     result.put("message", "Thanh toán thất bại. Mã lỗi: " + vnpResponseCode);
                     System.out.println("Payment failed with code: " + vnpResponseCode);
                 }
-            } else {   result.put("message", "Chữ ký không hợp lệ");
-                result.put("success", false);tln("Invalid signature!");
+            } else {
+                result.put("success", false);
                 result.put("message", "Chữ ký không hợp lệ");
                 System.out.println("Invalid signature!");
-            }cessing VNPay return: " + e.getMessage());
-        } catch (Exception e) {
-            System.err.println("Error processing VNPay return: " + e.getMessage());   result.put("success", false);
-            e.printStackTrace();    result.put("message", "Lỗi xử lý kết quả thanh toán: " + e.getMessage());
-            result.put("success", false);
-            result.put("message", "Lỗi xử lý kết quả thanh toán: " + e.getMessage());   
-        }       return result;
             }
-
-
-
-
-}    }        return result;}
+        } catch (Exception e) {
+            System.err.println("Error processing VNPay return: " + e.getMessage());
+            e.printStackTrace();
+            result.put("success", false);
+            result.put("message", "Lỗi xử lý kết quả thanh toán: " + e.getMessage());
+        }
+        
+        return result;
+    }
+}

@@ -70,7 +70,7 @@ public class VNPayUtil {
         }
         return sb.toString();
     }
-    
+
     // Tạo TxnRef unique với timestamp
     public static String generateTxnRef() {
         long timestamp = System.currentTimeMillis() / 1000; // Unix timestamp
