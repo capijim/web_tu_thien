@@ -143,6 +143,45 @@
       </div>
     </main>
 
+    <div id="donate-modal" class="modal">
+      <div class="modal-content">
+        <span class="close">&times;</span>
+        <h2>Ủng hộ chiến dịch</h2>
+        <div id="donate-campaign-info"></div>
+        <form id="donate-form">
+          <input type="hidden" id="donate-campaign-id" />
+          <label for="donateAmount">Số tiền ủng hộ (VNĐ)</label>
+          <input id="donateAmount" name="amount" type="number" step="1000" required placeholder="Nhập số tiền ủng hộ" />
+          
+          <label for="donateMessage">Lời nhắn (tùy chọn)</label>
+          <textarea id="donateMessage" name="message" rows="3" placeholder="Gửi lời động viên đến chiến dịch..."></textarea>
+          
+          <label>Chọn phương thức thanh toán</label>
+          <div class="payment-methods">
+            <button type="button" class="payment-method-btn active" data-method="direct" onclick="selectPaymentMethod('direct')">
+              <i class="fas fa-hand-holding-heart"></i>
+              <span>Ủng hộ trực tiếp</span>
+            </button>
+            <button type="button" class="payment-method-btn" data-method="momo" onclick="selectPaymentMethod('momo')">
+              <img src="https://developers.momo.vn/v3/assets/images/square-logo.svg" alt="MoMo" style="height:24px;width:24px;">
+              <span>Ví MoMo</span>
+            </button>
+            <button type="button" class="payment-method-btn" data-method="vnpay" onclick="selectPaymentMethod('vnpay')">
+              <i class="fas fa-credit-card"></i>
+              <span>VNPay</span>
+            </button>
+          </div>
+          
+          <div class="form-actions">
+            <button type="submit" class="cta" id="donate-submit-btn">
+              <i class="fas fa-heart"></i> Ủng hộ ngay
+            </button>
+            <button type="button" class="btn-secondary" id="cancel-donate">Hủy</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
     <script th:src="@{/js/headbar.js}"></script>
     <script th:inline="javascript">
       // Check authentication before donation
@@ -230,17 +269,62 @@
     </script>
 
     <script>
-    function payWithMoMo() {
+    let selectedPaymentMethod = 'direct';
+
+    function selectPaymentMethod(method) {
+      selectedPaymentMethod = method;
+      
+      // Update button states
+      document.querySelectorAll('.payment-method-btn').forEach(btn => {
+        btn.classList.remove('active');
+      });
+      document.querySelector(`[data-method="${method}"]`).classList.add('active');
+      
+      // Update submit button text
+      const submitBtn = document.getElementById('donate-submit-btn');
+      switch(method) {
+        case 'momo':
+          submitBtn.innerHTML = '<img src="https://developers.momo.vn/v3/assets/images/square-logo.svg" style="height:18px;vertical-align:middle;margin-right:6px"> Thanh toán MoMo';
+          break;
+        case 'vnpay':
+          submitBtn.innerHTML = '<i class="fas fa-credit-card"></i> Thanh toán VNPay';
+          break;
+        default:
+          submitBtn.innerHTML = '<i class="fas fa-heart"></i> Ủng hộ ngay';
+      }
+    }
+
+    // Handle form submission based on selected payment method
+    document.getElementById('donate-form').addEventListener('submit', function(e) {
+      e.preventDefault();
+      
       const amount = document.getElementById('donateAmount').value;
       const campaignId = document.getElementById('donate-campaign-id').value;
+      const message = document.getElementById('donateMessage').value;
       
       if (!amount || amount <= 0) {
         alert('Vui lòng nhập số tiền hợp lệ');
         return;
       }
       
+      if (selectedPaymentMethod === 'momo') {
+        payWithMoMo(campaignId, amount, message);
+      } else if (selectedPaymentMethod === 'vnpay') {
+        payWithVNPay(campaignId, amount, message);
+      } else {
+        // Direct donation - submit form normally
+        this.submit();
+      }
+    });
+
+    function payWithMoMo(campaignId, amount, message) {
       const donorName = '[[${session.userName}]]' || 'Ẩn danh';
-      const message = document.querySelector('[name="message"]')?.value || '';
+      
+      // Show loading
+      const submitBtn = document.getElementById('donate-submit-btn');
+      const originalText = submitBtn.innerHTML;
+      submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang xử lý...';
+      submitBtn.disabled = true;
       
       fetch('/payment/momo/create', {
         method: 'POST',
@@ -252,14 +336,76 @@
       .then(res => res.json())
       .then(data => {
         if (data.success) {
+          // Redirect to MoMo payment page
           window.location.href = data.payUrl;
         } else {
           alert('Lỗi tạo thanh toán MoMo: ' + data.message);
+          submitBtn.innerHTML = originalText;
+          submitBtn.disabled = false;
         }
       })
-      .catch(err => alert('Lỗi: ' + err.message));
+      .catch(err => {
+        alert('Lỗi: ' + err.message);
+        submitBtn.innerHTML = originalText;
+        submitBtn.disabled = false;
+      });
+    }
+
+    function payWithVNPay(campaignId, amount, message) {
+      // TODO: Implement VNPay payment
+      alert('Tính năng thanh toán VNPay đang được phát triển');
     }
     </script>
+
+    <style>
+    .payment-methods {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 12px;
+      margin: 16px 0 24px 0;
+    }
+
+    .payment-method-btn {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      padding: 16px 12px;
+      border: 2px solid #e2e8f0;
+      border-radius: 12px;
+      background: white;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-size: 14px;
+      font-weight: 500;
+      color: #475569;
+    }
+
+    .payment-method-btn:hover {
+      border-color: #10b981;
+      background: #f0fdf4;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.15);
+    }
+
+    .payment-method-btn.active {
+      border-color: #10b981;
+      background: #ecfdf5;
+      color: #10b981;
+    }
+
+    .payment-method-btn i {
+      font-size: 24px;
+    }
+
+    .payment-method-btn span {
+      font-size: 13px;
+    }
+
+    .payment-method-btn img {
+      object-fit: contain;
+    }
+    </style>
   </body>
 </html>
 
