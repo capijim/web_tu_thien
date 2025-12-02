@@ -268,93 +268,150 @@
         /*]]>*/
     </script>
 
-    <script>
-    let selectedPaymentMethod = 'direct';
+    <script th:inline="javascript">
+/*<![CDATA[*/
 
-    function selectPaymentMethod(method) {
-      selectedPaymentMethod = method;
-      
-      // Update button states
-      document.querySelectorAll('.payment-method-btn').forEach(btn => {
-        btn.classList.remove('active');
-      });
-      document.querySelector(`[data-method="${method}"]`).classList.add('active');
-      
-      // Update submit button text
-      const submitBtn = document.getElementById('donate-submit-btn');
-      switch(method) {
-        case 'momo':
-          submitBtn.innerHTML = '<img src="https://developers.momo.vn/v3/assets/images/square-logo.svg" style="height:18px;vertical-align:middle;margin-right:6px"> Thanh toán MoMo';
-          break;
-        case 'vnpay':
-          submitBtn.innerHTML = '<i class="fas fa-credit-card"></i> Thanh toán VNPay';
-          break;
-        default:
-          submitBtn.innerHTML = '<i class="fas fa-heart"></i> Ủng hộ ngay';
-      }
+let selectedPaymentMethod = 'direct';
+const currentCampaignId = /*[[${campaign.id}]]*/ null;
+
+function selectPaymentMethod(method) {
+  selectedPaymentMethod = method;
+  
+  // Update button states
+  document.querySelectorAll('.payment-method-btn').forEach(btn => {
+    btn.classList.remove('active');
+  });
+  const selectedBtn = document.querySelector(`[data-method="${method}"]`);
+  if (selectedBtn) {
+    selectedBtn.classList.add('active');
+  }
+  
+  // Update submit button text
+  const submitBtn = document.getElementById('donate-submit-btn');
+  if (submitBtn) {
+    switch(method) {
+      case 'momo':
+        submitBtn.innerHTML = '<img src="https://developers.momo.vn/v3/assets/images/square-logo.svg" style="height:18px;vertical-align:middle;margin-right:6px"> Thanh toán MoMo';
+        break;
+      case 'vnpay':
+        submitBtn.innerHTML = '<i class="fas fa-credit-card"></i> Thanh toán VNPay';
+        break;
+      default:
+        submitBtn.innerHTML = '<i class="fas fa-heart"></i> Ủng hộ ngay';
     }
+  }
+}
 
-    // Handle form submission based on selected payment method
-    document.getElementById('donate-form').addEventListener('submit', function(e) {
+// Handle form submission based on selected payment method
+document.addEventListener('DOMContentLoaded', function() {
+  const donateForm = document.getElementById('donate-form');
+  
+  if (donateForm) {
+    donateForm.addEventListener('submit', function(e) {
       e.preventDefault();
       
       const amount = document.getElementById('donateAmount').value;
-      const campaignId = document.getElementById('donate-campaign-id').value;
-      const message = document.getElementById('donateMessage').value;
+      const message = document.getElementById('donateMessage')?.value || '';
       
+      // Validation
       if (!amount || amount <= 0) {
         alert('Vui lòng nhập số tiền hợp lệ');
         return;
       }
       
+      if (!currentCampaignId) {
+        alert('Không tìm thấy thông tin chiến dịch');
+        return;
+      }
+      
+      console.log('Payment method:', selectedPaymentMethod);
+      console.log('Campaign ID:', currentCampaignId);
+      console.log('Amount:', amount);
+      
       if (selectedPaymentMethod === 'momo') {
-        payWithMoMo(campaignId, amount, message);
+        payWithMoMo(currentCampaignId, amount, message);
       } else if (selectedPaymentMethod === 'vnpay') {
-        payWithVNPay(campaignId, amount, message);
+        payWithVNPay(currentCampaignId, amount, message);
       } else {
         // Direct donation - submit form normally
-        this.submit();
+        const formData = new FormData();
+        formData.append('amount', amount);
+        formData.append('message', message);
+        
+        fetch(`/campaign/${currentCampaignId}/donate`, {
+          method: 'POST',
+          body: formData
+        })
+        .then(response => {
+          if (response.ok) {
+            window.location.reload();
+          } else {
+            alert('Có lỗi xảy ra. Vui lòng thử lại.');
+          }
+        })
+        .catch(err => {
+          console.error('Error:', err);
+          alert('Có lỗi xảy ra: ' + err.message);
+        });
       }
     });
+  }
+});
 
-    function payWithMoMo(campaignId, amount, message) {
-      const donorName = '[[${session.userName}]]' || 'Ẩn danh';
-      
-      // Show loading
-      const submitBtn = document.getElementById('donate-submit-btn');
-      const originalText = submitBtn.innerHTML;
-      submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang xử lý...';
-      submitBtn.disabled = true;
-      
-      fetch('/payment/momo/create', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        body: `campaignId=${campaignId}&amount=${amount}&donorName=${encodeURIComponent(donorName)}&message=${encodeURIComponent(message)}`
-      })
-      .then(res => res.json())
-      .then(data => {
-        if (data.success) {
-          // Redirect to MoMo payment page
-          window.location.href = data.payUrl;
-        } else {
-          alert('Lỗi tạo thanh toán MoMo: ' + data.message);
-          submitBtn.innerHTML = originalText;
-          submitBtn.disabled = false;
-        }
-      })
-      .catch(err => {
-        alert('Lỗi: ' + err.message);
-        submitBtn.innerHTML = originalText;
-        submitBtn.disabled = false;
-      });
+function payWithMoMo(campaignId, amount, message) {
+  if (!campaignId) {
+    alert('Lỗi: Không có thông tin chiến dịch');
+    return;
+  }
+  
+  const donorName = /*[[${session.userName}]]*/ 'Ẩn danh';
+  
+  // Show loading
+  const submitBtn = document.getElementById('donate-submit-btn');
+  const originalText = submitBtn.innerHTML;
+  submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang xử lý...';
+  submitBtn.disabled = true;
+  
+  console.log('Sending MoMo request:', { campaignId, amount, donorName, message });
+  
+  const formData = new URLSearchParams();
+  formData.append('campaignId', campaignId);
+  formData.append('amount', amount);
+  formData.append('donorName', donorName);
+  formData.append('message', message || '');
+  
+  fetch('/payment/momo/create', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+    },
+    body: formData.toString()
+  })
+  .then(res => res.json())
+  .then(data => {
+    console.log('MoMo response:', data);
+    if (data.success) {
+      // Redirect to MoMo payment page
+      window.location.href = data.payUrl;
+    } else {
+      alert('Lỗi tạo thanh toán MoMo: ' + (data.message || 'Không xác định'));
+      submitBtn.innerHTML = originalText;
+      submitBtn.disabled = false;
     }
+  })
+  .catch(err => {
+    console.error('MoMo error:', err);
+    alert('Lỗi kết nối: ' + err.message);
+    submitBtn.innerHTML = originalText;
+    submitBtn.disabled = false;
+  });
+}
 
-    function payWithVNPay(campaignId, amount, message) {
-      // TODO: Implement VNPay payment
-      alert('Tính năng thanh toán VNPay đang được phát triển');
-    }
+function payWithVNPay(campaignId, amount, message) {
+  alert('Tính năng thanh toán VNPay đang được phát triển');
+}
+
+/*]]>*/
     </script>
 
     <style>
