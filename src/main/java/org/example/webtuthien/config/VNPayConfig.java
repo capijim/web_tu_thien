@@ -18,9 +18,6 @@ public class VNPayConfig {
     @Value("${vnpay.return-url}")
     private String returnUrl;
     
-    @Value("${app.base-url}")
-    private String baseUrl;
-    
     @Value("${vnpay.version}")
     private String version;
     
@@ -40,15 +37,7 @@ public class VNPayConfig {
     }
     
     public String getReturnUrl() {
-        // If baseUrl is set and different from localhost, use it
-        if (baseUrl != null && !baseUrl.contains("localhost")) {
-            return baseUrl + "/vnpay/return";
-        }
         return returnUrl;
-    }
-    
-    public String getBaseUrl() {
-        return baseUrl;
     }
     
     public String getVersion() {

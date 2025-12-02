@@ -109,19 +109,4 @@ public class VNPayController {
         
         return "payment-result";
     }
-    
-    @GetMapping("/config")
-    @ResponseBody
-    public Map<String, Object> getConfig(HttpServletRequest request) {
-        Map<String, Object> config = new HashMap<>();
-        
-        config.put("baseUrl", vnPayConfig.getBaseUrl());
-        config.put("returnUrl", vnPayConfig.getReturnUrl());
-        config.put("tmnCode", vnPayConfig.getTmnCode());
-        config.put("vnpayUrl", vnPayConfig.getVnpayUrl());
-        config.put("serverUrl", request.getScheme() + "://" + request.getServerName() + 
-                   (request.getServerPort() != 80 && request.getServerPort() != 443 ? ":" + request.getServerPort() : ""));
-        
-        return config;
-    }
 }
