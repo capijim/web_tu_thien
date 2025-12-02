@@ -35,31 +35,54 @@ public class MoMoPaymentController {
     @ResponseBody
     public Map<String, Object> createPayment(
             @RequestParam Long campaignId,
-            @RequestParam Long amount,
+            @RequestParam Double amount,
             @RequestParam String donorName,
-            @RequestParam(required = false) String message) {
+            @RequestParam(required = false) String message,
+            HttpSession session) {
         
         Map<String, Object> response = new HashMap<>();
         
         try {
+            // Kiểm tra đăng nhập
+            Object userIdObj = session.getAttribute("userId");
+            if (userIdObj == null) {
+                response.put("success", false);
+                response.put("message", "Bạn cần đăng nhập để quyên góp");
+                return response;
+            }
+            
+            // Tạo order ID unique
             String orderId = "DONATE_" + System.currentTimeMillis();
-            String orderInfo = "Ủng hộ chiến dịch #" + campaignId;
+            String orderInfo = "Ung ho chien dich #" + campaignId;
             String extraData = campaignId + "|" + donorName + "|" + (message != null ? message : "");
             
-            logger.info("Creating MoMo payment: orderId={}, amount={}, campaignId={}", orderId, amount, campaignId);
+            logger.info("Creating MoMo payment: orderId={}, amount={}, campaignId={}", orderId, amount.longValue(), campaignId);
             
-            Map<String, Object> momoResponse = momoService.createPayment(orderId, amount, orderInfo, extraData);
+            // Gọi MoMo API thật qua MoMoPaymentService
+            Map<String, Object> momoResponse = momoService.createPayment(
+                orderId, 
+                amount.longValue(), 
+                orderInfo, 
+                extraData
+            );
             
-            if ("0".equals(String.valueOf(momoResponse.get("resultCode")))) {
+            logger.info("MoMo API response: {}", momoResponse);
+            
+            // Kiểm tra response từ MoMo
+            Integer resultCode = (Integer) momoResponse.get("resultCode");
+            if (resultCode != null && resultCode == 0) {
                 response.put("success", true);
                 response.put("payUrl", momoResponse.get("payUrl"));
                 response.put("orderId", orderId);
+                logger.info("MoMo payment URL created successfully: {}", momoResponse.get("payUrl"));
             } else {
                 response.put("success", false);
-                response.put("message", momoResponse.get("message"));
+                response.put("message", "MoMo error: " + momoResponse.get("message"));
+                logger.error("MoMo API returned error: {}", momoResponse);
             }
             
             return response;
+            
         } catch (Exception e) {
             logger.error("Error creating MoMo payment", e);
             response.put("success", false);
@@ -138,58 +161,6 @@ public class MoMoPaymentController {
             response.put("message", e.getMessage());
             return response;
         }
-    }
-    
-    @PostMapping("/create-atm")
-    @ResponseBody
-    public Map<String, Object> createATMPayment(
-            @RequestParam Long campaignId,
-            @RequestParam Double amount,
-            @RequestParam String donorName,
-            @RequestParam(required = false) String message,
-            HttpSession session) {
-        
-        Map<String, Object> response = new HashMap<>();
-        
-        try {
-            System.out.println("=== MoMo ATM Payment Request ===");
-            System.out.println("Campaign ID: " + campaignId);
-            System.out.println("Amount: " + amount);
-            System.out.println("Donor: " + donorName);
-            
-            // Kiểm tra đăng nhập
-            Object userIdObj = session.getAttribute("userId");
-            if (userIdObj == null) {
-                response.put("success", false);
-                response.put("message", "Bạn cần đăng nhập để quyên góp");
-                return response;
-            }
-            
-            // TODO: Implement MoMo ATM payment gateway
-            // Tạo request đến MoMo với paymentMethod = "ATM"
-            // Endpoint: /v2/gateway/api/create
-            // Tham số: paymentMethod = "ATM"
-            
-            // Demo: redirect đến MoMo payment gateway
-            String payUrl = "https://test-payment.momo.vn/gw_payment/payment.html" +
-                           "?partnerCode=DEMO" +
-                           "&orderId=DONATE" + System.currentTimeMillis() +
-                           "&amount=" + amount.longValue() +
-                           "&orderInfo=Donate_Campaign_" + campaignId +
-                           "&paymentMethod=ATM";
-            
-            response.put("success", true);
-            response.put("payUrl", payUrl);
-            response.put("message", "Đang chuyển đến trang thanh toán MoMo...");
-            
-        } catch (Exception e) {
-            System.err.println("Error creating ATM payment: " + e.getMessage());
-            e.printStackTrace();
-            response.put("success", false);
-            response.put("message", "Lỗi: " + e.getMessage());
-        }
-        
-        return response;
     }
     
     @PostMapping("/create-phone")

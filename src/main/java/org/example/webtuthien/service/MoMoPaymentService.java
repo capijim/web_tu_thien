@@ -45,13 +45,16 @@ public class MoMoPaymentService {
             String requestId = orderId;
             String requestType = "captureWallet";
             
-            // Create raw signature
+            // QUAN TRỌNG: Sắp xếp params theo alphabet để tạo signature
             String rawSignature = String.format(
                 "accessKey=%s&amount=%d&extraData=%s&ipnUrl=%s&orderId=%s&orderInfo=%s&partnerCode=%s&redirectUrl=%s&requestId=%s&requestType=%s",
                 accessKey, amount, extraData, ipnUrl, orderId, orderInfo, partnerCode, redirectUrl, requestId, requestType
             );
             
+            logger.info("Raw signature: {}", rawSignature);
+            
             String signature = hmacSHA256(rawSignature, secretKey);
+            logger.info("Signature: {}", signature);
             
             // Build request body
             Map<String, Object> requestBody = new HashMap<>();
@@ -68,12 +71,14 @@ public class MoMoPaymentService {
             requestBody.put("signature", signature);
             requestBody.put("lang", "vi");
             
+            logger.info("Sending request to MoMo: {}", endpoint);
+            logger.info("Request body: {}", requestBody);
+            
             // Send request
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
             HttpEntity<Map<String, Object>> entity = new HttpEntity<>(requestBody, headers);
             
-            logger.info("Sending MoMo payment request for order: {}", orderId);
             Map<String, Object> response = restTemplate.postForObject(endpoint, entity, Map.class);
             logger.info("MoMo response: {}", response);
             
