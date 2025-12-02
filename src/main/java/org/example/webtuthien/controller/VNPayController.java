@@ -103,8 +103,8 @@ public class VNPayController {
         model.addAttribute("success", result.get("success"));
         model.addAttribute("message", result.get("message"));
         
-        if (result.containsKey("donationId")) {
-            model.addAttribute("donationId", result.get("donationId"));
+        if (result.containsKey("campaignId")) {
+            model.addAttribute("campaignId", result.get("campaignId"));
         }
         
         return "payment-result";

@@ -1,98 +1,172 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Kết quả thanh toán</title>
-    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" th:href="@{/css/style.css}" />
+    <link rel="stylesheet" th:href="@{/css/pages.css}" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        .payment-result-container {
-            max-width: 600px;
-            margin: 100px auto;
-            padding: 30px;
-            text-align: center;
-            background: white;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-        
-        .success-icon {
-            font-size: 64px;
-            color: #28a745;
-            margin-bottom: 20px;
-        }
-        
-        .error-icon {
-            font-size: 64px;
-            color: #dc3545;
-            margin-bottom: 20px;
-        }
-        
-        .result-title {
-            font-size: 24px;
-            font-weight: bold;
-            margin-bottom: 15px;
-        }
-        
-        .result-message {
-            font-size: 16px;
-            color: #666;
-            margin-bottom: 30px;
-        }
-        
-        .btn {
-            display: inline-block;
-            padding: 12px 30px;
-            margin: 5px;
-            background: #007bff;
-            color: white;
-            text-decoration: none;
-            border-radius: 5px;
-            transition: background 0.3s;
-        }
-        
-        .btn:hover {
-            background: #0056b3;
-        }
-        
-        .btn-secondary {
-            background: #6c757d;
-        }
-        
-        .btn-secondary:hover {
-            background: #545b62;
-        }
-        
-        .test-mode-badge {
-            display: inline-block;
-            background: #ff9800;
-            color: white;
-            padding: 5px 10px;
-            border-radius: 3px;
-            font-size: 12px;
-            margin-bottom: 10px;
-        }
+      .result-container {
+        max-width: 600px;
+        margin: 60px auto;
+        padding: 40px;
+        text-align: center;
+      }
+      
+      .result-icon {
+        font-size: 80px;
+        margin-bottom: 24px;
+      }
+      
+      .result-icon.success {
+        color: #10b981;
+      }
+      
+      .result-icon.error {
+        color: #ef4444;
+      }
+      
+      .result-title {
+        font-size: 28px;
+        font-weight: bold;
+        margin-bottom: 16px;
+        color: #1f2937;
+      }
+      
+      .result-message {
+        font-size: 16px;
+        color: #6b7280;
+        margin-bottom: 32px;
+        line-height: 1.6;
+      }
+      
+      .result-actions {
+        display: flex;
+        gap: 16px;
+        justify-content: center;
+        flex-wrap: wrap;
+      }
+      
+      .btn {
+        padding: 12px 24px;
+        border-radius: 8px;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        display: inline-block;
+      }
+      
+      .btn-primary {
+        background: #10b981;
+        color: white;
+      }
+      
+      .btn-primary:hover {
+        background: #059669;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+      }
+      
+      .btn-secondary {
+        background: #f3f4f6;
+        color: #374151;
+      }
+      
+      .btn-secondary:hover {
+        background: #e5e7eb;
+      }
+      
+      .countdown {
+        margin-top: 24px;
+        font-size: 14px;
+        color: #9ca3af;
+      }
     </style>
-</head>
-<body>
-    <div class="payment-result-container">
+  </head>
+  <body>
+    <div th:replace="~{components/headbar :: headbar}"></div>
+
+    <main class="container">
+      <div class="result-container">
+        <!-- Success Result -->
         <div th:if="${success}">
-            <div class="test-mode-badge">TEST MODE - Chưa lưu vào database</div>
-            <div class="success-icon">✓</div>
-            <h1 class="result-title">Thanh toán thành công!</h1>
-            <p class="result-message" th:text="${message}"></p>
-            <a th:href="@{/campaigns}" class="btn">Xem các chiến dịch khác</a>
-            <a th:href="@{/}" class="btn btn-secondary">Về trang chủ</a>
+          <div class="result-icon success">
+            <i class="fas fa-check-circle"></i>
+          </div>
+          <h1 class="result-title">Cảm ơn bạn đã ủng hộ!</h1>
+          <p class="result-message" th:text="${message}">
+            Khoản ủng hộ của bạn đã được xử lý thành công. 
+            Cảm ơn bạn đã đồng hành cùng chúng tôi trong hành trình làm từ thiện.
+          </p>
+          
+          <div class="result-actions">
+            <a th:href="@{/campaigns}" class="btn btn-primary">
+              <i class="fas fa-heart"></i> Xem các chiến dịch khác
+            </a>
+            <a th:href="@{/}" class="btn btn-secondary">
+              <i class="fas fa-home"></i> Về trang chủ
+            </a>
+          </div>
+          
+          <p class="countdown">
+            Tự động chuyển về trang chiến dịch sau <span id="countdown">5</span> giây...
+          </p>
         </div>
+
+        <!-- Error Result -->
+        <div th:if="${!success}">
+          <div class="result-icon error">
+            <i class="fas fa-times-circle"></i>
+          </div>
+          <h1 class="result-title">Thanh toán không thành công</h1>
+          <p class="result-message" th:text="${message}">
+            Đã có lỗi xảy ra trong quá trình thanh toán. Vui lòng thử lại.
+          </p>
+          
+          <div class="result-actions">
+            <a th:href="@{/campaigns}" class="btn btn-primary">
+              <i class="fas fa-redo"></i> Thử lại
+            </a>
+            <a th:href="@{/}" class="btn btn-secondary">
+              <i class="fas fa-home"></i> Về trang chủ
+            </a>
+          </div>
+          
+          <p class="countdown">
+            Tự động chuyển về trang chiến dịch sau <span id="countdown">5</span> giây...
+          </p>
+        </div>
+      </div>
+    </main>
+
+    <script th:src="@{/js/headbar.js}"></script>
+    <script th:inline="javascript">
+      /*<![CDATA[*/
+      const campaignId = /*[[${campaignId}]]*/ null;
+      const success = /*[[${success}]]*/ false;
+      
+      // Countdown and redirect
+      let countdown = 5;
+      const countdownElement = document.getElementById('countdown');
+      
+      const interval = setInterval(() => {
+        countdown--;
+        if (countdownElement) {
+          countdownElement.textContent = countdown;
+        }
         
-        <div th:unless="${success}">
-            <div class="test-mode-badge">TEST MODE - Chưa lưu vào database</div>
-            <div class="error-icon">✗</div>
-            <h1 class="result-title">Thanh toán thất bại!</h1>
-            <p class="result-message" th:text="${message}"></p>
-            <a href="javascript:history.back()" class="btn">Thử lại</a>
-            <a th:href="@{/}" class="btn btn-secondary">Về trang chủ</a>
-        </div>
-    </div>
-</body>
+        if (countdown <= 0) {
+          clearInterval(interval);
+          if (campaignId) {
+            window.location.href = '/campaign/' + campaignId;
+          } else {
+            window.location.href = '/campaigns';
+          }
+        }
+      }, 1000);
+      /*]]>*/
+    </script>
+  </body>
 </html>
