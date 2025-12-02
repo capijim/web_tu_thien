@@ -92,46 +92,94 @@ public class MoMoPaymentController {
     }
     
     @GetMapping("/callback")
-    public String handleCallback(@RequestParam Map<String, String> params, RedirectAttributes redirectAttributes) {
+    public String handleCallback(@RequestParam Map<String, String> params, 
+                                 org.springframework.ui.Model model) {
         try {
-            logger.info("MoMo callback received: {}", params);
+            logger.info("=== MoMo Callback Received ===");
+            logger.info("All params: {}", params);
             
-            boolean isValid = momoService.verifySignature(params);
+            String orderId = params.get("orderId");
             String resultCode = params.get("resultCode");
+            String message = params.get("message");
+            String extraData = params.get("extraData");
+            String amountStr = params.get("amount");
+            String payType = params.get("payType");
+            
+            logger.info("Order ID: {}", orderId);
+            logger.info("Result Code: {}", resultCode);
+            
+            // Verify signature
+            boolean isValid = momoService.verifySignature(params);
+            logger.info("Signature valid: {}", isValid);
             
             if (isValid && "0".equals(resultCode)) {
                 // Payment successful
-                String extraData = params.get("extraData");
-                String[] parts = extraData.split("\\|");
-                Long campaignId = Long.parseLong(parts[0]);
-                String donorName = parts[1];
-                String message = parts.length > 2 ? parts[2] : "";
-                Long amount = Long.parseLong(params.get("amount"));
-                
-                // Create donation record
-                Donation donation = new Donation();
-                donation.setCampaignId(campaignId);
-                donation.setDonorName(donorName);
-                donation.setAmount(new BigDecimal(amount));
-                donation.setMessage(message);
-                donationService.create(donation);
-                
-                // Update campaign amount
-                campaignService.updateCurrentAmount(campaignId, new BigDecimal(amount));
-                
-                redirectAttributes.addFlashAttribute("success", "Thanh toán MoMo thành công! Cảm ơn bạn đã quyên góp.");
-                return "redirect:/campaign/" + campaignId;
+                try {
+                    String[] parts = extraData.split("\\|");
+                    Long campaignId = Long.parseLong(parts[0]);
+                    String donorName = parts.length > 1 ? parts[1] : "Ẩn danh";
+                    String donationMessage = parts.length > 2 ? parts[2] : "";
+                    String paymentMethod = parts.length > 3 ? parts[3] : "";
+                    
+                    Long amount = Long.parseLong(amountStr);
+                    
+                    logger.info("Creating donation - Campaign: {}, Donor: {}, Amount: {}", 
+                               campaignId, donorName, amount);
+                    
+                    // Create donation record
+                    Donation donation = new Donation();
+                    donation.setCampaignId(campaignId);
+                    donation.setDonorName(donorName);
+                    donation.setAmount(new BigDecimal(amount));
+                    donation.setMessage(donationMessage);
+                    
+                    Donation savedDonation = donationService.create(donation);
+                    logger.info("Donation created with ID: {}", savedDonation.getId());
+                    
+                    // Update campaign amount
+                    campaignService.updateCurrentAmount(campaignId, new BigDecimal(amount));
+                    logger.info("Campaign {} updated successfully", campaignId);
+                    
+                    // Redirect to thank you page
+                    model.addAttribute("success", true);
+                    model.addAttribute("message", "Khoản đóng góp của bạn đã được xử lý thành công. Cảm ơn bạn đã đồng hành cùng chúng tôi!");
+                    model.addAttribute("campaignId", campaignId);
+                    model.addAttribute("amount", amount);
+                    model.addAttribute("orderId", orderId);
+                    model.addAttribute("paymentMethod", "MoMo " + ("ATM".equals(paymentMethod) ? "ATM" : "QR"));
+                    
+                    return "payment-result";
+                    
+                } catch (Exception e) {
+                    logger.error("Error processing successful payment", e);
+                    model.addAttribute("success", false);
+                    model.addAttribute("message", "Thanh toán thành công nhưng có lỗi khi lưu dữ liệu. Vui lòng liên hệ admin với mã giao dịch: " + orderId);
+                    return "payment-result";
+                }
             } else {
-                redirectAttributes.addFlashAttribute("error", "Thanh toán MoMo thất bại: " + params.get("message"));
-                String extraData = params.get("extraData");
-                String[] parts = extraData.split("\\|");
-                Long campaignId = Long.parseLong(parts[0]);
-                return "redirect:/campaign/" + campaignId;
+                // Payment failed
+                logger.warn("Payment failed - Result code: {}, Message: {}", resultCode, message);
+                
+                Long campaignId = null;
+                try {
+                    String[] parts = extraData.split("\\|");
+                    campaignId = Long.parseLong(parts[0]);
+                } catch (Exception e) {
+                    logger.error("Cannot parse campaignId from extraData", e);
+                }
+                
+                model.addAttribute("success", false);
+                model.addAttribute("message", "Thanh toán thất bại: " + message);
+                model.addAttribute("campaignId", campaignId);
+                model.addAttribute("orderId", orderId);
+                
+                return "payment-result";
             }
         } catch (Exception e) {
             logger.error("Error processing MoMo callback", e);
-            redirectAttributes.addFlashAttribute("error", "Lỗi xử lý callback: " + e.getMessage());
-            return "redirect:/campaigns";
+            model.addAttribute("success", false);
+            model.addAttribute("message", "Lỗi xử lý kết quả thanh toán: " + e.getMessage());
+            return "payment-result";
         }
     }
     

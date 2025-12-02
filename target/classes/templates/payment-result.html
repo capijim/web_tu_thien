@@ -7,136 +7,111 @@
     <link rel="stylesheet" th:href="@{/css/style.css}" />
     <link rel="stylesheet" th:href="@{/css/pages.css}" />
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <style>
-      .result-container {
-        max-width: 600px;
-        margin: 60px auto;
-        padding: 40px;
-        text-align: center;
-      }
-      
-      .result-icon {
-        font-size: 80px;
-        margin-bottom: 24px;
-      }
-      
-      .result-icon.success {
-        color: #10b981;
-      }
-      
-      .result-icon.error {
-        color: #ef4444;
-      }
-      
-      .result-title {
-        font-size: 28px;
-        font-weight: bold;
-        margin-bottom: 16px;
-        color: #1f2937;
-      }
-      
-      .result-message {
-        font-size: 16px;
-        color: #6b7280;
-        margin-bottom: 32px;
-        line-height: 1.6;
-      }
-      
-      .result-actions {
-        display: flex;
-        gap: 16px;
-        justify-content: center;
-        flex-wrap: wrap;
-      }
-      
-      .btn {
-        padding: 12px 24px;
-        border-radius: 8px;
-        font-weight: 600;
-        text-decoration: none;
-        transition: all 0.3s ease;
-        display: inline-block;
-      }
-      
-      .btn-primary {
-        background: #10b981;
-        color: white;
-      }
-      
-      .btn-primary:hover {
-        background: #059669;
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
-      }
-      
-      .btn-secondary {
-        background: #f3f4f6;
-        color: #374151;
-      }
-      
-      .btn-secondary:hover {
-        background: #e5e7eb;
-      }
-      
-      .countdown {
-        margin-top: 24px;
-        font-size: 14px;
-        color: #9ca3af;
-      }
-    </style>
   </head>
   <body>
     <div th:replace="~{components/headbar :: headbar}"></div>
 
-    <main class="container">
-      <div class="result-container">
-        <!-- Success Result -->
-        <div th:if="${success}">
-          <div class="result-icon success">
+    <main class="container" style="max-width: 700px; margin: 60px auto; padding: 40px 20px;">
+      <!-- Success Result -->
+      <div th:if="${success}" class="result-container success-result">
+        <div class="result-icon-wrapper">
+          <div class="result-icon success-icon">
             <i class="fas fa-check-circle"></i>
           </div>
-          <h1 class="result-title">Cảm ơn bạn đã ủng hộ!</h1>
-          <p class="result-message" th:text="${message}">
-            Khoản ủng hộ của bạn đã được xử lý thành công. 
-            Cảm ơn bạn đã đồng hành cùng chúng tôi trong hành trình làm từ thiện.
-          </p>
-          
-          <div class="result-actions">
-            <a th:href="@{/campaigns}" class="btn btn-primary">
-              <i class="fas fa-heart"></i> Xem các chiến dịch khác
-            </a>
-            <a th:href="@{/}" class="btn btn-secondary">
-              <i class="fas fa-home"></i> Về trang chủ
-            </a>
+          <div class="success-particles">
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
           </div>
-          
-          <p class="countdown">
-            Tự động chuyển về trang chiến dịch sau <span id="countdown">5</span> giây...
+        </div>
+        
+        <h1 class="result-title">🎉 Cảm ơn bạn rất nhiều!</h1>
+        
+        <div class="result-message-box">
+          <p class="result-message" th:text="${message}">
+            Khoản đóng góp của bạn đã được xử lý thành công.
           </p>
         </div>
 
-        <!-- Error Result -->
-        <div th:if="${!success}">
-          <div class="result-icon error">
+        <div class="donation-summary" th:if="${amount != null}">
+          <div class="summary-item">
+            <span class="summary-label">Số tiền đã ủng hộ</span>
+            <span class="summary-value" th:text="${#numbers.formatDecimal(amount, 0, 'COMMA', 0, 'POINT')} + ' đ'">0 đ</span>
+          </div>
+          <div class="summary-item" th:if="${paymentMethod != null}">
+            <span class="summary-label">Phương thức</span>
+            <span class="summary-value" th:text="${paymentMethod}">MoMo ATM</span>
+          </div>
+          <div class="summary-item" th:if="${orderId != null}">
+            <span class="summary-label">Mã giao dịch</span>
+            <span class="summary-value code" th:text="${orderId}">ORDER123</span>
+          </div>
+        </div>
+
+        <div class="thank-you-note">
+          <i class="fas fa-heart"></i>
+          <p>Lòng tốt của bạn sẽ tạo nên sự khác biệt lớn lao trong cuộc sống của những người cần giúp đỡ. Chúng tôi vô cùng biết ơn sự đóng góp của bạn!</p>
+        </div>
+
+        <div class="result-actions">
+          <a th:href="@{/campaign/{id}(id=${campaignId})}" class="btn btn-primary" th:if="${campaignId != null}">
+            <i class="fas fa-arrow-left"></i>
+            Quay lại chiến dịch
+          </a>
+          <a th:href="@{/campaigns}" class="btn btn-secondary">
+            <i class="fas fa-th-large"></i>
+            Xem các chiến dịch khác
+          </a>
+        </div>
+
+        <div class="countdown-box">
+          <i class="fas fa-clock"></i>
+          <span>Tự động chuyển về chiến dịch sau <strong id="countdown">5</strong> giây...</span>
+        </div>
+      </div>
+
+      <!-- Error Result -->
+      <div th:if="${!success}" class="result-container error-result">
+        <div class="result-icon-wrapper">
+          <div class="result-icon error-icon">
             <i class="fas fa-times-circle"></i>
           </div>
-          <h1 class="result-title">Thanh toán không thành công</h1>
+        </div>
+        
+        <h1 class="result-title">Thanh toán không thành công</h1>
+        
+        <div class="result-message-box error">
           <p class="result-message" th:text="${message}">
-            Đã có lỗi xảy ra trong quá trình thanh toán. Vui lòng thử lại.
+            Đã có lỗi xảy ra trong quá trình thanh toán.
           </p>
-          
-          <div class="result-actions">
-            <a th:href="@{/campaigns}" class="btn btn-primary">
-              <i class="fas fa-redo"></i> Thử lại
-            </a>
-            <a th:href="@{/}" class="btn btn-secondary">
-              <i class="fas fa-home"></i> Về trang chủ
-            </a>
-          </div>
-          
-          <p class="countdown">
-            Tự động chuyển về trang chiến dịch sau <span id="countdown">5</span> giây...
-          </p>
+        </div>
+
+        <div class="error-help">
+          <p><strong>Bạn có thể:</strong></p>
+          <ul>
+            <li>Kiểm tra lại thông tin tài khoản/thẻ</li>
+            <li>Đảm bảo tài khoản có đủ số dư</li>
+            <li>Thử lại với phương thức thanh toán khác</li>
+            <li>Liên hệ hotline: <strong>1900 xxxx</strong> nếu cần hỗ trợ</li>
+          </ul>
+        </div>
+
+        <div class="result-actions">
+          <a th:href="@{/campaign/{id}(id=${campaignId})}" class="btn btn-primary" th:if="${campaignId != null}">
+            <i class="fas fa-redo"></i>
+            Thử lại
+          </a>
+          <a th:href="@{/campaigns}" class="btn btn-secondary">
+            <i class="fas fa-home"></i>
+            Về trang chủ
+          </a>
+        </div>
+
+        <div class="countdown-box">
+          <i class="fas fa-clock"></i>
+          <span>Tự động chuyển về chiến dịch sau <strong id="countdown">5</strong> giây...</span>
         </div>
       </div>
     </main>
@@ -168,5 +143,266 @@
       }, 1000);
       /*]]>*/
     </script>
+
+    <style>
+      .result-container {
+        text-align: center;
+        padding: 40px 20px;
+        animation: fadeIn 0.5s ease;
+      }
+
+      @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+
+      .result-icon-wrapper {
+        position: relative;
+        display: inline-block;
+        margin-bottom: 30px;
+      }
+
+      .result-icon {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto;
+        animation: scaleIn 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+      }
+
+      @keyframes scaleIn {
+        0% { transform: scale(0) rotate(-180deg); }
+        100% { transform: scale(1) rotate(0deg); }
+      }
+
+      .success-icon {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      }
+
+      .error-icon {
+        background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+      }
+
+      .result-icon i {
+        font-size: 60px;
+        color: white;
+      }
+
+      .success-particles span {
+        position: absolute;
+        width: 10px;
+        height: 10px;
+        background: #10b981;
+        border-radius: 50%;
+        animation: particle 1.5s ease-out forwards;
+      }
+
+      .success-particles span:nth-child(1) { top: 0; left: 50%; animation-delay: 0.1s; }
+      .success-particles span:nth-child(2) { top: 25%; right: 10%; animation-delay: 0.2s; }
+      .success-particles span:nth-child(3) { bottom: 25%; right: 10%; animation-delay: 0.3s; }
+      .success-particles span:nth-child(4) { bottom: 0; left: 50%; animation-delay: 0.4s; }
+      .success-particles span:nth-child(5) { top: 25%; left: 10%; animation-delay: 0.5s; }
+
+      @keyframes particle {
+        0% { transform: translate(0, 0) scale(1); opacity: 1; }
+        100% { transform: translate(var(--x, 50px), var(--y, -50px)) scale(0); opacity: 0; }
+      }
+
+      .result-title {
+        font-size: 32px;
+        font-weight: 800;
+        color: #1f2937;
+        margin: 0 0 20px 0;
+      }
+
+      .result-message-box {
+        background: #f0fdf4;
+        border: 2px solid #bbf7d0;
+        border-radius: 16px;
+        padding: 24px;
+        margin: 0 0 30px 0;
+      }
+
+      .result-message-box.error {
+        background: #fef2f2;
+        border-color: #fecaca;
+      }
+
+      .result-message {
+        font-size: 18px;
+        color: #374151;
+        line-height: 1.6;
+        margin: 0;
+      }
+
+      .donation-summary {
+        background: white;
+        border: 2px solid #e5e7eb;
+        border-radius: 16px;
+        padding: 24px;
+        margin: 0 0 30px 0;
+      }
+
+      .summary-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 12px 0;
+        border-bottom: 1px solid #f3f4f6;
+      }
+
+      .summary-item:last-child {
+        border-bottom: none;
+      }
+
+      .summary-label {
+        font-size: 14px;
+        color: #6b7280;
+        font-weight: 600;
+      }
+
+      .summary-value {
+        font-size: 18px;
+        color: #1f2937;
+        font-weight: 700;
+      }
+
+      .summary-value.code {
+        font-family: monospace;
+        background: #f3f4f6;
+        padding: 4px 12px;
+        border-radius: 6px;
+        font-size: 14px;
+      }
+
+      .thank-you-note {
+        background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+        border: 2px solid #fbbf24;
+        border-radius: 16px;
+        padding: 24px;
+        margin: 0 0 30px 0;
+        text-align: left;
+      }
+
+      .thank-you-note i {
+        font-size: 24px;
+        color: #f59e0b;
+        margin-bottom: 12px;
+      }
+
+      .thank-you-note p {
+        margin: 0;
+        color: #78350f;
+        font-size: 15px;
+        line-height: 1.7;
+      }
+
+      .error-help {
+        background: #f9fafb;
+        border-radius: 12px;
+        padding: 20px;
+        margin: 0 0 30px 0;
+        text-align: left;
+      }
+
+      .error-help ul {
+        margin: 12px 0 0 0;
+        padding-left: 20px;
+      }
+
+      .error-help li {
+        margin: 8px 0;
+        color: #4b5563;
+      }
+
+      .result-actions {
+        display: flex;
+        gap: 12px;
+        justify-content: center;
+        flex-wrap: wrap;
+        margin-bottom: 30px;
+      }
+
+      .btn {
+        padding: 14px 32px;
+        border-radius: 12px;
+        font-size: 16px;
+        font-weight: 600;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.3s ease;
+      }
+
+      .btn-primary {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        color: white;
+        box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+      }
+
+      .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+      }
+
+      .btn-secondary {
+        background: white;
+        color: #374151;
+        border: 2px solid #e5e7eb;
+      }
+
+      .btn-secondary:hover {
+        background: #f9fafb;
+        border-color: #d1d5db;
+      }
+
+      .countdown-box {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        font-size: 14px;
+        color: #6b7280;
+        margin-top: 20px;
+      }
+
+      .countdown-box i {
+        color: #10b981;
+      }
+
+      .countdown-box strong {
+        color: #10b981;
+        font-size: 18px;
+      }
+
+      @media (max-width: 640px) {
+        .result-title {
+          font-size: 24px;
+        }
+
+        .result-icon {
+          width: 100px;
+          height: 100px;
+        }
+
+        .result-icon i {
+          font-size: 50px;
+        }
+
+        .result-actions {
+          flex-direction: column;
+        }
+
+        .btn {
+          width: 100%;
+          justify-content: center;
+        }
+      }
+    </style>
   </body>
 </html>

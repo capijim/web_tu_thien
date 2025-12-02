@@ -14,6 +14,7 @@ import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.TreeMap;
 
 @Service
 public class MoMoPaymentService {
@@ -147,26 +148,38 @@ public class MoMoPaymentService {
     public boolean verifySignature(Map<String, String> params) {
         try {
             String signature = params.get("signature");
+            if (signature == null) {
+                logger.error("Signature is null");
+                return false;
+            }
             
-            String rawSignature = String.format(
-                "accessKey=%s&amount=%s&extraData=%s&message=%s&orderId=%s&orderInfo=%s&orderType=%s&partnerCode=%s&payType=%s&requestId=%s&responseTime=%s&resultCode=%s&transId=%s",
-                accessKey,
-                params.get("amount"),
-                params.get("extraData"),
-                params.get("message"),
-                params.get("orderId"),
-                params.get("orderInfo"),
-                params.get("orderType"),
-                params.get("partnerCode"),
-                params.get("payType"),
-                params.get("requestId"),
-                params.get("responseTime"),
-                params.get("resultCode"),
-                params.get("transId")
-            );
+            // Build raw signature từ callback params
+            // QUAN TRỌNG: Phải sort theo alphabet và loại bỏ signature
+            Map<String, String> sortedParams = new TreeMap<>(params);
+            sortedParams.remove("signature");
             
-            String calculatedSignature = hmacSHA256(rawSignature, secretKey);
-            return calculatedSignature.equals(signature);
+            StringBuilder rawSignature = new StringBuilder();
+            boolean isFirst = true;
+            
+            for (Map.Entry<String, String> entry : sortedParams.entrySet()) {
+                if (!isFirst) {
+                    rawSignature.append("&");
+                }
+                rawSignature.append(entry.getKey()).append("=").append(entry.getValue());
+                isFirst = false;
+            }
+            
+            logger.info("Raw signature for verification: {}", rawSignature.toString());
+            
+            String calculatedSignature = hmacSHA256(rawSignature.toString(), secretKey);
+            logger.info("Calculated signature: {}", calculatedSignature);
+            logger.info("Received signature: {}", signature);
+            
+            boolean isValid = calculatedSignature.equals(signature);
+            logger.info("Signature verification result: {}", isValid);
+            
+            return isValid;
+            
         } catch (Exception e) {
             logger.error("Error verifying signature", e);
             return false;

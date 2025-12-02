@@ -1,14 +1,16 @@
 package org.example.webtuthien.controller;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 import org.example.webtuthien.model.Donation;
 import org.example.webtuthien.service.DonationService;
 import org.example.webtuthien.service.VNPayService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpSession;
 import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
@@ -16,6 +18,8 @@ import java.util.Map;
 @Controller
 @RequestMapping("/vnpay")
 public class VNPayController {
+    
+    private static final Logger logger = LoggerFactory.getLogger(VNPayController.class);
     
     private final VNPayService vnPayService;
     private final DonationService donationService;
@@ -27,19 +31,15 @@ public class VNPayController {
     
     @PostMapping("/create-payment")
     @ResponseBody
-    public Map<String, Object> createPayment(@RequestBody Donation donation, 
-                                              HttpServletRequest request,
-                                              HttpSession session) {
+    public Map<String, Object> createPayment(
+            @RequestBody Map<String, Object> paymentRequest,
+            HttpSession session,
+            HttpServletRequest request) {
+        
         Map<String, Object> response = new HashMap<>();
         
         try {
-            System.out.println("=== VNPay Payment Request (TEST MODE) ===");
-            System.out.println("Campaign ID: " + donation.getCampaignId());
-            System.out.println("Donor Name: " + donation.getDonorName());
-            System.out.println("Amount: " + donation.getAmount());
-            System.out.println("Message: " + donation.getMessage());
-            
-            // Kiểm tra đăng nhập
+            // Check authentication
             Object userIdObj = session.getAttribute("userId");
             if (userIdObj == null) {
                 response.put("success", false);
@@ -47,66 +47,79 @@ public class VNPayController {
                 return response;
             }
             
-            // Validate input
-            if (donation.getCampaignId() == null) {
-                response.put("success", false);
-                response.put("message", "Campaign ID is required");
-                return response;
-            }
+            Long campaignId = ((Number) paymentRequest.get("campaignId")).longValue();
+            Double amount = ((Number) paymentRequest.get("amount")).doubleValue();
+            String donorName = (String) paymentRequest.get("donorName");
+            String message = (String) paymentRequest.get("message");
             
-            if (donation.getAmount() == null || donation.getAmount().compareTo(java.math.BigDecimal.ZERO) <= 0) {
-                response.put("success", false);
-                response.put("message", "Amount must be greater than 0");
-                return response;
-            }
+            logger.info("Creating VNPay payment - Campaign: {}, Amount: {}, Donor: {}", 
+                       campaignId, amount, donorName);
             
-            // Tạo donation trước và lưu vào DB
-            System.out.println("Creating donation...");
-            Donation createdDonation = donationService.create(donation);
-            System.out.println("Donation created with ID: " + createdDonation.getId());
+            // Create donation record with PENDING status
+            Donation donation = new Donation();
+            donation.setCampaignId(campaignId);
+            donation.setDonorName(donorName);
+            donation.setAmount(BigDecimal.valueOf(amount));
+            donation.setMessage(message);
             
-            // Kiểm tra donation đã có ID
-            if (createdDonation.getId() == null) {
-                response.put("success", false);
-                response.put("message", "Lỗi: Không thể tạo donation");
-                return response;
-            }
+            Donation savedDonation = donationService.create(donation);
+            logger.info("Donation created with ID: {}", savedDonation.getId());
             
-            // Tạo URL thanh toán VNPay (không lưu payment vào DB)
-            System.out.println("Creating VNPay payment URL (TEST MODE - no DB save)...");
-            String paymentUrl = vnPayService.createPaymentUrl(createdDonation, request);
-            System.out.println("Payment URL created successfully");
-            System.out.println("URL: " + paymentUrl);
+            // Create VNPay payment URL
+            String paymentUrl = vnPayService.createPaymentUrl(savedDonation, request);
             
             response.put("success", true);
             response.put("paymentUrl", paymentUrl);
-            response.put("donationId", createdDonation.getId());
-            response.put("testMode", true);
+            response.put("donationId", savedDonation.getId());
             
         } catch (Exception e) {
-            System.err.println("=== Error in create-payment ===");
-            System.err.println("Error class: " + e.getClass().getName());
-            System.err.println("Error message: " + e.getMessage());
-            e.printStackTrace();
-            
+            logger.error("Error creating VNPay payment", e);
             response.put("success", false);
-            response.put("message", "Lỗi tạo thanh toán: " + e.getMessage());
+            response.put("message", "Lỗi tạo thanh toán VNPay: " + e.getMessage());
         }
         
         return response;
     }
     
     @GetMapping("/return")
-    public String paymentReturn(HttpServletRequest request, Model model) {
-        Map<String, Object> result = vnPayService.handlePaymentReturn(request);
-        
-        model.addAttribute("success", result.get("success"));
-        model.addAttribute("message", result.get("message"));
-        
-        if (result.containsKey("campaignId")) {
-            model.addAttribute("campaignId", result.get("campaignId"));
+    public String vnpayReturn(HttpServletRequest request, Model model) {
+        try {
+            logger.info("=== VNPay Return ===");
+            
+            Map<String, Object> result = vnPayService.handlePaymentReturn(request);
+            boolean success = (boolean) result.get("success");
+            String message = (String) result.get("message");
+            Long campaignId = (Long) result.getOrDefault("campaignId", null);
+            
+            logger.info("VNPay return result: success={}, campaignId={}", success, campaignId);
+            
+            // Extract additional info
+            String vnpAmount = request.getParameter("vnp_Amount");
+            String vnpTxnRef = request.getParameter("vnp_TxnRef");
+            
+            Long amount = null;
+            if (vnpAmount != null) {
+                try {
+                    amount = Long.parseLong(vnpAmount) / 100; // VNPay trả về amount đã nhân 100
+                } catch (NumberFormatException e) {
+                    logger.error("Cannot parse amount", e);
+                }
+            }
+            
+            model.addAttribute("success", success);
+            model.addAttribute("message", message);
+            model.addAttribute("campaignId", campaignId);
+            model.addAttribute("amount", amount);
+            model.addAttribute("orderId", vnpTxnRef);
+            model.addAttribute("paymentMethod", "VNPay");
+            
+            return "payment-result";
+            
+        } catch (Exception e) {
+            logger.error("Error in VNPay return", e);
+            model.addAttribute("success", false);
+            model.addAttribute("message", "Lỗi xử lý thanh toán: " + e.getMessage());
+            return "payment-result";
         }
-        
-        return "payment-result";
     }
 }
