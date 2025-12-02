@@ -304,43 +304,17 @@ function payWithMoMo(campaignId, amount, message) {
     return;
   }
   
-  // Show MoMo payment info modal
-  showMoMoModal(campaignId, amount, message);
-}
-
-let currentMoMoData = {};
-
-function showMoMoModal(campaignId, amount, message) {
-  currentMoMoData = { campaignId, amount, message };
-  
-  // Update amount display
-  const formattedAmount = new Intl.NumberFormat('vi-VN').format(amount) + ' đ';
-  document.getElementById('momoDisplayAmount').textContent = formattedAmount;
-  
-  // Show modal
-  document.getElementById('momoModal').classList.add('show');
-  document.body.style.overflow = 'hidden';
-}
-
-function closeMoMoModal() {
-  document.getElementById('momoModal').classList.remove('show');
-  document.body.style.overflow = '';
-  
-  // Re-enable donate button
+  // Show loading on submit button
   const submitBtn = document.getElementById('donate-submit-btn');
-  submitBtn.innerHTML = '<img src="https://developers.momo.vn/v3/assets/images/square-logo.svg" style="height:20px;vertical-align:middle;margin-right:8px"> Thanh toán MoMo';
-  submitBtn.disabled = false;
-}
-
-function processMoMoATMPayment() {
-  const { campaignId, amount, message } = currentMoMoData;
+  const originalText = submitBtn.innerHTML;
+  submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang kết nối MoMo...';
+  submitBtn.disabled = true;
   
-  const btnProcess = document.getElementById('btnProcessPayment');
-  const originalText = btnProcess.innerHTML;
-  btnProcess.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang kết nối MoMo...';
-  btnProcess.disabled = true;
-  
-  console.log('Creating MoMo ATM payment:', { campaignId, amount, donorName, message });
+  console.log('=== Creating MoMo Payment ===');
+  console.log('Campaign ID:', campaignId);
+  console.log('Amount:', amount);
+  console.log('Donor Name:', donorName);
+  console.log('Message:', message);
   
   const formData = new URLSearchParams();
   formData.append('campaignId', campaignId);
@@ -348,29 +322,58 @@ function processMoMoATMPayment() {
   formData.append('donorName', donorName);
   formData.append('message', message || '');
   
-  fetch('/payment/momo/create-atm', {
+  fetch('/payment/momo/create', {  // ✅ Đổi từ /create-atm sang /create
     method: 'POST',
     headers: {
       'Content-Type': 'application/x-www-form-urlencoded',
     },
     body: formData.toString()
   })
-  .then(res => res.json())
+  .then(res => {
+    console.log('Response status:', res.status);
+    if (!res.ok) {
+      throw new Error('HTTP error ' + res.status);
+    }
+    return res.json();
+  })
   .then(data => {
-    console.log('MoMo ATM response:', data);
+    console.log('=== MoMo Response ===');
+    console.log('Success:', data.success);
+    console.log('Pay URL:', data.payUrl);
+    console.log('Message:', data.message);
+    
     if (data.success && data.payUrl) {
-      // Redirect to MoMo ATM payment gateway
+      console.log('Redirecting to MoMo:', data.payUrl);
+      // Redirect đến trang thanh toán MoMo THẬT
       window.location.href = data.payUrl;
     } else {
-      throw new Error(data.message || 'Không thể tạo thanh toán');
+      throw new Error(data.message || 'Không thể tạo thanh toán MoMo');
     }
   })
   .catch(err => {
-    console.error('MoMo ATM error:', err);
+    console.error('=== MoMo Error ===');
+    console.error(err);
     alert('Lỗi: ' + err.message);
-    btnProcess.innerHTML = originalText;
-    btnProcess.disabled = false;
+    submitBtn.innerHTML = originalText;
+    submitBtn.disabled = false;
   });
+}
+
+let currentMoMoData = {};
+
+function showMoMoModal(campaignId, amount, message) {
+  // Không cần nữa - giữ lại để tránh lỗi nếu có code gọi
+  currentMoMoData = { campaignId, amount, message };
+}
+
+function closeMoMoModal() {
+  // Không cần nữa
+  document.getElementById('momoModal').classList.remove('show');
+  document.body.style.overflow = '';
+}
+
+function processMoMoATMPayment() {
+  // Không cần nữa
 }
 
 // Close modal when clicking outside
