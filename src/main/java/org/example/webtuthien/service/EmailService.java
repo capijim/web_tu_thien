@@ -8,8 +8,10 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
+import reactor.core.publisher.Mono;
 
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
@@ -96,6 +98,28 @@ public class EmailService {
             String htmlContent = templateEngine.process("email/donation-success", context);
             logger.info("✓ Template processed ({} chars)", htmlContent.length());
             
+            // Create plain text version
+            String textContent = String.format(
+                "Xin chào %s,\n\n" +
+                "Cảm ơn bạn đã quyên góp %s VNĐ cho chiến dịch: %s\n\n" +
+                "Thông tin chi tiết:\n" +
+                "- Danh mục: %s\n" +
+                "- Ngày quyên góp: %s\n" +
+                "- Mã giao dịch: %s\n" +
+                "%s\n" +
+                "Xem chi tiết chiến dịch: %s\n\n" +
+                "Trân trọng,\n" +
+                "Web Từ Thiện",
+                donorName,
+                String.format("%,d", amount.longValue()),
+                campaignTitle,
+                campaignCategory,
+                donationDate.format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")),
+                donationId,
+                (message != null && !message.isEmpty() ? "\nLời nhắn của bạn: " + message + "\n" : ""),
+                baseUrl + "/campaign/" + campaignId
+            );
+            
             // Prepare Brevo API request
             Map<String, Object> emailRequest = new HashMap<>();
             
@@ -111,31 +135,77 @@ public class EmailService {
             recipient.put("name", donorName);
             emailRequest.put("to", new Map[]{recipient});
             
-            // Content
+            // Content - ADD BOTH HTML AND TEXT
             emailRequest.put("subject", "✅ Xác nhận quyên góp thành công - " + campaignTitle);
             emailRequest.put("htmlContent", htmlContent);
+            emailRequest.put("textContent", textContent); // ← ADD THIS
             
-            logger.info("Sending email via Brevo API...");
+            // Add headers to improve deliverability
+            Map<String, String> headers = new HashMap<>();
+            headers.put("X-Mailer", "Brevo");
+            headers.put("charset", "UTF-8");
+            emailRequest.put("headers", headers);
+            
+            logger.info("╔════════════════════════════════════════════════════════════╗");
+            logger.info("║ 📤 Brevo API Request Details:                             ║");
+            logger.info("║ Sender: {} <{}>", fromName, fromEmail);
+            logger.info("║ To: {} <{}>", donorName, toEmail);
+            logger.info("║ Subject: {}", emailRequest.get("subject"));
+            logger.info("║ API Key: {}", brevoApiKey.substring(0, 20) + "...");
+            logger.info("╚════════════════════════════════════════════════════════════╝");
             
             // Send via Brevo API
-            String response = webClient.post()
+            Map<String, Object> response = webClient.post()
                     .uri("/smtp/email")
                     .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                     .header("api-key", brevoApiKey)
                     .bodyValue(emailRequest)
                     .retrieve()
-                    .bodyToMono(String.class)
+                    .onStatus(
+                        status -> status.is4xxClientError() || status.is5xxServerError(),
+                        clientResponse -> clientResponse.bodyToMono(String.class)
+                            .flatMap(errorBody -> {
+                                logger.error("Brevo API Error Response: {}", errorBody);
+                                return Mono.error(new RuntimeException("Brevo API Error: " + errorBody));
+                            })
+                    )
+                    .bodyToMono(Map.class)
                     .block();
             
             logger.info("\n╔════════════════════════════════════════════════════════════╗");
-            logger.info("║              ✅ EMAIL SENT SUCCESSFULLY VIA BREVO API!     ║");
+            logger.info("║              ✅ EMAIL SENT VIA BREVO API!                  ║");
             logger.info("╠════════════════════════════════════════════════════════════╣");
-            logger.info("║ ✉️  Email delivered to: {}", toEmail);
+            logger.info("║ ✉️  Delivered to: {}", toEmail);
             logger.info("║ 📧 Donation ID: {}", donationId);
+            logger.info("║ 🆔 Message ID: {}", response != null ? response.get("messageId") : "N/A");
             logger.info("║ 📅 Sent at: {}", donationDate.format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss")));
-            logger.info("║ 📊 API Response: {}", response != null ? response.substring(0, Math.min(100, response.length())) : "OK");
+            logger.info("╠════════════════════════════════════════════════════════════╣");
+            logger.info("║ 🔍 CHECK EMAIL:                                           ║");
+            logger.info("║    1. Inbox: {}", toEmail);
+            logger.info("║    2. Spam/Junk folder                                    ║");
+            logger.info("║    3. Brevo Dashboard > Email > Transactional             ║");
+            logger.info("║    4. Check sender verification status                    ║");
+            logger.info("╠════════════════════════════════════════════════════════════╣");
+            logger.info("║ ⚠️  IMPORTANT:                                             ║");
+            logger.info("║    - Sender email MUST be verified in Brevo               ║");
+            logger.info("║    - Check Brevo > Senders & IP > Senders                ║");
+            logger.info("║    - Email: {} must have ✅ mark", fromEmail);
             logger.info("╚════════════════════════════════════════════════════════════╝\n");
             
+        } catch (WebClientResponseException e) {
+            logger.error("\n╔════════════════════════════════════════════════════════════╗");
+            logger.error("║              ❌ BREVO API ERROR!                           ║");
+            logger.error("╠════════════════════════════════════════════════════════════╣");
+            logger.error("║ Status Code: {}", e.getStatusCode());
+            logger.error("║ Response: {}", e.getResponseBodyAsString());
+            logger.error("╠════════════════════════════════════════════════════════════╣");
+            logger.error("║ Common Issues:                                            ║");
+            logger.error("║ 1. Sender email not verified                              ║");
+            logger.error("║ 2. Invalid API key                                        ║");
+            logger.error("║ 3. API key missing email permission                       ║");
+            logger.error("║ 4. Recipient email invalid/blocked                        ║");
+            logger.error("╚════════════════════════════════════════════════════════════╝\n");
+            throw new RuntimeException("Brevo API error: " + e.getResponseBodyAsString(), e);
         } catch (Exception e) {
             logger.error("\n╔════════════════════════════════════════════════════════════╗");
             logger.error("║              ❌ EMAIL SEND FAILED!                         ║");
