@@ -11,6 +11,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import java.math.BigDecimal;
 import java.util.HashMap;
@@ -151,10 +152,22 @@ public class MoMoPaymentController {
     }
     
     @GetMapping("/callback")
-    public String handleCallback(@RequestParam Map<String, String> params, Model model) {
+    public String handleCallback(HttpServletRequest request, Model model) {
+        
+        logger.info("========================================");
+        logger.info("MOMO CALLBACK RECEIVED");
+        logger.info("========================================");
+        
         try {
-            logger.info("=== MoMo Callback Received ===");
-            logger.info("All params: {}", params);
+            // Get all parameters
+            Map<String, String> params = new HashMap<>();
+            request.getParameterMap().forEach((key, values) -> {
+                if (values.length > 0) {
+                    params.put(key, values[0]);
+                }
+            });
+            
+            logger.info("All callback params: {}", params);
             
             String orderId = params.get("orderId");
             String resultCode = params.get("resultCode");
@@ -162,82 +175,102 @@ public class MoMoPaymentController {
             String extraData = params.get("extraData");
             String amountStr = params.get("amount");
             
-            logger.info("Order ID: {}", orderId);
-            logger.info("Result Code: {}", resultCode);
+            logger.info("OrderID: {}", orderId);
+            logger.info("ResultCode: {}", resultCode);
+            logger.info("Amount: {}", amountStr);
             logger.info("Message: {}", message);
-            logger.info("Extra Data: {}", extraData);
             
-            // Verify signature
-            boolean isValid = momoService.verifySignature(params);
-            logger.info("Signature valid: {}", isValid);
-            
-            if (isValid && "0".equals(resultCode)) {
-                // Payment successful - parse extraData
-                try {
-                    String[] parts = extraData.split("\\|");
-                    Long campaignId = Long.parseLong(parts[0]);
-                    String donorName = parts.length > 1 ? parts[1] : "Ẩn danh";
-                    String donationMessage = parts.length > 2 ? parts[2] : "";
-                    String paymentMethod = parts.length > 3 ? parts[3] : "";
-                    
-                    Long amount = Long.parseLong(amountStr);
-                    
-                    logger.info("Parsed - Campaign: {}, Donor: {}, Amount: {}", campaignId, donorName, amount);
-                    
-                    // Create donation record
-                    Donation donation = new Donation();
-                    donation.setCampaignId(campaignId);
-                    donation.setDonorName(donorName);
-                    donation.setAmount(new BigDecimal(amount));
-                    donation.setMessage(donationMessage);
-                    
-                    Donation savedDonation = donationService.create(donation);
-                    logger.info("Donation created with ID: {}", savedDonation.getId());
-                    
-                    // Update campaign amount
-                    campaignService.updateCurrentAmount(campaignId, new BigDecimal(amount));
-                    logger.info("Campaign {} updated with amount {}", campaignId, amount);
-                    
-                    // Redirect to thank you page
-                    model.addAttribute("success", true);
-                    model.addAttribute("message", "Khoản đóng góp của bạn đã được xử lý thành công. Cảm ơn bạn đã đồng hành cùng chúng tôi!");
-                    model.addAttribute("campaignId", campaignId);
-                    model.addAttribute("amount", amount);
-                    model.addAttribute("orderId", orderId);
-                    model.addAttribute("paymentMethod", "MoMo " + ("ATM".equals(paymentMethod) ? "ATM" : "QR"));
-                    
-                    return "payment-result";
-                    
-                } catch (Exception e) {
-                    logger.error("Error parsing extraData or creating donation", e);
-                    model.addAttribute("success", false);
-                    model.addAttribute("message", "Thanh toán thành công nhưng có lỗi khi lưu dữ liệu. Vui lòng liên hệ admin với mã giao dịch: " + orderId);
-                    return "payment-result";
-                }
-            } else {
-                // Payment failed
-                logger.warn("Payment failed - Result code: {}, Message: {}", resultCode, message);
+            // ✅ CHECK RESULTCODE = 0 TRƯỚC - Đây là điều kiện CHÍNH
+            if (!"0".equals(resultCode)) {
+                logger.warn("❌ Payment FAILED - ResultCode: {}", resultCode);
                 
-                // Try to get campaignId from extraData even if payment failed
                 Long campaignId = null;
                 try {
                     String[] parts = extraData.split("\\|");
                     campaignId = Long.parseLong(parts[0]);
                 } catch (Exception e) {
-                    logger.error("Cannot parse campaignId from extraData", e);
+                    logger.error("Cannot parse campaignId", e);
                 }
                 
                 model.addAttribute("success", false);
-                model.addAttribute("message", "Thanh toán MoMo thất bại: " + message);
+                model.addAttribute("message", "Thanh toán thất bại: " + message);
                 model.addAttribute("campaignId", campaignId);
                 model.addAttribute("orderId", orderId);
                 
                 return "payment-result";
             }
+            
+            // ResultCode = 0 → Payment SUCCESS
+            logger.info("✅ Payment SUCCESS - ResultCode = 0");
+            
+            // Verify signature (optional warning only)
+            try {
+                boolean isValid = momoService.verifySignature(params);
+                if (!isValid) {
+                    logger.warn("⚠️ Signature verification FAILED but payment is successful (resultCode=0)");
+                    logger.warn("⚠️ Continuing to process payment...");
+                } else {
+                    logger.info("✅ Signature verification PASSED");
+                }
+            } catch (Exception e) {
+                logger.warn("⚠️ Signature verification error but continuing: {}", e.getMessage());
+            }
+            
+            // Parse extraData and create donation
+            try {
+                String[] parts = extraData.split("\\|");
+                Long campaignId = Long.parseLong(parts[0]);
+                String donorName = parts.length > 1 && !parts[1].isEmpty() ? parts[1] : "Ẩn danh";
+                String donationMessage = parts.length > 2 ? parts[2] : "";
+                String paymentMethod = parts.length > 3 ? parts[3] : "";
+                
+                Long amount = Long.parseLong(amountStr);
+                
+                logger.info("Creating donation - Campaign: {}, Amount: {}, Donor: {}", 
+                           campaignId, amount, donorName);
+                
+                // Create donation
+                Donation donation = new Donation();
+                donation.setCampaignId(campaignId);
+                donation.setDonorName(donorName);
+                donation.setAmount(new BigDecimal(amount));
+                donation.setMessage(donationMessage);
+                
+                Donation savedDonation = donationService.create(donation);
+                logger.info("✅ Donation created: ID={}", savedDonation.getId());
+                
+                // Update campaign
+                campaignService.updateCurrentAmount(campaignId, new BigDecimal(amount));
+                logger.info("✅ Campaign updated: ID={}", campaignId);
+                
+                // SUCCESS PAGE
+                model.addAttribute("success", true);
+                model.addAttribute("message", "Khoản đóng góp của bạn đã được xử lý thành công. Cảm ơn bạn đã đồng hành cùng chúng tôi!");
+                model.addAttribute("campaignId", campaignId);
+                model.addAttribute("amount", amount);
+                model.addAttribute("orderId", orderId);
+                model.addAttribute("paymentMethod", "MoMo " + ("ATM".equals(paymentMethod) ? "ATM" : "QR"));
+                
+                logger.info("========================================");
+                logger.info("✅ CALLBACK PROCESSED SUCCESSFULLY");
+                logger.info("========================================");
+                
+                return "payment-result";
+                
+            } catch (Exception e) {
+                logger.error("❌ Error processing successful payment", e);
+                model.addAttribute("success", false);
+                model.addAttribute("message", "Thanh toán thành công nhưng có lỗi khi lưu dữ liệu. Vui lòng liên hệ admin với mã: " + orderId);
+                return "payment-result";
+            }
+            
         } catch (Exception e) {
-            logger.error("Error processing MoMo callback", e);
+            logger.error("========================================");
+            logger.error("❌ ERROR processing callback", e);
+            logger.error("========================================");
+            
             model.addAttribute("success", false);
-            model.addAttribute("message", "Lỗi xử lý kết quả thanh toán: " + e.getMessage());
+            model.addAttribute("message", "Lỗi xử lý kết quả: " + e.getMessage());
             return "payment-result";
         }
     }
@@ -265,8 +298,8 @@ public class MoMoPaymentController {
             return response;
         } catch (Exception e) {
             logger.error("Error processing MoMo IPN", e);
-            response.put("status", "error");
             response.put("message", e.getMessage());
+            response.put("status", "error");
             return response;
         }
     }

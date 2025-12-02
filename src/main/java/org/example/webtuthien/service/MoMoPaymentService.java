@@ -147,36 +147,46 @@ public class MoMoPaymentService {
     
     public boolean verifySignature(Map<String, String> params) {
         try {
-            String signature = params.get("signature");
-            if (signature == null) {
-                logger.error("Signature is null");
+            String receivedSignature = params.get("signature");
+            if (receivedSignature == null) {
+                logger.error("Signature is null in callback params");
                 return false;
             }
             
-            // Build raw signature từ callback params
-            // QUAN TRỌNG: Phải sort theo alphabet và loại bỏ signature
-            Map<String, String> sortedParams = new TreeMap<>(params);
-            sortedParams.remove("signature");
+            logger.info("=== Verifying MoMo Signature ===");
+            logger.info("Received signature: {}", receivedSignature);
             
-            StringBuilder rawSignature = new StringBuilder();
-            boolean isFirst = true;
+            // QUAN TRỌNG: MoMo callback signature BẮT ĐẦU với accessKey
+            String rawSignature = String.format(
+                "accessKey=%s&amount=%s&extraData=%s&message=%s&orderId=%s&orderInfo=%s&orderType=%s&partnerCode=%s&payType=%s&requestId=%s&responseTime=%s&resultCode=%s&transId=%s",
+                accessKey,  // ← THÊM accessKey ở đầu
+                params.get("amount"),
+                params.get("extraData"),
+                params.get("message"),
+                params.get("orderId"),
+                params.get("orderInfo"),
+                params.get("orderType"),
+                params.get("partnerCode"),
+                params.get("payType"),
+                params.get("requestId"),
+                params.get("responseTime"),
+                params.get("resultCode"),
+                params.get("transId")
+            );
             
-            for (Map.Entry<String, String> entry : sortedParams.entrySet()) {
-                if (!isFirst) {
-                    rawSignature.append("&");
-                }
-                rawSignature.append(entry.getKey()).append("=").append(entry.getValue());
-                isFirst = false;
-            }
+            logger.info("Raw signature string: {}", rawSignature);
             
-            logger.info("Raw signature for verification: {}", rawSignature.toString());
-            
-            String calculatedSignature = hmacSHA256(rawSignature.toString(), secretKey);
+            String calculatedSignature = hmacSHA256(rawSignature, secretKey);
             logger.info("Calculated signature: {}", calculatedSignature);
-            logger.info("Received signature: {}", signature);
             
-            boolean isValid = calculatedSignature.equals(signature);
+            boolean isValid = calculatedSignature.equals(receivedSignature);
             logger.info("Signature verification result: {}", isValid);
+            
+            if (!isValid) {
+                logger.error("SIGNATURE MISMATCH!");
+                logger.error("Expected: {}", calculatedSignature);
+                logger.error("Received: {}", receivedSignature);
+            }
             
             return isValid;
             
