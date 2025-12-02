@@ -71,8 +71,3 @@ secrets.yaml
 
 # Supabase local config
 supabase/.env
-
-# Environment variables with secrets
-.env
-.env.local
-application-local.properties
