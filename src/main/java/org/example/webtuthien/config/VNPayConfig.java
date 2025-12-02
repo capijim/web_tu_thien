@@ -15,9 +15,6 @@ public class VNPayConfig {
     @Value("${vnpay.url}")
     private String vnpayUrl;
     
-    @Value("${vnpay.return-url}")
-    private String returnUrl;
-    
     @Value("${app.base-url}")
     private String baseUrl;
     
@@ -27,35 +24,18 @@ public class VNPayConfig {
     @Value("${vnpay.command}")
     private String command;
     
-    public String getTmnCode() {
-        return tmnCode;
-    }
+    @Value("${vnpay.mock-mode:false}")
+    private boolean mockMode;
     
-    public String getHashSecret() {
-        return hashSecret;
-    }
-    
-    public String getVnpayUrl() {
-        return vnpayUrl;
-    }
+    public String getTmnCode() { return tmnCode; }
+    public String getHashSecret() { return hashSecret; }
+    public String getVnpayUrl() { return vnpayUrl; }
+    public String getVersion() { return version; }
+    public String getCommand() { return command; }
+    public String getBaseUrl() { return baseUrl; }
+    public boolean isMockMode() { return mockMode; }
     
     public String getReturnUrl() {
-        // If baseUrl is set and different from localhost, use it
-        if (baseUrl != null && !baseUrl.contains("localhost")) {
-            return baseUrl + "/vnpay/return";
-        }
-        return returnUrl;
-    }
-    
-    public String getBaseUrl() {
-        return baseUrl;
-    }
-    
-    public String getVersion() {
-        return version;
-    }
-    
-    public String getCommand() {
-        return command;
+        return baseUrl + "/vnpay/return";
     }
 }

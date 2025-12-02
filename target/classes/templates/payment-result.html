@@ -81,6 +81,10 @@
             <div class="success-icon">✓</div>
             <h1 class="result-title">Thanh toán thành công!</h1>
             <p class="result-message" th:text="${message}"></p>
+            <div th:if="${message != null and #strings.contains(message, 'Mock Mode')}" 
+                 style="background: #ff9800; color: white; padding: 10px; border-radius: 5px; margin: 10px 0; font-size: 14px;">
+                ℹ️ Đây là chế độ demo cho Railway. Trong production, sẽ sử dụng VNPay thật.
+            </div>
             <a th:href="@{/campaigns}" class="btn">Xem các chiến dịch khác</a>
             <a th:href="@{/}" class="btn btn-secondary">Về trang chủ</a>
         </div>
