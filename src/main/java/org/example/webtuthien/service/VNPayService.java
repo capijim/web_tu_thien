@@ -47,7 +47,7 @@ public class VNPayService {
         vnpParams.put("vnp_Amount", String.valueOf(donation.getAmount().multiply(new java.math.BigDecimal("100")).longValue()));
         vnpParams.put("vnp_CurrCode", "VND");
         vnpParams.put("vnp_TxnRef", vnpTxnRef);
-        vnpParams.put("vnp_OrderInfo", "Donate " + donation.getCampaignId()); // Không dùng tiếng Việt
+        vnpParams.put("vnp_OrderInfo", "Donate" + donation.getCampaignId()); // Không có dấu cách
         vnpParams.put("vnp_OrderType", "other");
         vnpParams.put("vnp_Locale", "vn");
         vnpParams.put("vnp_ReturnUrl", vnPayConfig.getReturnUrl());
@@ -83,7 +83,10 @@ public class VNPayService {
         }
         
         String queryUrl = hashData.toString();
-        System.out.println("Hash Data (before hash): " + queryUrl);
+        System.out.println("=== VNPay Debug Info ===");
+        System.out.println("Hash Data (raw): " + queryUrl);
+        System.out.println("Hash Secret (length): " + vnPayConfig.getHashSecret().length());
+        System.out.println("Hash Secret (first 10 chars): " + vnPayConfig.getHashSecret().substring(0, Math.min(10, vnPayConfig.getHashSecret().length())));
         
         // Tạo secure hash
         String vnpSecureHash = VNPayUtil.hmacSHA512(vnPayConfig.getHashSecret(), queryUrl);
@@ -93,7 +96,9 @@ public class VNPayService {
         queryUrl += "&vnp_SecureHash=" + vnpSecureHash;
         
         String fullUrl = vnPayConfig.getVnpayUrl() + "?" + queryUrl;
-        System.out.println("VNPay URL created: " + fullUrl);
+        System.out.println("=== Final URL ===");
+        System.out.println("Length: " + fullUrl.length());
+        System.out.println("Full URL: " + fullUrl);
         
         return fullUrl;
     }
@@ -155,10 +160,10 @@ public class VNPayService {
             }
         } else {
             result.put("success", false);
-            result.put("message", "Chữ ký không hợp lệ");
-            System.out.println("Invalid signature!");
-        }
-        
-        return result;
-    }
+            result.put("message", "Chữ ký không hợp lệ");   }
+            System.out.println("Invalid signature!");       
+    }        return result;
+
+
+}    }
 }
