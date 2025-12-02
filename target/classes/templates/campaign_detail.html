@@ -82,7 +82,14 @@
                 </div>
               </div>
               
-              <button type="submit" class="cta">Quyên góp</button>
+              <div class="form-actions">
+                <button type="submit" class="cta">Ủng hộ ngay</button>
+                <button type="button" class="btn-secondary" onclick="payWithMoMo()">
+                  <img src="https://developers.momo.vn/v3/assets/images/logo.svg" alt="MoMo" style="height:20px;vertical-align:middle;margin-right:5px">
+                  Thanh toán MoMo
+                </button>
+                <button type="button" class="btn-secondary" id="cancel-donate">Hủy</button>
+              </div>
             </form>
             <a th:href="@{/campaigns}" class="btn-secondary detail-back-btn">Quay lại danh sách</a>
           </aside>
@@ -220,6 +227,38 @@
             });
         }
         /*]]>*/
+    </script>
+
+    <script>
+    function payWithMoMo() {
+      const amount = document.getElementById('donateAmount').value;
+      const campaignId = document.getElementById('donate-campaign-id').value;
+      
+      if (!amount || amount <= 0) {
+        alert('Vui lòng nhập số tiền hợp lệ');
+        return;
+      }
+      
+      const donorName = '[[${session.userName}]]' || 'Ẩn danh';
+      const message = document.querySelector('[name="message"]')?.value || '';
+      
+      fetch('/payment/momo/create', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: `campaignId=${campaignId}&amount=${amount}&donorName=${encodeURIComponent(donorName)}&message=${encodeURIComponent(message)}`
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          window.location.href = data.payUrl;
+        } else {
+          alert('Lỗi tạo thanh toán MoMo: ' + data.message);
+        }
+      })
+      .catch(err => alert('Lỗi: ' + err.message));
+    }
     </script>
   </body>
 </html>
