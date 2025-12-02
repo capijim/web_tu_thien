@@ -48,7 +48,7 @@ public class EmailService {
             OffsetDateTime donationDate) {
         
         logger.info("\n╔════════════════════════════════════════════════════════════╗");
-        logger.info("║              📧 SENDING REAL EMAIL VIA GMAIL               ║");
+        logger.info("║              📧 SENDING EMAIL VIA BREVO SMTP               ║");
         logger.info("╠════════════════════════════════════════════════════════════╣");
         logger.info("║ From:    {} <{}>", fromName, fromEmail);
         logger.info("║ To:      {}", toEmail);
@@ -79,6 +79,10 @@ public class EmailService {
             context.setVariable("message", message);
             context.setVariable("donationDate", donationDate);
             context.setVariable("campaignUrl", baseUrl + "/campaign/" + campaignId);
+            // Add email config variables for template
+            context.setVariable("appBaseUrl", baseUrl);
+            context.setVariable("appEmailFrom", fromEmail);
+            context.setVariable("appEmailName", fromName);
             
             logger.info("Processing email template...");
             // Process template
@@ -102,14 +106,14 @@ public class EmailService {
             mimeMessage.addHeader("X-Mailer", "Web Tu Thien Mailer");
             
             logger.info("✓ MIME message created");
-            logger.info("Attempting to send email via Gmail SMTP...");
-            logger.info("SMTP Config: {}:{}", "smtp.gmail.com", 587);
+            logger.info("Attempting to send email via Brevo SMTP...");
+            logger.info("SMTP Config: {}:{}", "smtp-relay.brevo.com", 587);
             
             // Send email
             mailSender.send(mimeMessage);
             
             logger.info("\n╔════════════════════════════════════════════════════════════╗");
-            logger.info("║              ✅ EMAIL SENT SUCCESSFULLY!                   ║");
+            logger.info("║              ✅ EMAIL SENT SUCCESSFULLY VIA BREVO!         ║");
             logger.info("╠════════════════════════════════════════════════════════════╣");
             logger.info("║ ✉️  Email delivered to: {}", toEmail);
             logger.info("║ 📧 Donation ID: {}", donationId);
@@ -119,13 +123,9 @@ public class EmailService {
             logger.info("║    1. Inbox of: {}", toEmail);
             logger.info("║    2. Spam/Junk folder");
             logger.info("║    3. Promotions tab (Gmail)");
-            logger.info("║    4. Updates tab (Gmail)");
             logger.info("║");
             logger.info("║ 🔍 Search for: {}", campaignTitle);
             logger.info("╚════════════════════════════════════════════════════════════╝\n");
-            
-            // Log to verify sending mechanism
-            logger.info("Email sending completed without exceptions");
             
         } catch (MessagingException e) {
             logger.error("\n╔════════════════════════════════════════════════════════════╗");
@@ -138,11 +138,10 @@ public class EmailService {
             }
             logger.error("╠════════════════════════════════════════════════════════════╣");
             logger.error("║ Troubleshooting:                                          ║");
-            logger.error("║ 1. Check Gmail App Password is correct                   ║");
-            logger.error("║ 2. Verify 'Less secure app access' is OFF                ║");
-            logger.error("║ 3. Check if Gmail account is locked                      ║");
-            logger.error("║ 4. Try to login to Gmail manually                        ║");
-            logger.error("║ 5. Check Gmail 'Recent security activity'                ║");
+            logger.error("║ 1. Check Brevo SMTP key is correct                       ║");
+            logger.error("║ 2. Verify sender email is verified in Brevo              ║");
+            logger.error("║ 3. Check if Brevo account is active                      ║");
+            logger.error("║ 4. Check Railway environment variables                   ║");
             logger.error("╚════════════════════════════════════════════════════════════╝\n");
             logger.error("Full stack trace:", e);
             throw new RuntimeException("Failed to send email: " + e.getMessage(), e);

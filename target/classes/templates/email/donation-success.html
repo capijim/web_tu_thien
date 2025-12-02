@@ -151,13 +151,13 @@
             <p><strong>Web Từ Thiện</strong></p>
             <p>Kết nối trái tim - Chia sẻ yêu thương</p>
             <div class="social-links">
-                <a th:href="${@environment.getProperty('app.base-url')}">Website</a> |
-                <a th:href="'mailto:' + ${@environment.getProperty('app.email.from')}">Email</a> |
+                <a th:href="${appBaseUrl}">Website</a> |
+                <a th:href="'mailto:' + ${appEmailFrom}">Email</a> |
                 <a href="tel:1900-1234">Hotline: 1900 1234</a>
             </div>
             <p style="font-size: 12px; color: #999; margin-top: 20px;">
                 Email này được gửi tự động từ hệ thống Web Từ Thiện.<br>
-                Vui lòng không trả lời trực tiếp email này. Để liên hệ hỗ trợ, vui lòng gửi email đến <span th:text="${@environment.getProperty('app.email.from')}">support@webtuthien.vn</span>
+                Vui lòng không trả lời trực tiếp email này. Để liên hệ hỗ trợ, vui lòng gửi email đến <span th:text="${appEmailFrom}">support@webtuthien.vn</span>
             </p>
         </div>
     </div>
