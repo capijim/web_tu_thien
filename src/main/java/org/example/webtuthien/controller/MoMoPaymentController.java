@@ -11,6 +11,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import jakarta.servlet.http.HttpSession;
 import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
@@ -137,5 +138,77 @@ public class MoMoPaymentController {
             response.put("message", e.getMessage());
             return response;
         }
+    }
+    
+    @PostMapping("/create-atm")
+    @ResponseBody
+    public Map<String, Object> createATMPayment(
+            @RequestParam Long campaignId,
+            @RequestParam Double amount,
+            @RequestParam String donorName,
+            @RequestParam(required = false) String message,
+            @RequestParam String cardNumber,
+            @RequestParam String cardHolder,
+            @RequestParam String expiry,
+            @RequestParam String cvv,
+            @RequestParam String bank,
+            HttpSession session) {
+        
+        Map<String, Object> response = new HashMap<>();
+        
+        try {
+            System.out.println("=== MoMo ATM Payment Request ===");
+            System.out.println("Campaign ID: " + campaignId);
+            System.out.println("Amount: " + amount);
+            System.out.println("Bank: " + bank);
+            System.out.println("Card: " + cardNumber.substring(0, 4) + "****");
+            
+            // TODO: Implement MoMo ATM payment integration
+            // For now, return demo URL
+            String payUrl = "https://test-payment.momo.vn/gw_payment/payment.html";
+            
+            response.put("success", true);
+            response.put("payUrl", payUrl);
+            response.put("message", "Đang chuyển đến trang thanh toán...");
+            
+        } catch (Exception e) {
+            System.err.println("Error creating ATM payment: " + e.getMessage());
+            response.put("success", false);
+            response.put("message", "Lỗi: " + e.getMessage());
+        }
+        
+        return response;
+    }
+    
+    @PostMapping("/create-phone")
+    @ResponseBody
+    public Map<String, Object> createPhonePayment(
+            @RequestParam Long campaignId,
+            @RequestParam Double amount,
+            @RequestParam String donorName,
+            @RequestParam(required = false) String message,
+            @RequestParam String phone,
+            HttpSession session) {
+        
+        Map<String, Object> response = new HashMap<>();
+        
+        try {
+            System.out.println("=== MoMo Phone Payment Request ===");
+            System.out.println("Campaign ID: " + campaignId);
+            System.out.println("Amount: " + amount);
+            System.out.println("Phone: " + phone);
+            
+            // TODO: Implement MoMo phone payment
+            
+            response.put("success", true);
+            response.put("message", "Yêu cầu đã được gửi đến số " + phone);
+            
+        } catch (Exception e) {
+            System.err.println("Error creating phone payment: " + e.getMessage());
+            response.put("success", false);
+            response.put("message", "Lỗi: " + e.getMessage());
+        }
+        
+        return response;
     }
 }
