@@ -194,4 +194,63 @@ public class MoMoPaymentController {
         
         return response;
     }
+    
+    @PostMapping("/create-atm")
+    @ResponseBody
+    public Map<String, Object> createATMPayment(
+            @RequestParam Long campaignId,
+            @RequestParam Double amount,
+            @RequestParam String donorName,
+            @RequestParam(required = false) String message,
+            HttpSession session) {
+        
+        Map<String, Object> response = new HashMap<>();
+        
+        try {
+            // Kiểm tra đăng nhập
+            Object userIdObj = session.getAttribute("userId");
+            if (userIdObj == null) {
+                response.put("success", false);
+                response.put("message", "Bạn cần đăng nhập để quyên góp");
+                return response;
+            }
+            
+            // Tạo order ID unique
+            String orderId = "DONATE_ATM_" + System.currentTimeMillis();
+            String orderInfo = "Ung ho chien dich #" + campaignId + " qua ATM";
+            String extraData = campaignId + "|" + donorName + "|" + (message != null ? message : "") + "|ATM";
+            
+            logger.info("Creating MoMo ATM payment: orderId={}, amount={}, campaignId={}", orderId, amount.longValue(), campaignId);
+            
+            // Gọi MoMo API với requestType = "payWithATM"
+            Map<String, Object> momoResponse = momoService.createATMPayment(
+                orderId, 
+                amount.longValue(), 
+                orderInfo, 
+                extraData
+            );
+            
+            logger.info("MoMo ATM API response: {}", momoResponse);
+            
+            Integer resultCode = (Integer) momoResponse.get("resultCode");
+            if (resultCode != null && resultCode == 0) {
+                response.put("success", true);
+                response.put("payUrl", momoResponse.get("payUrl"));
+                response.put("orderId", orderId);
+                logger.info("MoMo ATM payment URL created successfully");
+            } else {
+                response.put("success", false);
+                response.put("message", "MoMo ATM error: " + momoResponse.get("message"));
+                logger.error("MoMo ATM API returned error: {}", momoResponse);
+            }
+            
+            return response;
+            
+        } catch (Exception e) {
+            logger.error("Error creating MoMo ATM payment", e);
+            response.put("success", false);
+            response.put("message", "Lỗi tạo thanh toán MoMo ATM: " + e.getMessage());
+            return response;
+        }
+    }
 }

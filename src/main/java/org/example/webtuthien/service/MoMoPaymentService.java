@@ -92,6 +92,58 @@ public class MoMoPaymentService {
         }
     }
     
+    public Map<String, Object> createATMPayment(String orderId, Long amount, String orderInfo, String extraData) {
+        try {
+            String requestId = orderId;
+            String requestType = "payWithATM"; // Khác với QR (captureWallet)
+            
+            // Tạo signature cho ATM payment
+            String rawSignature = String.format(
+                "accessKey=%s&amount=%d&extraData=%s&ipnUrl=%s&orderId=%s&orderInfo=%s&partnerCode=%s&redirectUrl=%s&requestId=%s&requestType=%s",
+                accessKey, amount, extraData, ipnUrl, orderId, orderInfo, partnerCode, redirectUrl, requestId, requestType
+            );
+            
+            logger.info("ATM Raw signature: {}", rawSignature);
+            
+            String signature = hmacSHA256(rawSignature, secretKey);
+            logger.info("ATM Signature: {}", signature);
+            
+            // Build request body
+            Map<String, Object> requestBody = new HashMap<>();
+            requestBody.put("partnerCode", partnerCode);
+            requestBody.put("accessKey", accessKey);
+            requestBody.put("requestId", requestId);
+            requestBody.put("amount", amount);
+            requestBody.put("orderId", orderId);
+            requestBody.put("orderInfo", orderInfo);
+            requestBody.put("redirectUrl", redirectUrl);
+            requestBody.put("ipnUrl", ipnUrl);
+            requestBody.put("extraData", extraData);
+            requestBody.put("requestType", requestType); // payWithATM
+            requestBody.put("signature", signature);
+            requestBody.put("lang", "vi");
+            
+            logger.info("Sending ATM payment request to MoMo: {}", endpoint);
+            logger.info("Request body: {}", requestBody);
+            
+            // Send request
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            HttpEntity<Map<String, Object>> entity = new HttpEntity<>(requestBody, headers);
+            
+            Map<String, Object> response = restTemplate.postForObject(endpoint, entity, Map.class);
+            logger.info("MoMo ATM response: {}", response);
+            
+            return response;
+        } catch (Exception e) {
+            logger.error("Error creating MoMo ATM payment", e);
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("resultCode", -1);
+            errorResponse.put("message", "Lỗi kết nối MoMo ATM: " + e.getMessage());
+            return errorResponse;
+        }
+    }
+    
     public boolean verifySignature(Map<String, String> params) {
         try {
             String signature = params.get("signature");
