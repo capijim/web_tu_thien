@@ -71,8 +71,7 @@ public class VNPayUtil {
         return sb.toString();
     }
 
-    // Method mới để build query string theo đúng chuẩn VNPay
-    // KHÔNG encode - chỉ nối chuỗi thuần
+    // Method build query string KHÔNG encode - chỉ nối chuỗi
     public static String buildQueryString(Map<String, String> params) {
         List<String> fieldNames = new ArrayList<>(params.keySet());
         Collections.sort(fieldNames);

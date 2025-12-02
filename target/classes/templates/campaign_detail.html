@@ -304,6 +304,11 @@ function payWithVNPay(campaignId, amount, message) {
   submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang kết nối VNPay...';
   submitBtn.disabled = true;
   
+  console.log('=== Sending VNPay Request ===');
+  console.log('Campaign ID:', campaignId);
+  console.log('Amount:', amount);
+  console.log('Donor:', donorName);
+  
   fetch('/vnpay/create-payment', {
     method: 'POST',
     headers: {
@@ -313,17 +318,23 @@ function payWithVNPay(campaignId, amount, message) {
       campaignId: campaignId,
       donorName: donorName,
       amount: parseFloat(amount),
-      message: message
+      message: message || ''
     })
   })
-  .then(res => res.json())
+  .then(res => {
+    console.log('Response status:', res.status);
+    if (!res.ok) {
+      throw new Error('HTTP error ' + res.status);
+    }
+    return res.json();
+  })
   .then(data => {
+    console.log('VNPay response:', data);
     if (data.success && data.paymentUrl) {
+      console.log('Redirecting to:', data.paymentUrl);
       window.location.href = data.paymentUrl;
     } else {
-      alert(data.message || 'Có lỗi xảy ra khi tạo thanh toán VNPay');
-      submitBtn.innerHTML = originalText;
-      submitBtn.disabled = false;
+      throw new Error(data.message || 'Có lỗi xảy ra khi tạo thanh toán VNPay');
     }
   })
   .catch(error => {
