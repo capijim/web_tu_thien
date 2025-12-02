@@ -70,4 +70,24 @@ public class VNPayUtil {
         }
         return sb.toString();
     }
+
+    // Method mới để build query string theo đúng chuẩn VNPay
+    public static String buildQueryString(Map<String, String> params) {
+        List<String> fieldNames = new ArrayList<>(params.keySet());
+        Collections.sort(fieldNames);
+        
+        StringBuilder query = new StringBuilder();
+        for (int i = 0; i < fieldNames.size(); i++) {
+            String fieldName = fieldNames.get(i);
+            String fieldValue = params.get(fieldName);
+            
+            if (fieldValue != null && fieldValue.length() > 0) {
+                query.append(fieldName).append('=').append(fieldValue);
+                if (i < fieldNames.size() - 1) {
+                    query.append('&');
+                }
+            }
+        }
+        return query.toString();
+    }
 }
