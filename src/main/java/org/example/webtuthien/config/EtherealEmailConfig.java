@@ -35,32 +35,23 @@ public class EtherealEmailConfig {
         Properties props = mailSender.getJavaMailProperties();
         props.put("mail.transport.protocol", "smtp");
         props.put("mail.smtp.auth", "true");
-        
-        // Use SSL instead of STARTTLS for port 465
-        if (mailPort == 465) {
-            props.put("mail.smtp.ssl.enable", "true");
-            props.put("mail.smtp.ssl.trust", mailHost);
-            props.put("mail.smtp.ssl.protocols", "TLSv1.2");
-        } else {
-            props.put("mail.smtp.starttls.enable", "true");
-            props.put("mail.smtp.starttls.required", "true");
-            props.put("mail.smtp.ssl.trust", mailHost);
-        }
-        
+        props.put("mail.smtp.starttls.enable", "true");
+        props.put("mail.smtp.starttls.required", "true");
+        props.put("mail.smtp.ssl.trust", mailHost);
         props.put("mail.smtp.connectiontimeout", "30000");
         props.put("mail.smtp.timeout", "30000");
         props.put("mail.smtp.writetimeout", "30000");
-        props.put("mail.debug", "true");
+        props.put("mail.debug", "false");
         
         System.out.println("\n╔═══════════════════════════════════════════════════════════════╗");
-        System.out.println("║              📧 GMAIL SMTP CONFIGURED                         ║");
+        System.out.println("║              📧 BREVO SMTP CONFIGURED                         ║");
         System.out.println("╠═══════════════════════════════════════════════════════════════╣");
         System.out.println("║ Host:     " + mailHost);
-        System.out.println("║ Port:     " + mailPort + (mailPort == 465 ? " (SSL)" : " (STARTTLS)"));
+        System.out.println("║ Port:     " + mailPort + " (STARTTLS)");
         System.out.println("║ Username: " + mailUsername);
-        System.out.println("║ Password: " + (mailPassword != null && !mailPassword.isEmpty() ? "***" + mailPassword.substring(Math.max(0, mailPassword.length() - 4)) : "NOT SET"));
+        System.out.println("║ API Key:  " + (mailPassword != null && !mailPassword.isEmpty() ? "***" + mailPassword.substring(Math.max(0, mailPassword.length() - 4)) : "NOT SET"));
         System.out.println("╠═══════════════════════════════════════════════════════════════╣");
-        System.out.println("║ ✅ Real emails will be sent via Gmail!                       ║");
+        System.out.println("║ ✅ Transactional emails via Brevo SMTP Relay!                ║");
         System.out.println("╚═══════════════════════════════════════════════════════════════╝\n");
         
         return mailSender;

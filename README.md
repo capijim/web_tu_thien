@@ -8,7 +8,7 @@ Hệ thống quản lý hoạt động từ thiện - Spring Boot + Railway Post
 - ✅ Theo dõi donations
 - ✅ Thanh toán VNPay
 - ✅ Admin dashboard
-- ✅ Email notifications
+- ✅ **Email notifications via Brevo SMTP**
 - ✅ **Auto database migration on first deploy**
 
 ## 🚀 Chạy Local (Docker)
@@ -19,6 +19,47 @@ docker-compose up
 ```
 
 **Access:** http://localhost:8080
+
+## 📧 Email Configuration (Brevo SMTP)
+
+### Setup Brevo Account:
+
+1. Đăng ký tài khoản tại: https://www.brevo.com
+2. Verify email và hoàn tất đăng ký
+3. Vào **Settings > SMTP & API**
+4. Copy **SMTP credentials**:
+   - SMTP Server: `smtp-relay.brevo.com`
+   - Port: `587`
+   - Login: Your Brevo login email
+   - SMTP Key: Generate new key
+
+### Configure Local Environment:
+
+```properties
+# src/main/resources/application.properties
+spring.mail.host=smtp-relay.brevo.com
+spring.mail.port=587
+spring.mail.username=your-brevo-email@domain.com
+spring.mail.password=your-brevo-smtp-key
+app.email.from=your-verified-sender@domain.com
+```
+
+### Configure Railway:
+
+```bash
+# Railway Environment Variables
+SPRING_MAIL_HOST=smtp-relay.brevo.com
+SPRING_MAIL_PORT=587
+SPRING_MAIL_USERNAME=your-brevo-email@domain.com
+SPRING_MAIL_PASSWORD=your-brevo-smtp-key
+APP_EMAIL_FROM=your-verified-sender@domain.com
+APP_EMAIL_NAME=Web Từ Thiện
+```
+
+**⚠️ Important:**
+- Sender email (`APP_EMAIL_FROM`) must be verified in Brevo dashboard
+- Free plan: 300 emails/day
+- Paid plans available for higher volume
 
 ## 🌐 Deploy Production (Railway)
 
