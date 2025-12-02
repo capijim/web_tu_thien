@@ -70,6 +70,13 @@ public class VNPayUtil {
         }
         return sb.toString();
     }
+    
+    // Tạo TxnRef unique với timestamp
+    public static String generateTxnRef() {
+        long timestamp = System.currentTimeMillis() / 1000; // Unix timestamp
+        String random = getRandomNumber(4);
+        return timestamp + random; // Ví dụ: 17331234561234
+    }
 
     // Method build query string KHÔNG encode - chỉ nối chuỗi
     public static String buildQueryString(Map<String, String> params) {

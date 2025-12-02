@@ -37,7 +37,9 @@ public class VNPayService {
         System.out.println("Campaign ID: " + donation.getCampaignId());
         System.out.println("Amount: " + donation.getAmount());
         
-        String vnpTxnRef = VNPayUtil.getRandomNumber(8);
+        // Tạo TxnRef unique với timestamp
+        String vnpTxnRef = VNPayUtil.generateTxnRef();
+        System.out.println("Generated TxnRef: " + vnpTxnRef);
         
         // Tạo các tham số - TreeMap tự động sort
         Map<String, String> vnpParams = new TreeMap<>();
@@ -50,21 +52,30 @@ public class VNPayService {
         vnpParams.put("vnp_OrderInfo", "DonateC" + donation.getCampaignId());
         vnpParams.put("vnp_OrderType", "other");
         vnpParams.put("vnp_Locale", "vn");
+        
+        // Thêm BankCode để chọn phương thức thanh toán (optional)
+        // vnpParams.put("vnp_BankCode", "VNBANK"); // Uncomment nếu cần
+        
         vnpParams.put("vnp_ReturnUrl", vnPayConfig.getReturnUrl());
         vnpParams.put("vnp_IpAddr", VNPayUtil.getIpAddress(request));
         
-        // Tạo thời gian
-        TimeZone timeZone = TimeZone.getTimeZone("Asia/Ho_Chi_Minh");
-        Calendar cld = Calendar.getInstance(timeZone);
+        // Tạo thời gian - QUAN TRỌNG: Phải đúng múi giờ Việt Nam
+        Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("Asia/Ho_Chi_Minh"));
         SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMddHHmmss");
-        formatter.setTimeZone(timeZone);
+        formatter.setTimeZone(TimeZone.getTimeZone("Asia/Ho_Chi_Minh"));
         
-        String vnpCreateDate = formatter.format(cld.getTime());
+        // Create Date - thời điểm hiện tại
+        String vnpCreateDate = formatter.format(calendar.getTime());
         vnpParams.put("vnp_CreateDate", vnpCreateDate);
         
-        cld.add(Calendar.MINUTE, 15);
-        String vnpExpireDate = formatter.format(cld.getTime());
+        // Expire Date - tăng lên 30 phút để đủ thời gian test
+        calendar.add(Calendar.MINUTE, 30);
+        String vnpExpireDate = formatter.format(calendar.getTime());
         vnpParams.put("vnp_ExpireDate", vnpExpireDate);
+        
+        System.out.println("=== Time Info ===");
+        System.out.println("Create Date: " + vnpCreateDate);
+        System.out.println("Expire Date: " + vnpExpireDate);
         
         // Tạo hash data và query string - GIỐNG NHAU HOÀN TOÀN
         StringBuilder queryData = new StringBuilder();
@@ -150,30 +161,30 @@ public class VNPayService {
                     // Lấy campaignId từ OrderInfo
                     String orderInfo = request.getParameter("vnp_OrderInfo");
                     if (orderInfo != null && orderInfo.startsWith("DonateC")) {
-                        try {
-                            Long campaignId = Long.parseLong(orderInfo.substring(7));
+                        try {       System.out.println("Could not parse campaignId from OrderInfo: " + e.getMessage());
+                            Long campaignId = Long.parseLong(orderInfo.substring(7));}
                             result.put("campaignId", campaignId);
                         } catch (Exception e) {
-                            System.out.println("Could not parse campaignId from OrderInfo: " + e.getMessage());
-                        }
                     }
-                } else {
-                    result.put("success", false);
+                } else {   result.put("message", "Thanh toán thất bại. Mã lỗi: " + vnpResponseCode);
+                    result.put("success", false);System.out.println("Payment failed with code: " + vnpResponseCode);
                     result.put("message", "Thanh toán thất bại. Mã lỗi: " + vnpResponseCode);
                     System.out.println("Payment failed with code: " + vnpResponseCode);
                 }
-            } else {
-                result.put("success", false);
+            } else {   result.put("message", "Chữ ký không hợp lệ");
+                result.put("success", false);tln("Invalid signature!");
                 result.put("message", "Chữ ký không hợp lệ");
                 System.out.println("Invalid signature!");
-            }
+            }cessing VNPay return: " + e.getMessage());
         } catch (Exception e) {
-            System.err.println("Error processing VNPay return: " + e.getMessage());
-            e.printStackTrace();
+            System.err.println("Error processing VNPay return: " + e.getMessage());   result.put("success", false);
+            e.printStackTrace();    result.put("message", "Lỗi xử lý kết quả thanh toán: " + e.getMessage());
             result.put("success", false);
-            result.put("message", "Lỗi xử lý kết quả thanh toán: " + e.getMessage());
-        }
-        
-        return result;
-    }
-}
+            result.put("message", "Lỗi xử lý kết quả thanh toán: " + e.getMessage());   
+        }       return result;
+            }
+
+
+
+
+}    }        return result;}
