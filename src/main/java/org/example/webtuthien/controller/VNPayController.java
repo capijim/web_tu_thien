@@ -124,23 +124,4 @@ public class VNPayController {
         
         return config;
     }
-    
-    @GetMapping("/mock")
-    public String mockPayment(@RequestParam String txnRef,
-                             @RequestParam BigDecimal amount,
-                             @RequestParam String orderInfo,
-                             Model model,
-                             HttpServletRequest request) {
-        
-        System.out.println("=== Mock Payment Page ===");
-        System.out.println("TxnRef: " + txnRef);
-        System.out.println("Amount: " + amount);
-        
-        model.addAttribute("txnRef", txnRef);
-        model.addAttribute("amount", amount);
-        model.addAttribute("orderInfo", orderInfo);
-        model.addAttribute("returnUrl", vnPayConfig.getReturnUrl());
-        
-        return "vnpay-mock";
-    }
 }
