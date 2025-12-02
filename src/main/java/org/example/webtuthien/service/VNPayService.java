@@ -47,8 +47,6 @@ public class VNPayService {
         vnpParams.put("vnp_Amount", String.valueOf(donation.getAmount().multiply(new java.math.BigDecimal("100")).longValue()));
         vnpParams.put("vnp_CurrCode", "VND");
         vnpParams.put("vnp_TxnRef", vnpTxnRef);
-        
-        // QUAN TRỌNG: Không có dấu cách, chỉ dùng ký tự ASCII an toàn
         vnpParams.put("vnp_OrderInfo", "DonateC" + donation.getCampaignId());
         vnpParams.put("vnp_OrderType", "other");
         vnpParams.put("vnp_Locale", "vn");
@@ -68,44 +66,33 @@ public class VNPayService {
         String vnpExpireDate = formatter.format(cld.getTime());
         vnpParams.put("vnp_ExpireDate", vnpExpireDate);
         
-        // Bước 1: Tạo hash data (KHÔNG encode URL)
-        StringBuilder hashData = new StringBuilder();
+        // Tạo hash data và query string - GIỐNG NHAU HOÀN TOÀN
+        StringBuilder queryData = new StringBuilder();
         boolean isFirst = true;
         
         for (Map.Entry<String, String> entry : vnpParams.entrySet()) {
             if (!isFirst) {
-                hashData.append('&');
+                queryData.append('&');
             }
-            hashData.append(entry.getKey()).append('=').append(entry.getValue());
+            queryData.append(entry.getKey()).append('=').append(entry.getValue());
             isFirst = false;
         }
         
-        String hashDataStr = hashData.toString();
+        String hashData = queryData.toString();
+        
         System.out.println("=== VNPay Debug ===");
-        System.out.println("Hash Data: " + hashDataStr);
+        System.out.println("Hash Data: " + hashData);
         System.out.println("Hash Secret length: " + vnPayConfig.getHashSecret().length());
         
-        // Bước 2: Tạo secure hash
-        String vnpSecureHash = VNPayUtil.hmacSHA512(vnPayConfig.getHashSecret(), hashDataStr);
+        // Tạo secure hash
+        String vnpSecureHash = VNPayUtil.hmacSHA512(vnPayConfig.getHashSecret(), hashData);
         System.out.println("Secure Hash: " + vnpSecureHash);
         
-        // Bước 3: Tạo query URL - encode theo chuẩn URL encoding
-        StringBuilder queryUrl = new StringBuilder();
-        isFirst = true;
+        // Query URL = Hash Data + SecureHash (KHÔNG ENCODE GÌ CẢ)
+        String queryUrl = hashData + "&vnp_SecureHash=" + vnpSecureHash;
         
-        for (Map.Entry<String, String> entry : vnpParams.entrySet()) {
-            if (!isFirst) {
-                queryUrl.append('&');
-            }
-            queryUrl.append(URLEncoder.encode(entry.getKey(), StandardCharsets.UTF_8.toString()));
-            queryUrl.append('=');
-            queryUrl.append(URLEncoder.encode(entry.getValue(), StandardCharsets.UTF_8.toString()));
-            isFirst = false;
-        }
+        String fullUrl = vnPayConfig.getVnpayUrl() + "?" + queryUrl;
         
-        queryUrl.append("&vnp_SecureHash=").append(vnpSecureHash);
-        
-        String fullUrl = vnPayConfig.getVnpayUrl() + "?" + queryUrl.toString();
         System.out.println("=== Final URL ===");
         System.out.println("Length: " + fullUrl.length());
         System.out.println("URL: " + fullUrl);
