@@ -52,6 +52,7 @@ CREATE TABLE IF NOT EXISTS donations (
   donor_name VARCHAR(255) NOT NULL,
   amount DECIMAL(12,2) NOT NULL,
   message TEXT,
+  payment_method VARCHAR(20) DEFAULT 'direct',
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   CONSTRAINT fk_donations_campaign FOREIGN KEY (campaign_id) REFERENCES campaigns(id) ON DELETE CASCADE
 );

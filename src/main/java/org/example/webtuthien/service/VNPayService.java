@@ -33,8 +33,11 @@ public class VNPayService {
             throw new IllegalArgumentException("Donation ID is null. Donation must be saved before creating payment URL");
         }
         
-        System.out.println("Creating payment for donation ID: " + donation.getId());
-        System.out.println("Donation amount: " + donation.getAmount());
+        System.out.println("=== Creating VNPay Payment ===");
+        System.out.println("Donation ID: " + donation.getId());
+        System.out.println("Campaign ID: " + donation.getCampaignId());
+        System.out.println("Amount: " + donation.getAmount());
+        System.out.println("Donor Name: " + donation.getDonorName());
         
         // Tạo payment record với status PENDING
         Payment payment = new Payment();
@@ -46,16 +49,16 @@ public class VNPayService {
         String vnpTxnRef = VNPayUtil.getRandomNumber(8);
         payment.setVnpayTxnRef(vnpTxnRef);
         
-        System.out.println("Payment details - donation_id: " + payment.getDonationId() + 
-                          ", vnpay_txn_ref: " + payment.getVnpayTxnRef() + 
-                          ", amount: " + payment.getAmount());
+        System.out.println("Payment TxnRef: " + vnpTxnRef);
         
         try {
             // Lưu payment
-            paymentRepository.save(payment);
-            System.out.println("Payment saved successfully with ID: " + payment.getId());
+            Payment savedPayment = paymentRepository.save(payment);
+            System.out.println("Payment saved successfully with ID: " + savedPayment.getId());
         } catch (Exception e) {
-            System.err.println("Error saving payment: " + e.getMessage());
+            System.err.println("=== Error saving payment ===");
+            System.err.println("Error message: " + e.getMessage());
+            System.err.println("Error class: " + e.getClass().getName());
             e.printStackTrace();
             throw new RuntimeException("Failed to save payment: " + e.getMessage(), e);
         }
@@ -119,6 +122,7 @@ public class VNPayService {
         String vnpSecureHash = VNPayUtil.hmacSHA512(vnPayConfig.getHashSecret(), hashData.toString());
         queryUrl += "&vnp_SecureHash=" + vnpSecureHash;
         
+        System.out.println("VNPay URL created successfully");
         return vnPayConfig.getVnpayUrl() + "?" + queryUrl;
     }
     

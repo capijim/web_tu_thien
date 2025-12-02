@@ -15,6 +15,9 @@ public class Payment {
     private OffsetDateTime createdAt;
     private OffsetDateTime updatedAt;
     
+    // Additional field for tracking
+    private Long campaignId;
+    
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
     
@@ -48,4 +51,7 @@ public class Payment {
     
     public OffsetDateTime getUpdatedAt() { return updatedAt; }
     public void setUpdatedAt(OffsetDateTime updatedAt) { this.updatedAt = updatedAt; }
+    
+    public Long getCampaignId() { return campaignId; }
+    public void setCampaignId(Long campaignId) { this.campaignId = campaignId; }
 }

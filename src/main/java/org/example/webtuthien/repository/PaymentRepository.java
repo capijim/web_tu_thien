@@ -53,23 +53,41 @@ public class PaymentRepository {
             throw new IllegalArgumentException("amount cannot be null");
         }
         
+        // Check if donation exists
+        try {
+            Integer count = jdbcTemplate.queryForObject(
+                "SELECT COUNT(*) FROM donations WHERE id = ?", 
+                Integer.class, 
+                payment.getDonationId()
+            );
+            if (count == null || count == 0) {
+                throw new IllegalArgumentException("Donation with ID " + payment.getDonationId() + " does not exist");
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("Error checking donation existence: " + e.getMessage(), e);
+        }
+        
         String sql = "INSERT INTO payments (donation_id, vnpay_txn_ref, amount, payment_status, created_at, updated_at) " +
                     "VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)";
         
         KeyHolder keyHolder = new GeneratedKeyHolder();
         
-        jdbcTemplate.update(connection -> {
-            PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
-            ps.setLong(1, payment.getDonationId());
-            ps.setString(2, payment.getVnpayTxnRef());
-            ps.setBigDecimal(3, payment.getAmount());
-            ps.setString(4, payment.getPaymentStatus());
-            return ps;
-        }, keyHolder);
-        
-        if (keyHolder.getKey() != null) {
-            Long id = keyHolder.getKey().longValue();
-            payment.setId(id);
+        try {
+            jdbcTemplate.update(connection -> {
+                PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+                ps.setLong(1, payment.getDonationId());
+                ps.setString(2, payment.getVnpayTxnRef());
+                ps.setBigDecimal(3, payment.getAmount());
+                ps.setString(4, payment.getPaymentStatus());
+                return ps;
+            }, keyHolder);
+            
+            if (keyHolder.getKey() != null) {
+                Long id = keyHolder.getKey().longValue();
+                payment.setId(id);
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to save payment to database: " + e.getMessage(), e);
         }
         
         return payment;

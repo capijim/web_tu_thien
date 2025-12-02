@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
+import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -32,6 +33,12 @@ public class VNPayController {
         Map<String, Object> response = new HashMap<>();
         
         try {
+            System.out.println("=== VNPay Payment Request ===");
+            System.out.println("Campaign ID: " + donation.getCampaignId());
+            System.out.println("Donor Name: " + donation.getDonorName());
+            System.out.println("Amount: " + donation.getAmount());
+            System.out.println("Message: " + donation.getMessage());
+            
             // Kiểm tra đăng nhập
             Object userIdObj = session.getAttribute("userId");
             if (userIdObj == null) {
@@ -40,8 +47,23 @@ public class VNPayController {
                 return response;
             }
             
+            // Validate input
+            if (donation.getCampaignId() == null) {
+                response.put("success", false);
+                response.put("message", "Campaign ID is required");
+                return response;
+            }
+            
+            if (donation.getAmount() == null || donation.getAmount().compareTo(BigDecimal.ZERO) <= 0) {
+                response.put("success", false);
+                response.put("message", "Amount must be greater than 0");
+                return response;
+            }
+            
             // Tạo donation trước và lưu vào DB
+            System.out.println("Creating donation...");
             Donation createdDonation = donationService.create(donation);
+            System.out.println("Donation created with ID: " + createdDonation.getId());
             
             // Kiểm tra donation đã có ID
             if (createdDonation.getId() == null) {
@@ -51,13 +73,24 @@ public class VNPayController {
             }
             
             // Tạo URL thanh toán VNPay
+            System.out.println("Creating VNPay payment URL...");
             String paymentUrl = vnPayService.createPaymentUrl(createdDonation, request);
+            System.out.println("Payment URL created successfully");
             
             response.put("success", true);
             response.put("paymentUrl", paymentUrl);
             response.put("donationId", createdDonation.getId());
             
+        } catch (IllegalArgumentException e) {
+            System.err.println("Validation error: " + e.getMessage());
+            response.put("success", false);
+            response.put("message", "Lỗi validation: " + e.getMessage());
         } catch (Exception e) {
+            System.err.println("=== Error in create-payment ===");
+            System.err.println("Error class: " + e.getClass().getName());
+            System.err.println("Error message: " + e.getMessage());
+            e.printStackTrace();
+            
             response.put("success", false);
             response.put("message", "Lỗi tạo thanh toán: " + e.getMessage());
         }

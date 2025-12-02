@@ -36,6 +36,7 @@ create table if not exists donations (
   donor_name varchar(255) not null,
   amount decimal(12,2) not null,
   message text,
+  payment_method varchar(20) default 'direct',
   created_at timestamp not null default current_timestamp,
   foreign key (campaign_id) references campaigns(id)
 );
@@ -62,7 +63,7 @@ create table if not exists payments (
   payment_status varchar(20) not null default 'PENDING',
   created_at timestamp not null default current_timestamp,
   updated_at timestamp not null default current_timestamp,
-  foreign key (donation_id) references donations(id)
+  foreign key (donation_id) references donations(id) on delete set null
 );
 
 -- Trigger function to update updated_at column

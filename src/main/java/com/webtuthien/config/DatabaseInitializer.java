@@ -58,6 +58,14 @@ public class DatabaseInitializer implements CommandLineRunner {
             executeSqlFile("db/migration/V2__seed_data.sql");
             logger.info("✅ Seed data inserted successfully.");
 
+            logger.info("📦 Running V3__fix_payments_table.sql...");
+            try {
+                executeSqlFile("db/migration/V3__fix_payments_table.sql");
+                logger.info("✅ Payments table fixed successfully.");
+            } catch (Exception e) {
+                logger.warn("⚠️ V3 migration skipped or already applied: {}", e.getMessage());
+            }
+
             logger.info("🎉 Database initialization completed!");
             
         } catch (Exception e) {
