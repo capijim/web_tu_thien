@@ -147,11 +147,6 @@ public class MoMoPaymentController {
             @RequestParam Double amount,
             @RequestParam String donorName,
             @RequestParam(required = false) String message,
-            @RequestParam String cardNumber,
-            @RequestParam String cardHolder,
-            @RequestParam String expiry,
-            @RequestParam String cvv,
-            @RequestParam String bank,
             HttpSession session) {
         
         Map<String, Object> response = new HashMap<>();
@@ -160,19 +155,36 @@ public class MoMoPaymentController {
             System.out.println("=== MoMo ATM Payment Request ===");
             System.out.println("Campaign ID: " + campaignId);
             System.out.println("Amount: " + amount);
-            System.out.println("Bank: " + bank);
-            System.out.println("Card: " + cardNumber.substring(0, 4) + "****");
+            System.out.println("Donor: " + donorName);
             
-            // TODO: Implement MoMo ATM payment integration
-            // For now, return demo URL
-            String payUrl = "https://test-payment.momo.vn/gw_payment/payment.html";
+            // Kiểm tra đăng nhập
+            Object userIdObj = session.getAttribute("userId");
+            if (userIdObj == null) {
+                response.put("success", false);
+                response.put("message", "Bạn cần đăng nhập để quyên góp");
+                return response;
+            }
+            
+            // TODO: Implement MoMo ATM payment gateway
+            // Tạo request đến MoMo với paymentMethod = "ATM"
+            // Endpoint: /v2/gateway/api/create
+            // Tham số: paymentMethod = "ATM"
+            
+            // Demo: redirect đến MoMo payment gateway
+            String payUrl = "https://test-payment.momo.vn/gw_payment/payment.html" +
+                           "?partnerCode=DEMO" +
+                           "&orderId=DONATE" + System.currentTimeMillis() +
+                           "&amount=" + amount.longValue() +
+                           "&orderInfo=Donate_Campaign_" + campaignId +
+                           "&paymentMethod=ATM";
             
             response.put("success", true);
             response.put("payUrl", payUrl);
-            response.put("message", "Đang chuyển đến trang thanh toán...");
+            response.put("message", "Đang chuyển đến trang thanh toán MoMo...");
             
         } catch (Exception e) {
             System.err.println("Error creating ATM payment: " + e.getMessage());
+            e.printStackTrace();
             response.put("success", false);
             response.put("message", "Lỗi: " + e.getMessage());
         }

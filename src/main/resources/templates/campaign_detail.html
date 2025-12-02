@@ -150,7 +150,7 @@
         <div class="payment-modal-header">
           <h3>
             <img src="https://developers.momo.vn/v3/assets/images/square-logo.svg" alt="MoMo" style="height:24px;vertical-align:middle;margin-right:8px">
-            Thanh toán MoMo
+            Thanh toán qua MoMo ATM
           </h3>
           <button class="close-modal" onclick="closeMoMoModal()">
             <i class="fas fa-times"></i>
@@ -158,179 +158,42 @@
         </div>
         
         <div class="payment-modal-body">
-          <div class="payment-method-tabs">
-            <button class="payment-tab active" data-tab="qr" onclick="switchMoMoMethod('qr')">
-              <i class="fas fa-qrcode"></i>
-              <span>Quét mã QR</span>
-            </button>
-            <button class="payment-tab" data-tab="phone" onclick="switchMoMoMethod('phone')">
-              <i class="fas fa-mobile-alt"></i>
-              <span>Số điện thoại</span>
-            </button>
-            <button class="payment-tab" data-tab="atm" onclick="switchMoMoMethod('atm')">
+          <div class="payment-info-box">
+            <div class="payment-icon">
               <i class="fas fa-credit-card"></i>
-              <span>Thẻ ATM</span>
-            </button>
-          </div>
-
-          <!-- QR Method -->
-          <div id="momoQRMethod" class="payment-method-content active">
-            <div class="payment-info">
-              <p class="payment-amount">
-                Số tiền: <strong id="momoQRAmount">0</strong> đ
-              </p>
-              <p class="payment-desc">Quét mã QR bằng ứng dụng MoMo để thanh toán</p>
             </div>
-            <div class="qr-loading">
-              <i class="fas fa-spinner fa-spin"></i>
-              <p>Đang tạo mã QR...</p>
+            <h4>Thanh toán qua thẻ ATM nội địa</h4>
+            <div class="payment-amount-display">
+              <span>Số tiền thanh toán</span>
+              <strong id="momoDisplayAmount">0 đ</strong>
             </div>
-          </div>
-
-          <!-- Phone Method -->
-          <div id="momoPhoneMethod" class="payment-method-content">
-            <div class="payment-info">
-              <p class="payment-amount">
-                Số tiền: <strong id="momoPhoneAmount">0</strong> đ
-              </p>
-            </div>
-            <form id="momoPhoneForm" class="momo-phone-form">
-              <div class="form-group">
-                <label for="momoPhone">
-                  <i class="fas fa-phone"></i>
-                  Số điện thoại MoMo
-                </label>
-                <input 
-                  type="tel" 
-                  id="momoPhone" 
-                  name="phone" 
-                  placeholder="Nhập số điện thoại (VD: 0987654321)"
-                  pattern="[0-9]{10}"
-                  required
-                  maxlength="10"
-                />
-                <small class="form-hint">Nhập số điện thoại đã đăng ký ví MoMo</small>
-              </div>
-              
-              <button type="submit" class="btn-momo-pay">
-                <i class="fas fa-paper-plane"></i>
-                Gửi yêu cầu thanh toán
-              </button>
-            </form>
-          </div>
-
-          <!-- ATM Method -->
-          <div id="momoATMMethod" class="payment-method-content">
-            <div class="payment-info">
-              <p class="payment-amount">
-                Số tiền: <strong id="momoATMAmount">0</strong> đ
-              </p>
-            </div>
-            <form id="momoATMForm" class="momo-atm-form">
-              <div class="form-group">
-                <label for="atmCardNumber">
-                  <i class="fas fa-credit-card"></i>
-                  Số thẻ ATM
-                </label>
-                <input 
-                  type="text" 
-                  id="atmCardNumber" 
-                  name="cardNumber" 
-                  placeholder="Nhập số thẻ (16-19 số)"
-                  pattern="[0-9]{16,19}"
-                  required
-                  maxlength="19"
-                  autocomplete="cc-number"
-                />
-              </div>
-
-              <div class="form-group">
-                <label for="atmCardHolder">
-                  <i class="fas fa-user"></i>
-                  Tên chủ thẻ
-                </label>
-                <input 
-                  type="text" 
-                  id="atmCardHolder" 
-                  name="cardHolder" 
-                  placeholder="Nhập tên như trên thẻ"
-                  required
-                  style="text-transform: uppercase;"
-                  autocomplete="cc-name"
-                />
-              </div>
-
-              <div class="form-row">
-                <div class="form-group">
-                  <label for="atmExpiry">
-                    <i class="fas fa-calendar"></i>
-                    Ngày hết hạn
-                  </label>
-                  <input 
-                    type="text" 
-                    id="atmExpiry" 
-                    name="expiry" 
-                    placeholder="MM/YY"
-                    pattern="(0[1-9]|1[0-2])\/[0-9]{2}"
-                    required
-                    maxlength="5"
-                    autocomplete="cc-exp"
-                  />
-                </div>
-
-                <div class="form-group">
-                  <label for="atmCVV">
-                    <i class="fas fa-lock"></i>
-                    CVV
-                  </label>
-                  <input 
-                    type="text" 
-                    id="atmCVV" 
-                    name="cvv" 
-                    placeholder="***"
-                    pattern="[0-9]{3}"
-                    required
-                    maxlength="3"
-                    autocomplete="cc-csc"
-                  />
-                </div>
-              </div>
-
-              <div class="form-group">
-                <label for="atmBank">
-                  <i class="fas fa-university"></i>
-                  Ngân hàng
-                </label>
-                <select id="atmBank" name="bank" required>
-                  <option value="">Chọn ngân hàng</option>
-                  <option value="Vietcombank">Vietcombank</option>
-                  <option value="VietinBank">VietinBank</option>
-                  <option value="BIDV">BIDV</option>
-                  <option value="Agribank">Agribank</option>
-                  <option value="Techcombank">Techcombank</option>
-                  <option value="MB">MB Bank</option>
-                  <option value="ACB">ACB</option>
-                  <option value="VPBank">VPBank</option>
-                  <option value="TPBank">TPBank</option>
-                  <option value="Sacombank">Sacombank</option>
-                  <option value="SHB">SHB</option>
-                  <option value="OCB">OCB</option>
-                  <option value="MSB">MSB</option>
-                  <option value="VIB">VIB</option>
-                  <option value="HDBank">HDBank</option>
-                </select>
-              </div>
-
-              <div class="security-note">
+            <p class="payment-instruction">
+              Bạn sẽ được chuyển đến trang thanh toán an toàn của MoMo để nhập thông tin thẻ ATM.
+            </p>
+            
+            <div class="payment-features">
+              <div class="feature-item">
                 <i class="fas fa-shield-alt"></i>
-                <span>Thông tin thẻ được mã hóa và bảo mật an toàn</span>
+                <span>Bảo mật 3D Secure</span>
               </div>
-              
-              <button type="submit" class="btn-momo-pay">
+              <div class="feature-item">
                 <i class="fas fa-lock"></i>
-                Thanh toán an toàn
-              </button>
-            </form>
+                <span>Mã hóa SSL/TLS</span>
+              </div>
+              <div class="feature-item">
+                <i class="fas fa-check-circle"></i>
+                <span>Hỗ trợ tất cả ngân hàng</span>
+              </div>
+            </div>
+
+            <button id="btnProcessPayment" class="btn-momo-pay" onclick="processMoMoATMPayment()">
+              <i class="fas fa-arrow-right"></i>
+              Tiếp tục thanh toán
+            </button>
+            
+            <button class="btn-cancel" onclick="closeMoMoModal()">
+              Hủy bỏ
+            </button>
           </div>
         </div>
       </div>
@@ -441,7 +304,7 @@ function payWithMoMo(campaignId, amount, message) {
     return;
   }
   
-  // Show MoMo modal instead of direct payment
+  // Show MoMo payment info modal
   showMoMoModal(campaignId, amount, message);
 }
 
@@ -451,54 +314,33 @@ function showMoMoModal(campaignId, amount, message) {
   currentMoMoData = { campaignId, amount, message };
   
   // Update amount display
-  const formattedAmount = new Intl.NumberFormat('vi-VN').format(amount);
-  document.getElementById('momoQRAmount').textContent = formattedAmount;
-  document.getElementById('momoPhoneAmount').textContent = formattedAmount;
-  document.getElementById('momoATMAmount').textContent = formattedAmount;
+  const formattedAmount = new Intl.NumberFormat('vi-VN').format(amount) + ' đ';
+  document.getElementById('momoDisplayAmount').textContent = formattedAmount;
   
   // Show modal
   document.getElementById('momoModal').classList.add('show');
   document.body.style.overflow = 'hidden';
-  
-  // Default to QR method
-  switchMoMoMethod('qr');
 }
 
 function closeMoMoModal() {
   document.getElementById('momoModal').classList.remove('show');
   document.body.style.overflow = '';
   
-  // Reset forms
-  document.getElementById('momoPhoneForm').reset();
-  document.getElementById('momoATMForm').reset();
+  // Re-enable donate button
+  const submitBtn = document.getElementById('donate-submit-btn');
+  submitBtn.innerHTML = '<img src="https://developers.momo.vn/v3/assets/images/square-logo.svg" style="height:20px;vertical-align:middle;margin-right:8px"> Thanh toán MoMo';
+  submitBtn.disabled = false;
 }
 
-function switchMoMoMethod(method) {
-  // Update tabs
-  document.querySelectorAll('.payment-tab').forEach(tab => {
-    tab.classList.remove('active');
-  });
-  document.querySelector(`[data-tab="${method}"]`).classList.add('active');
-  
-  // Update content
-  document.querySelectorAll('.payment-method-content').forEach(content => {
-    content.classList.remove('active');
-  });
-  
-  if (method === 'qr') {
-    document.getElementById('momoQRMethod').classList.add('active');
-    createMoMoQRPayment();
-  } else if (method === 'phone') {
-    document.getElementById('momoPhoneMethod').classList.add('active');
-  } else if (method === 'atm') {
-    document.getElementById('momoATMMethod').classList.add('active');
-  }
-}
-
-function createMoMoQRPayment() {
+function processMoMoATMPayment() {
   const { campaignId, amount, message } = currentMoMoData;
   
-  console.log('Creating MoMo QR payment:', { campaignId, amount, donorName, message });
+  const btnProcess = document.getElementById('btnProcessPayment');
+  const originalText = btnProcess.innerHTML;
+  btnProcess.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang kết nối MoMo...';
+  btnProcess.disabled = true;
+  
+  console.log('Creating MoMo ATM payment:', { campaignId, amount, donorName, message });
   
   const formData = new URLSearchParams();
   formData.append('campaignId', campaignId);
@@ -506,170 +348,30 @@ function createMoMoQRPayment() {
   formData.append('donorName', donorName);
   formData.append('message', message || '');
   
-  fetch('/payment/momo/create', {
+  fetch('/payment/momo/create-atm', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/x-www-form-urlencoded',
     },
     body: formData.toString()
   })
-  .then(res => {
-    if (!res.ok) {
-      throw new Error('Network response was not ok');
-    }
-    return res.json();
-  })
+  .then(res => res.json())
   .then(data => {
-    console.log('MoMo response:', data);
+    console.log('MoMo ATM response:', data);
     if (data.success && data.payUrl) {
+      // Redirect to MoMo ATM payment gateway
       window.location.href = data.payUrl;
     } else {
-      throw new Error(data.message || 'Không thể tạo thanh toán MoMo');
+      throw new Error(data.message || 'Không thể tạo thanh toán');
     }
   })
   .catch(err => {
-    console.error('MoMo error:', err);
-    closeMoMoModal();
-    alert('Lỗi tạo thanh toán MoMo: ' + err.message);
-    
-    const submitBtn = document.getElementById('donate-submit-btn');
-    submitBtn.innerHTML = '<i class="fas fa-heart"></i> Ủng hộ ngay';
-    submitBtn.disabled = false;
+    console.error('MoMo ATM error:', err);
+    alert('Lỗi: ' + err.message);
+    btnProcess.innerHTML = originalText;
+    btnProcess.disabled = false;
   });
 }
-
-// Handle form submissions
-document.addEventListener('DOMContentLoaded', function() {
-  // Phone method form
-  const momoPhoneForm = document.getElementById('momoPhoneForm');
-  if (momoPhoneForm) {
-    momoPhoneForm.addEventListener('submit', function(e) {
-      e.preventDefault();
-      
-      const phone = document.getElementById('momoPhone').value;
-      if (!/^0\d{9}$/.test(phone)) {
-        alert('Số điện thoại không hợp lệ. Vui lòng nhập đúng 10 số.');
-        return;
-      }
-      
-      const { campaignId, amount, message } = currentMoMoData;
-      const formData = new URLSearchParams();
-      formData.append('campaignId', campaignId);
-      formData.append('amount', amount);
-      formData.append('donorName', donorName);
-      formData.append('message', message || '');
-      formData.append('phone', phone);
-      
-      const submitBtn = momoPhoneForm.querySelector('button[type="submit"]');
-      const originalText = submitBtn.innerHTML;
-      submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang xử lý...';
-      submitBtn.disabled = true;
-      
-      fetch('/payment/momo/create-phone', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        body: formData.toString()
-      })
-      .then(res => res.json())
-      .then(data => {
-        if (data.success) {
-          closeMoMoModal();
-          alert('Yêu cầu thanh toán đã được gửi đến số ' + phone);
-        } else {
-          throw new Error(data.message || 'Không thể tạo thanh toán MoMo');
-        }
-      })
-      .catch(err => {
-        alert('Lỗi: ' + err.message);
-      })
-      .finally(() => {
-        submitBtn.innerHTML = originalText;
-        submitBtn.disabled = false;
-      });
-    });
-  }
-
-  // ATM method form
-  const momoATMForm = document.getElementById('momoATMForm');
-  if (momoATMForm) {
-    // Format card number
-    const cardNumberInput = document.getElementById('atmCardNumber');
-    cardNumberInput.addEventListener('input', function(e) {
-      let value = e.target.value.replace(/\s/g, '');
-      let formattedValue = value.match(/.{1,4}/g)?.join(' ') || value;
-      e.target.value = formattedValue;
-    });
-
-    // Format expiry date
-    const expiryInput = document.getElementById('atmExpiry');
-    expiryInput.addEventListener('input', function(e) {
-      let value = e.target.value.replace(/\D/g, '');
-      if (value.length >= 2) {
-        value = value.substring(0, 2) + '/' + value.substring(2, 4);
-      }
-      e.target.value = value;
-    });
-
-    // Submit ATM form
-    momoATMForm.addEventListener('submit', function(e) {
-      e.preventDefault();
-      
-      const { campaignId, amount, message } = currentMoMoData;
-      const cardNumber = document.getElementById('atmCardNumber').value.replace(/\s/g, '');
-      const cardHolder = document.getElementById('atmCardHolder').value;
-      const expiry = document.getElementById('atmExpiry').value;
-      const cvv = document.getElementById('atmCVV').value;
-      const bank = document.getElementById('atmBank').value;
-      
-      // Validate
-      if (cardNumber.length < 16) {
-        alert('Số thẻ không hợp lệ');
-        return;
-      }
-      
-      const formData = new URLSearchParams();
-      formData.append('campaignId', campaignId);
-      formData.append('amount', amount);
-      formData.append('donorName', donorName);
-      formData.append('message', message || '');
-      formData.append('cardNumber', cardNumber);
-      formData.append('cardHolder', cardHolder);
-      formData.append('expiry', expiry);
-      formData.append('cvv', cvv);
-      formData.append('bank', bank);
-      
-      const submitBtn = momoATMForm.querySelector('button[type="submit"]');
-      const originalText = submitBtn.innerHTML;
-      submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang xử lý...';
-      submitBtn.disabled = true;
-      
-      fetch('/payment/momo/create-atm', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        body: formData.toString()
-      })
-      .then(res => res.json())
-      .then(data => {
-        if (data.success && data.payUrl) {
-          window.location.href = data.payUrl;
-        } else {
-          throw new Error(data.message || 'Không thể tạo thanh toán');
-        }
-      })
-      .catch(err => {
-        alert('Lỗi: ' + err.message);
-      })
-      .finally(() => {
-        submitBtn.innerHTML = originalText;
-        submitBtn.disabled = false;
-      });
-    });
-  }
-});
 
 // Close modal when clicking outside
 document.addEventListener('click', function(e) {
@@ -764,7 +466,8 @@ document.addEventListener('click', function(e) {
       left: 0;
       width: 100%;
       height: 100%;
-      background: rgba(0, 0, 0, 0.6);
+      background: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(6px);
       z-index: 9999;
       animation: fadeIn 0.3s ease;
     }
@@ -775,29 +478,24 @@ document.addEventListener('click', function(e) {
       justify-content: center;
     }
 
-    @keyframes fadeIn {
-      from { opacity: 0; }
-      to { opacity: 1; }
-    }
-
     .payment-modal-content {
       background: white;
-      border-radius: 16px;
-      max-width: 550px;
+      border-radius: 24px;
+      max-width: 480px;
       width: 90%;
       max-height: 90vh;
       overflow-y: auto;
-      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-      animation: slideUp 0.3s ease;
+      box-shadow: 0 30px 80px rgba(0, 0, 0, 0.5);
+      animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
     @keyframes slideUp {
       from {
-        transform: translateY(50px);
+        transform: translateY(60px) scale(0.95);
         opacity: 0;
       }
       to {
-        transform: translateY(0);
+        transform: translateY(0) scale(1);
         opacity: 1;
       }
     }
@@ -806,222 +504,203 @@ document.addEventListener('click', function(e) {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 20px 24px;
-      border-bottom: 1px solid #e5e7eb;
+      padding: 24px 28px;
+      border-bottom: 1px solid #f0f0f0;
+      background: linear-gradient(135deg, #fdf4ff 0%, #fae8ff 100%);
+      border-radius: 24px 24px 0 0;
     }
 
     .payment-modal-header h3 {
       margin: 0;
       font-size: 20px;
+      font-weight: 700;
       color: #1f2937;
     }
 
     .close-modal {
-      background: none;
+      background: white;
       border: none;
-      font-size: 24px;
+      font-size: 20px;
       color: #9ca3af;
       cursor: pointer;
-      padding: 4px 8px;
-      transition: color 0.2s;
+      padding: 8px 10px;
+      border-radius: 10px;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
     }
 
     .close-modal:hover {
+      background: #fee2e2;
       color: #ef4444;
+      transform: rotate(90deg);
     }
 
     .payment-modal-body {
-      padding: 24px;
+      padding: 32px 28px;
     }
 
-    .payment-method-tabs {
+    .payment-info-box {
+      text-align: center;
+    }
+
+    .payment-icon {
+      width: 80px;
+      height: 80px;
+      margin: 0 auto 20px;
+      background: linear-gradient(135deg, #d946ef 0%, #c026d3 100%);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 8px 30px rgba(217, 70, 239, 0.3);
+    }
+
+    .payment-icon i {
+      font-size: 40px;
+      color: white;
+    }
+
+    .payment-info-box h4 {
+      font-size: 22px;
+      font-weight: 700;
+      color: #1f2937;
+      margin: 0 0 24px 0;
+    }
+
+    .payment-amount-display {
+      padding: 20px;
+      background: linear-gradient(135deg, #fdf4ff 0%, #fae8ff 100%);
+      border-radius: 16px;
+      margin-bottom: 20px;
+      border: 2px dashed #d946ef;
+    }
+
+    .payment-amount-display span {
+      display: block;
+      font-size: 14px;
+      color: #6b7280;
+      margin-bottom: 8px;
+      font-weight: 600;
+    }
+
+    .payment-amount-display strong {
+      display: block;
+      font-size: 36px;
+      color: #d946ef;
+      font-weight: 800;
+    }
+
+    .payment-instruction {
+      font-size: 15px;
+      color: #6b7280;
+      line-height: 1.6;
+      margin: 0 0 24px 0;
+    }
+
+    .payment-features {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: 10px;
-      margin-bottom: 24px;
+      gap: 12px;
+      margin-bottom: 28px;
     }
 
-    .payment-tab {
+    .feature-item {
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 6px;
-      padding: 14px 8px;
-      border: 2px solid #e5e7eb;
-      border-radius: 12px;
-      background: white;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      font-weight: 500;
-      font-size: 13px;
-      color: #6b7280;
-    }
-
-    .payment-tab:hover {
-      border-color: #d946ef;
-      background: #fdf4ff;
-    }
-
-    .payment-tab.active {
-      border-color: #d946ef;
-      background: linear-gradient(135deg, #fdf4ff 0%, #fae8ff 100%);
-      color: #d946ef;
-      box-shadow: 0 0 0 3px rgba(217, 70, 239, 0.1);
-    }
-
-    .payment-tab i {
-      font-size: 22px;
-    }
-
-    .payment-tab span {
-      font-size: 12px;
-    }
-
-    .payment-method-content {
-      display: none;
-    }
-
-    .payment-method-content.active {
-      display: block;
-      animation: fadeIn 0.3s ease;
-    }
-
-    .payment-info {
-      text-align: center;
-      margin-bottom: 20px;
-      padding: 16px;
+      gap: 8px;
+      padding: 16px 8px;
       background: #f9fafb;
       border-radius: 12px;
     }
 
-    .payment-amount {
-      font-size: 15px;
-      color: #6b7280;
-      margin: 0 0 4px 0;
-    }
-
-    .payment-amount strong {
+    .feature-item i {
       font-size: 24px;
-      color: #d946ef;
-      font-weight: 700;
-    }
-
-    .payment-desc {
-      font-size: 14px;
-      color: #9ca3af;
-      margin: 0;
-    }
-
-    .qr-loading {
-      text-align: center;
-      padding: 40px 20px;
-      color: #9ca3af;
-    }
-
-    .qr-loading i {
-      font-size: 32px;
-      margin-bottom: 12px;
-    }
-
-    .momo-phone-form,
-    .momo-atm-form {
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-    }
-
-    .form-group {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-
-    .form-group label {
-      font-weight: 600;
-      font-size: 14px;
-      color: #374151;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .form-group label i {
-      color: #d946ef;
-      font-size: 16px;
-    }
-
-    .form-group input,
-    .form-group select {
-      padding: 12px 16px;
-      border: 2px solid #e5e7eb;
-      border-radius: 10px;
-      font-size: 15px;
-      transition: all 0.3s ease;
-    }
-
-    .form-group input:focus,
-    .form-group select:focus {
-      outline: none;
-      border-color: #d946ef;
-      box-shadow: 0 0 0 3px rgba(217, 70, 239, 0.1);
-    }
-
-    .form-hint {
-      font-size: 12px;
-      color: #9ca3af;
-      margin-top: 4px;
-    }
-
-    .form-row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-    }
-
-    .security-note {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 12px;
-      background: #f0fdf4;
-      border: 1px solid #bbf7d0;
-      border-radius: 8px;
-      font-size: 13px;
-      color: #166534;
-    }
-
-    .security-note i {
       color: #22c55e;
+    }
+
+    .feature-item span {
+      font-size: 12px;
+      color: #6b7280;
+      font-weight: 600;
+      text-align: center;
     }
 
     .btn-momo-pay {
       width: 100%;
-      padding: 14px;
+      padding: 18px;
       background: linear-gradient(135deg, #d946ef 0%, #c026d3 100%);
       color: white;
       border: none;
-      border-radius: 10px;
-      font-size: 16px;
-      font-weight: 600;
+      border-radius: 14px;
+      font-size: 18px;
+      font-weight: 700;
       cursor: pointer;
       transition: all 0.3s ease;
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 8px;
+      gap: 12px;
+      box-shadow: 0 6px 20px rgba(217, 70, 239, 0.4);
+      margin-bottom: 12px;
     }
 
     .btn-momo-pay:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 20px rgba(217, 70, 239, 0.4);
+      transform: translateY(-3px);
+      box-shadow: 0 10px 30px rgba(217, 70, 239, 0.5);
+      background: linear-gradient(135deg, #e879f9 0%, #d946ef 100%);
+    }
+
+    .btn-momo-pay:active {
+      transform: translateY(0);
     }
 
     .btn-momo-pay:disabled {
-      opacity: 0.6;
+      opacity: 0.7;
       cursor: not-allowed;
       transform: none;
     }
 
+    .btn-cancel {
+      width: 100%;
+      padding: 14px;
+      background: transparent;
+      color: #6b7280;
+      border: 2px solid #e5e7eb;
+      border-radius: 14px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .btn-cancel:hover {
+      background: #f9fafb;
+      border-color: #d1d5db;
+    }
+
+    @media (max-width: 640px) {
+      .payment-modal-content {
+        width: 95%;
+      }
+
+      .payment-modal-body {
+        padding: 24px 20px;
+      }
+
+      .payment-features {
+        grid-template-columns: 1fr;
+      }
+
+      .payment-amount-display strong {
+        font-size: 32px;
+      }
+    }
+
+    /* Responsive - existing payment methods */
     @media (max-width: 640px) {
       .payment-methods {
         grid-template-columns: 1fr;
@@ -1045,29 +724,22 @@ document.addEventListener('click', function(e) {
       .payment-method-btn span {
         font-size: 14px;
       }
+    }
 
-      .payment-method-tabs {
-        grid-template-columns: 1fr;
-      }
+    /* Submit button improvements */
+    .cta {
+      transition: all 0.3s ease;
+    }
 
-      .payment-tab {
-        flex-direction: row;
-        justify-content: flex-start;
-        padding: 12px 16px;
-        gap: 12px;
-      }
+    .cta:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none !important;
+    }
 
-      .payment-tab i {
-        font-size: 20px;
-      }
-
-      .payment-tab span {
-        font-size: 14px;
-      }
-
-      .form-row {
-        grid-template-columns: 1fr;
-      }
+    .cta:not(:disabled):hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(16, 185, 129, 0.3);
     }
     </style>
   </body>
