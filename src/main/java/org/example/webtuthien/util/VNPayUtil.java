@@ -72,20 +72,23 @@ public class VNPayUtil {
     }
 
     // Method mới để build query string theo đúng chuẩn VNPay
+    // KHÔNG encode - chỉ nối chuỗi thuần
     public static String buildQueryString(Map<String, String> params) {
         List<String> fieldNames = new ArrayList<>(params.keySet());
         Collections.sort(fieldNames);
         
         StringBuilder query = new StringBuilder();
-        for (int i = 0; i < fieldNames.size(); i++) {
-            String fieldName = fieldNames.get(i);
+        boolean first = true;
+        
+        for (String fieldName : fieldNames) {
             String fieldValue = params.get(fieldName);
             
             if (fieldValue != null && fieldValue.length() > 0) {
-                query.append(fieldName).append('=').append(fieldValue);
-                if (i < fieldNames.size() - 1) {
+                if (!first) {
                     query.append('&');
                 }
+                query.append(fieldName).append('=').append(fieldValue);
+                first = false;
             }
         }
         return query.toString();

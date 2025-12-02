@@ -40,7 +40,7 @@ public class VNPayService {
         String vnpTxnRef = VNPayUtil.getRandomNumber(8);
         
         // Tạo các tham số cho VNPay
-        Map<String, String> vnpParams = new HashMap<>();
+        Map<String, String> vnpParams = new TreeMap<>(); // TreeMap tự động sort
         vnpParams.put("vnp_Version", vnPayConfig.getVersion());
         vnpParams.put("vnp_Command", vnPayConfig.getCommand());
         vnpParams.put("vnp_TmnCode", vnPayConfig.getTmnCode());
@@ -65,35 +65,40 @@ public class VNPayService {
         String vnpExpireDate = formatter.format(cld.getTime());
         vnpParams.put("vnp_ExpireDate", vnpExpireDate);
         
-        // QUAN TRỌNG: Tạo hash data TRƯỚC KHI encode URL
-        String hashData = VNPayUtil.buildQueryString(vnpParams);
-        System.out.println("Hash Data (before hash): " + hashData);
-        
-        // Tạo secure hash
-        String vnpSecureHash = VNPayUtil.hmacSHA512(vnPayConfig.getHashSecret(), hashData);
-        System.out.println("Secure Hash: " + vnpSecureHash);
-        
-        // Tạo query URL với encoding
-        List<String> fieldNames = new ArrayList<>(vnpParams.keySet());
-        Collections.sort(fieldNames);
+        // Bước 1: Tạo hash data (KHÔNG encode)
+        StringBuilder hashData = new StringBuilder();
         StringBuilder query = new StringBuilder();
         
-        for (int i = 0; i < fieldNames.size(); i++) {
-            String fieldName = fieldNames.get(i);
-            String fieldValue = vnpParams.get(fieldName);
+        int count = 0;
+        for (Map.Entry<String, String> entry : vnpParams.entrySet()) {
+            String fieldName = entry.getKey();
+            String fieldValue = entry.getValue();
             
             if (fieldValue != null && fieldValue.length() > 0) {
-                query.append(URLEncoder.encode(fieldName, StandardCharsets.UTF_8.toString()));
-                query.append('=');
-                query.append(URLEncoder.encode(fieldValue, StandardCharsets.UTF_8.toString()));
-                
-                if (i < fieldNames.size() - 1) {
+                if (count > 0) {
+                    hashData.append('&');
                     query.append('&');
                 }
+                
+                // Hash data: không encode
+                hashData.append(fieldName).append('=').append(fieldValue);
+                
+                // Query URL: encode
+                query.append(URLEncoder.encode(fieldName, StandardCharsets.UTF_8.toString()))
+                     .append('=')
+                     .append(URLEncoder.encode(fieldValue, StandardCharsets.UTF_8.toString()));
+                
+                count++;
             }
         }
         
-        // Thêm secure hash vào cuối
+        System.out.println("Hash Data (before hash): " + hashData.toString());
+        
+        // Bước 2: Tạo secure hash
+        String vnpSecureHash = VNPayUtil.hmacSHA512(vnPayConfig.getHashSecret(), hashData.toString());
+        System.out.println("Secure Hash: " + vnpSecureHash);
+        
+        // Bước 3: Thêm secure hash vào query URL
         String queryUrl = query.toString() + "&vnp_SecureHash=" + vnpSecureHash;
         
         String fullUrl = vnPayConfig.getVnpayUrl() + "?" + queryUrl;
