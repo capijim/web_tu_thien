@@ -33,7 +33,7 @@ public class VNPayController {
         Map<String, Object> response = new HashMap<>();
         
         try {
-            System.out.println("=== VNPay Payment Request ===");
+            System.out.println("=== VNPay Payment Request (TEST MODE) ===");
             System.out.println("Campaign ID: " + donation.getCampaignId());
             System.out.println("Donor Name: " + donation.getDonorName());
             System.out.println("Amount: " + donation.getAmount());
@@ -54,7 +54,7 @@ public class VNPayController {
                 return response;
             }
             
-            if (donation.getAmount() == null || donation.getAmount().compareTo(BigDecimal.ZERO) <= 0) {
+            if (donation.getAmount() == null || donation.getAmount().compareTo(java.math.BigDecimal.ZERO) <= 0) {
                 response.put("success", false);
                 response.put("message", "Amount must be greater than 0");
                 return response;
@@ -72,19 +72,17 @@ public class VNPayController {
                 return response;
             }
             
-            // Tạo URL thanh toán VNPay
-            System.out.println("Creating VNPay payment URL...");
+            // Tạo URL thanh toán VNPay (không lưu payment vào DB)
+            System.out.println("Creating VNPay payment URL (TEST MODE - no DB save)...");
             String paymentUrl = vnPayService.createPaymentUrl(createdDonation, request);
             System.out.println("Payment URL created successfully");
+            System.out.println("URL: " + paymentUrl);
             
             response.put("success", true);
             response.put("paymentUrl", paymentUrl);
             response.put("donationId", createdDonation.getId());
+            response.put("testMode", true);
             
-        } catch (IllegalArgumentException e) {
-            System.err.println("Validation error: " + e.getMessage());
-            response.put("success", false);
-            response.put("message", "Lỗi validation: " + e.getMessage());
         } catch (Exception e) {
             System.err.println("=== Error in create-payment ===");
             System.err.println("Error class: " + e.getClass().getName());

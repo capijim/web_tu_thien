@@ -39,29 +39,12 @@ public class VNPayService {
         System.out.println("Amount: " + donation.getAmount());
         System.out.println("Donor Name: " + donation.getDonorName());
         
-        // Tạo payment record với status PENDING
-        Payment payment = new Payment();
-        payment.setDonationId(donation.getId());
-        payment.setAmount(donation.getAmount());
-        payment.setPaymentStatus("PENDING");
-        
+        // TẠM THỜI BỎ QUA LƯU PAYMENT VÀO DB - CHỈ TEST VNPAY
         // Tạo mã giao dịch duy nhất
         String vnpTxnRef = VNPayUtil.getRandomNumber(8);
-        payment.setVnpayTxnRef(vnpTxnRef);
         
         System.out.println("Payment TxnRef: " + vnpTxnRef);
-        
-        try {
-            // Lưu payment
-            Payment savedPayment = paymentRepository.save(payment);
-            System.out.println("Payment saved successfully with ID: " + savedPayment.getId());
-        } catch (Exception e) {
-            System.err.println("=== Error saving payment ===");
-            System.err.println("Error message: " + e.getMessage());
-            System.err.println("Error class: " + e.getClass().getName());
-            e.printStackTrace();
-            throw new RuntimeException("Failed to save payment: " + e.getMessage(), e);
-        }
+        System.out.println("SKIPPING database save - testing VNPay only");
         
         // Tạo các tham số cho VNPay
         Map<String, String> vnpParams = new HashMap<>();
@@ -145,39 +128,29 @@ public class VNPayService {
         String signValue = VNPayUtil.hashAllFields(fields);
         String calculatedHash = VNPayUtil.hmacSHA512(vnPayConfig.getHashSecret(), signValue);
         
+        System.out.println("=== VNPay Return Callback ===");
+        System.out.println("Response Code: " + request.getParameter("vnp_ResponseCode"));
+        System.out.println("TxnRef: " + request.getParameter("vnp_TxnRef"));
+        System.out.println("TransactionNo: " + request.getParameter("vnp_TransactionNo"));
+        System.out.println("Hash valid: " + calculatedHash.equals(vnpSecureHash));
+        
         if (calculatedHash.equals(vnpSecureHash)) {
-            String vnpTxnRef = request.getParameter("vnp_TxnRef");
             String vnpResponseCode = request.getParameter("vnp_ResponseCode");
-            String vnpTransactionNo = request.getParameter("vnp_TransactionNo");
-            String vnpBankCode = request.getParameter("vnp_BankCode");
             
-            Optional<Payment> paymentOpt = paymentRepository.findByVnpayTxnRef(vnpTxnRef);
-            
-            if (paymentOpt.isPresent()) {
-                Payment payment = paymentOpt.get();
-                
-                if ("00".equals(vnpResponseCode)) {
-                    paymentRepository.updatePaymentStatus(payment.getId(), "SUCCESS", 
-                        vnpTransactionNo, vnpResponseCode);
-                    paymentRepository.updateBankCode(payment.getId(), vnpBankCode);
-                    
-                    result.put("success", true);
-                    result.put("message", "Thanh toán thành công");
-                    result.put("donationId", payment.getDonationId());
-                } else {
-                    paymentRepository.updatePaymentStatus(payment.getId(), "FAILED", 
-                        vnpTransactionNo, vnpResponseCode);
-                    
-                    result.put("success", false);
-                    result.put("message", "Thanh toán thất bại. Mã lỗi: " + vnpResponseCode);
-                }
+            // TẠM THỜI BỎ QUA CẬP NHẬT DB
+            if ("00".equals(vnpResponseCode)) {
+                result.put("success", true);
+                result.put("message", "Thanh toán thành công! (Test mode - chưa lưu DB)");
+                System.out.println("Payment successful - DB save skipped for testing");
             } else {
                 result.put("success", false);
-                result.put("message", "Không tìm thấy giao dịch");
+                result.put("message", "Thanh toán thất bại. Mã lỗi: " + vnpResponseCode);
+                System.out.println("Payment failed with code: " + vnpResponseCode);
             }
         } else {
             result.put("success", false);
             result.put("message", "Chữ ký không hợp lệ");
+            System.out.println("Invalid signature!");
         }
         
         return result;

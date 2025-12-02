@@ -62,11 +62,22 @@
         .btn-secondary:hover {
             background: #545b62;
         }
+        
+        .test-mode-badge {
+            display: inline-block;
+            background: #ff9800;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 3px;
+            font-size: 12px;
+            margin-bottom: 10px;
+        }
     </style>
 </head>
 <body>
     <div class="payment-result-container">
         <div th:if="${success}">
+            <div class="test-mode-badge">TEST MODE - Chưa lưu vào database</div>
             <div class="success-icon">✓</div>
             <h1 class="result-title">Thanh toán thành công!</h1>
             <p class="result-message" th:text="${message}"></p>
@@ -75,6 +86,7 @@
         </div>
         
         <div th:unless="${success}">
+            <div class="test-mode-badge">TEST MODE - Chưa lưu vào database</div>
             <div class="error-icon">✗</div>
             <h1 class="result-title">Thanh toán thất bại!</h1>
             <p class="result-message" th:text="${message}"></p>
