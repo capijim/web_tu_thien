@@ -1,28 +1,26 @@
 package org.example.webtuthien.service;
 
-import jakarta.mail.MessagingException;
-import jakarta.mail.internet.MimeMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
+import org.springframework.web.reactive.function.client.WebClient;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
+import java.util.Map;
 
 @Service
 public class EmailService {
     
     private static final Logger logger = LoggerFactory.getLogger(EmailService.class);
-    
-    @Autowired
-    private JavaMailSender mailSender;
     
     @Autowired
     private TemplateEngine templateEngine;
@@ -36,6 +34,17 @@ public class EmailService {
     @Value("${app.base-url}")
     private String baseUrl;
 
+    @Value("${brevo.api.key:}")
+    private String brevoApiKey;
+
+    private final WebClient webClient;
+
+    public EmailService() {
+        this.webClient = WebClient.builder()
+                .baseUrl("https://api.brevo.com/v3")
+                .build();
+    }
+
     public void sendDonationSuccessEmail(
             String toEmail,
             String donorName,
@@ -48,7 +57,7 @@ public class EmailService {
             OffsetDateTime donationDate) {
         
         logger.info("\n╔════════════════════════════════════════════════════════════╗");
-        logger.info("║              📧 SENDING EMAIL VIA BREVO SMTP               ║");
+        logger.info("║              📧 SENDING EMAIL VIA BREVO API                ║");
         logger.info("╠════════════════════════════════════════════════════════════╣");
         logger.info("║ From:    {} <{}>", fromName, fromEmail);
         logger.info("║ To:      {}", toEmail);
@@ -59,15 +68,15 @@ public class EmailService {
         logger.info("╚════════════════════════════════════════════════════════════╝");
         
         try {
-            // Validate email addresses
-            if (fromEmail == null || fromEmail.isEmpty()) {
-                throw new IllegalStateException("Email sender address is not configured!");
+            // Validate
+            if (brevoApiKey == null || brevoApiKey.isEmpty()) {
+                throw new IllegalStateException("Brevo API key is not configured! Set BREVO_API_KEY in Railway.");
             }
             if (toEmail == null || toEmail.isEmpty() || !toEmail.contains("@")) {
                 throw new IllegalArgumentException("Invalid recipient email address: " + toEmail);
             }
             
-            logger.info("✓ Email addresses validated");
+            logger.info("✓ Configuration validated");
             
             // Prepare template variables
             Context context = new Context();
@@ -79,80 +88,68 @@ public class EmailService {
             context.setVariable("message", message);
             context.setVariable("donationDate", donationDate);
             context.setVariable("campaignUrl", baseUrl + "/campaign/" + campaignId);
-            // Add email config variables for template
             context.setVariable("appBaseUrl", baseUrl);
             context.setVariable("appEmailFrom", fromEmail);
             context.setVariable("appEmailName", fromName);
             
             logger.info("Processing email template...");
-            // Process template
             String htmlContent = templateEngine.process("email/donation-success", context);
             logger.info("✓ Template processed ({} chars)", htmlContent.length());
             
-            // Create email with proper headers
-            logger.info("Creating MIME message...");
-            MimeMessage mimeMessage = mailSender.createMimeMessage();
-            MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, "UTF-8");
+            // Prepare Brevo API request
+            Map<String, Object> emailRequest = new HashMap<>();
             
-            helper.setFrom(fromEmail, fromName);
-            helper.setTo(toEmail);
-            helper.setSubject("✅ Xác nhận quyên góp thành công - " + campaignTitle);
-            helper.setText(htmlContent, true);
+            // Sender
+            Map<String, String> sender = new HashMap<>();
+            sender.put("name", fromName);
+            sender.put("email", fromEmail);
+            emailRequest.put("sender", sender);
             
-            // Add additional headers to avoid spam filters
-            mimeMessage.addHeader("X-Priority", "1");
-            mimeMessage.addHeader("X-MSMail-Priority", "High");
-            mimeMessage.addHeader("Importance", "High");
-            mimeMessage.addHeader("X-Mailer", "Web Tu Thien Mailer");
+            // Recipient
+            Map<String, String> recipient = new HashMap<>();
+            recipient.put("email", toEmail);
+            recipient.put("name", donorName);
+            emailRequest.put("to", new Map[]{recipient});
             
-            logger.info("✓ MIME message created");
-            logger.info("Attempting to send email via Brevo SMTP...");
-            logger.info("SMTP Config: {}:{}", "smtp-relay.brevo.com", 587);
+            // Content
+            emailRequest.put("subject", "✅ Xác nhận quyên góp thành công - " + campaignTitle);
+            emailRequest.put("htmlContent", htmlContent);
             
-            // Send email
-            mailSender.send(mimeMessage);
+            logger.info("Sending email via Brevo API...");
+            
+            // Send via Brevo API
+            String response = webClient.post()
+                    .uri("/smtp/email")
+                    .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                    .header("api-key", brevoApiKey)
+                    .bodyValue(emailRequest)
+                    .retrieve()
+                    .bodyToMono(String.class)
+                    .block();
             
             logger.info("\n╔════════════════════════════════════════════════════════════╗");
-            logger.info("║              ✅ EMAIL SENT SUCCESSFULLY VIA BREVO!         ║");
+            logger.info("║              ✅ EMAIL SENT SUCCESSFULLY VIA BREVO API!     ║");
             logger.info("╠════════════════════════════════════════════════════════════╣");
             logger.info("║ ✉️  Email delivered to: {}", toEmail);
             logger.info("║ 📧 Donation ID: {}", donationId);
             logger.info("║ 📅 Sent at: {}", donationDate.format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss")));
-            logger.info("║");
-            logger.info("║ 💡 PLEASE CHECK:");
-            logger.info("║    1. Inbox of: {}", toEmail);
-            logger.info("║    2. Spam/Junk folder");
-            logger.info("║    3. Promotions tab (Gmail)");
-            logger.info("║");
-            logger.info("║ 🔍 Search for: {}", campaignTitle);
+            logger.info("║ 📊 API Response: {}", response != null ? response.substring(0, Math.min(100, response.length())) : "OK");
             logger.info("╚════════════════════════════════════════════════════════════╝\n");
             
-        } catch (MessagingException e) {
+        } catch (Exception e) {
             logger.error("\n╔════════════════════════════════════════════════════════════╗");
             logger.error("║              ❌ EMAIL SEND FAILED!                         ║");
             logger.error("╠════════════════════════════════════════════════════════════╣");
-            logger.error("║ Error Type: MessagingException");
-            logger.error("║ Message: {}", e.getMessage());
-            if (e.getCause() != null) {
-                logger.error("║ Cause: {}", e.getCause().getMessage());
-            }
+            logger.error("║ Error: {}", e.getMessage());
             logger.error("╠════════════════════════════════════════════════════════════╣");
             logger.error("║ Troubleshooting:                                          ║");
-            logger.error("║ 1. Check Brevo SMTP key is correct                       ║");
-            logger.error("║ 2. Verify sender email is verified in Brevo              ║");
-            logger.error("║ 3. Check if Brevo account is active                      ║");
-            logger.error("║ 4. Check Railway environment variables                   ║");
+            logger.error("║ 1. Check BREVO_API_KEY is set in Railway                 ║");
+            logger.error("║ 2. Verify sender email in Brevo dashboard                ║");
+            logger.error("║ 3. Check Brevo account is active                         ║");
+            logger.error("║ 4. Verify API key has email sending permission           ║");
             logger.error("╚════════════════════════════════════════════════════════════╝\n");
             logger.error("Full stack trace:", e);
-            throw new RuntimeException("Failed to send email: " + e.getMessage(), e);
-        } catch (Exception e) {
-            logger.error("\n╔════════════════════════════════════════════════════════════╗");
-            logger.error("║              ❌ UNEXPECTED ERROR!                          ║");
-            logger.error("╠════════════════════════════════════════════════════════════╣");
-            logger.error("║ Error: {}", e.getMessage());
-            logger.error("╚════════════════════════════════════════════════════════════╝\n");
-            logger.error("Full stack trace:", e);
-            throw new RuntimeException("Unexpected error sending email: " + e.getMessage(), e);
+            throw new RuntimeException("Failed to send email via Brevo API: " + e.getMessage(), e);
         }
     }
 }

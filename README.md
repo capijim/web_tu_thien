@@ -20,18 +20,14 @@ docker-compose up
 
 **Access:** http://localhost:8080
 
-## 📧 Email Configuration (Brevo SMTP)
+## 📧 Email Configuration (Brevo API)
 
 ### Setup Brevo Account:
 
-1. Đăng ký tài khoản tại: https://www.brevo.com
-2. Verify email và hoàn tất đăng ký
-3. Vào **Settings > SMTP & API**
-4. Copy **SMTP credentials**:
-   - SMTP Server: `smtp-relay.brevo.com`
-   - Port: `587`
-   - Login: Your Brevo login email
-   - SMTP Key: Generate new key
+1. Đăng ký tại: https://www.brevo.com
+2. Verify email
+3. Vào **Settings > SMTP & API > API Keys**
+4. Generate new API key với quyền **Send transactional emails**
 
 ### Configure Local Environment:
 
@@ -48,18 +44,16 @@ app.email.from=your-verified-sender@domain.com
 
 ```bash
 # Railway Environment Variables
-SPRING_MAIL_HOST=smtp-relay.brevo.com
-SPRING_MAIL_PORT=587
-SPRING_MAIL_USERNAME=your-brevo-email@domain.com
-SPRING_MAIL_PASSWORD=your-brevo-smtp-key
+BREVO_API_KEY=xkeysib-your-api-key-here
 APP_EMAIL_FROM=your-verified-sender@domain.com
 APP_EMAIL_NAME=Web Từ Thiện
 ```
 
 **⚠️ Important:**
-- Sender email (`APP_EMAIL_FROM`) must be verified in Brevo dashboard
-- Free plan: 300 emails/day
-- Paid plans available for higher volume
+- Sender email must be verified in Brevo
+- API key must have email sending permission
+- Free: 300 emails/day
+- **✅ Works on Railway** (no SMTP port blocking)
 
 ## 🌐 Deploy Production (Railway)
 
